@@ -1,6 +1,9 @@
 window.onload = function () {
 	// CONSTANTES
-	
+	let x;
+	let y;
+	let width;
+	let height;
 	//sirve para que las animaciones se vean a una velocidad adecuada dependiendo de los Hz del monitor
 	const TASA_REFRESCO_60Hz = {
 		velocidadAnimacion: 8.3,
@@ -124,21 +127,21 @@ window.onload = function () {
 
 	spriteAnimationsCammy['reposo'] = {
 		loc: [
-			{ x: 214, y: 30, width: 48, height: 83 },
+			{ x: 214, y: 29, width: 48, height: 84 },
 			{ x: 160, y: 29, width: 48, height: 84 },
-			{ x: 108, y: 28, width: 48, height: 85 },
+			{ x: 108, y: 29, width: 48, height: 84 },
 			{ x: 55, y: 29, width: 48, height: 84 },
-			{ x: 2, y: 30, width: 48, height: 83 }
+			{ x: 2, y: 29, width: 48, height: 84 }
 		]
 	}
 	spriteAnimationsCammy['caminando'] = {
 		loc: [
-			{ x: 519, y: 25, width: 45, height: 88 },  //6
-			{ x: 471, y: 30, width: 42, height: 83 }, //5
-			{ x: 421, y: 28, width: 42, height: 85 }, //4
-			{ x: 369, y: 25, width: 46, height: 88 }, //3
-			{ x: 318, y: 30, width: 43, height: 83 }, //2
-			{ x: 269, y: 28, width: 42, height: 85 }  //1
+			{ x: 519, y: 26, width: 45, height: 87 },  //6
+			{ x: 471, y: 26, width: 42, height: 87 }, //5
+			{ x: 421, y: 26, width: 42, height: 87 }, //4
+			{ x: 369, y: 26, width: 46, height: 87 }, //3
+			{ x: 318, y: 26, width: 43, height: 87 }, //2
+			{ x: 269, y: 26, width: 42, height: 87 }  //1
 		]
 	}
 	spriteAnimationsCammy['agacharse'] = {
@@ -160,9 +163,13 @@ window.onload = function () {
 	}
 	spriteAnimationsCammy['movingPunch'] = {
 		loc: [
-			{ x: 187, y: 134, width: 49, height: 84 },
-			{ x: 241, y: 134, width: 76, height: 84 },
-			{ x: 321, y: 134, width: 49, height: 84 }
+			// { x: 187, y: 134, width: 49, height: 84 },
+			// { x: 241, y: 134, width: 76, height: 84 },
+			// { x: 321, y: 134, width: 49, height: 84 }
+
+			{ x: 187, y: 131, width: 49, height: 87 },
+			{ x: 241, y: 131, width: 76, height: 87 },
+			{ x: 321, y: 131, width: 49, height: 87 }
 		]
 	}
 	spriteAnimationsCammy['kick'] = {
@@ -434,6 +441,19 @@ window.onload = function () {
 	}
 
 	function comprobarColisiones() {
+		// console.log(miPersonaje.personajeState);
+		// console.log('POSICIÓN Y SUPERIOR DE PUÑO: ' + (miPersonaje.hitbox.punio.y));
+		// if(miEnemigo.personajeState === 'caminando') {
+			
+		// }
+		// console.log('POSICIÓN Y INFERIOR DE CABEZA ENEMIGO: ' + (miEnemigo.hitbox.cabeza.y + miEnemigo.hitbox.cabeza.height));
+		console.log(miPersonaje.x);
+
+		// punto y más bajo cabeza enemigo caminando:  498.57
+		// punto y más bajo cabeza enemigo reposo: 500.14
+
+		// punto y más bajo puño: 502 
+
 		if(seTropiezan()){
 			console.log('SE TROPEZARON');
 			miEnemigo.x = (miPersonaje.hitbox.cuerpo.x + miPersonaje.hitbox.cuerpo.width) - (miEnemigo.hitbox.cuerpo.x - miEnemigo.x);
@@ -619,9 +639,10 @@ window.onload = function () {
       		this.duracionAnimacionKick = 600; // Duración de animación milisegundos (600)
 			this.animacionEnProgresoKick = false;
 
-			//variables creadas para solucionar error del sprite de enemigo (carga del sprite de izquierda a derecha)
+			//variables creadas para solucionar error del sprite que se carga en una mala posición debido a sus dimensiones.
 			this.primeraVez = true;
 			this.segundaVez = true;
+			this.tercerVez = true;
 		}
 
 		generaReposo() {
@@ -657,6 +678,9 @@ window.onload = function () {
 			  // Actualizar la animación (código específico de animación aquí)
 			  this.personajeState = 'movingPunch';
 			  this.position = Math.floor(progreso * numAnimaciones);
+
+			  this.height = this.spriteAnimations[this.personajeState].loc[this.position].height;
+			  this.y = LIMITE_ABAJO - this.height;
 			  
 			  if (this.id === 1){
 				switch(this.position){
@@ -729,6 +753,7 @@ window.onload = function () {
 						break;
 				}
 			  } else {
+				
 				if(this.primeraVez && this.position === 1) {
 					this.x = this.x-29;
 					this.primeraVez = false;
@@ -815,7 +840,24 @@ window.onload = function () {
 			  this.personajeState = 'kick';
 			  this.position = Math.floor(progreso * 2.999);
 		
+			  this.height = this.spriteAnimations[this.personajeState].loc[this.position].height;
+			  this.y = LIMITE_ABAJO - this.height;
+
 			  if (this.id === 1){
+
+				if(this.primeraVez && this.position === 0) {
+					this.x = this.x-6;
+					this.primeraVez = false;
+				}
+				if(this.segundaVez && this.position === 1) {
+					this.x = this.x-11;
+					this.segundaVez = false;
+				}
+				if(this.tercerVez && this.position === 2) {
+					this.x = this.x+11;
+					this.tercerVez = false;
+				}
+
 				switch(this.position){
 					case 0:
 						this.hitbox.cuerpo.x = this.x+4, 
@@ -929,8 +971,10 @@ window.onload = function () {
 			  } else {
 				// console.log('ANIMACIÓN PUÑETAZO TERMINADA');
 				this.animacionEnProgresoKick = false;
+				if (this.id === 1) this.x = this.x + 6;
 				this.primeraVez = true;
 				this.segundaVez = true;
+				this.tercerVez = true;
 			  }
 			}
 		  }
@@ -975,7 +1019,9 @@ window.onload = function () {
 
 
 		comprobarHitBox(){
-			if(this.personajeState !== 'saltar' && this.personajeState !== 'movingPunch' && this.personajeState !== 'kick') {
+			// if(this.personajeState !== 'saltar') {
+				if(this.personajeState !== 'saltar' && this.personajeState !== 'movingPunch' && this.personajeState !== 'kick') {
+				// position2 es igual que position -> para no crear problemas de sincronización
 				this.position2 = Math.floor(gameFrame / this.velocidadAnimacion) % this.spriteAnimations[this.personajeState].loc.length;
 				this.height = this.spriteAnimations[this.personajeState].loc[this.position2].height;
 				this.y = LIMITE_ABAJO - this.height;
@@ -1101,9 +1147,9 @@ window.onload = function () {
 					this.hitbox.cuerpo.height = this.height/1.05
 					
 					this.hitbox.cabeza.x = this.x+20,
-					this.hitbox.cabeza.y = this.y+3,
+					this.hitbox.cabeza.y = this.y+5,
 					this.hitbox.cabeza.width = this.width/5,
-					this.hitbox.cabeza.height = this.height/5
+					this.hitbox.cabeza.height = this.height/7
 
 					this.hitbox.tronco.x = null,
 					this.hitbox.tronco.y = null,
@@ -1117,32 +1163,32 @@ window.onload = function () {
 
 					if (this.position === 0){
 						this.hitbox.cabeza.x = this.x+14,
-						this.hitbox.cabeza.y = this.y+5,
+						this.hitbox.cabeza.y = this.y+7,
 						this.hitbox.cabeza.width = this.width/5,
 						this.hitbox.cabeza.height = this.height/7
 					} else if (this.position === 1){
 						this.hitbox.cabeza.x = this.x+15,
-						this.hitbox.cabeza.y = this.y+5,
+						this.hitbox.cabeza.y = this.y+7,
 						this.hitbox.cabeza.width = this.width/5,
 						this.hitbox.cabeza.height = this.height/7
 					} else if (this.position === 2){
 						this.hitbox.cabeza.x = this.x+15,
-						this.hitbox.cabeza.y = this.y+5,
+						this.hitbox.cabeza.y = this.y+7,
 						this.hitbox.cabeza.width = this.width/5,
 						this.hitbox.cabeza.height = this.height/7
 					} else if (this.position === 3){
 						this.hitbox.cabeza.x = this.x+15,
-						this.hitbox.cabeza.y = this.y+4,
+						this.hitbox.cabeza.y = this.y+7,
 						this.hitbox.cabeza.width = this.width/5,
 						this.hitbox.cabeza.height = this.height/7
 					} else if (this.position === 4){
 						this.hitbox.cabeza.x = this.x+16,
-						this.hitbox.cabeza.y = this.y+4,
+						this.hitbox.cabeza.y = this.y+7,
 						this.hitbox.cabeza.width = this.width/5,
 						this.hitbox.cabeza.height = this.height/7
 					} else if (this.position === 5){
 						this.hitbox.cabeza.x = this.x+15,
-						this.hitbox.cabeza.y = this.y+4,
+						this.hitbox.cabeza.y = this.y+7,
 						this.hitbox.cabeza.width = this.width/5,
 						this.hitbox.cabeza.height = this.height/7
 					}
@@ -1247,16 +1293,19 @@ window.onload = function () {
 				ctx.fillRect(this.hitbox.cuerpo.x, this.hitbox.cuerpo.y, this.hitbox.cuerpo.width, this.hitbox.cuerpo.height);
 				// console.log(this.hitbox.cuerpo.width);
 			}
-			ctx.fillStyle = "#ff08";
+			ctx.fillStyle = "#f008";
 			if(this.id === 2) {
-				// ctx.fillRect(this.x+34, this.y+4, this.width/5, this.height/7);
+				x = this.x+20;
+				y = this.y+5;
+				width = this.width/5;
+				height = this.height/7;
+				// ctx.fillRect(this.x+20, this.y+5, this.width/5, this.height/7);
 				ctx.fillRect(this.hitbox.cabeza.x, this.hitbox.cabeza.y, this.hitbox.cabeza.width, this.hitbox.cabeza.height);
 				ctx.fillStyle = "#fff0";
 				// ctx.fillRect(this.x+25, this.y+4, this.width/3.4, this.height/1.05);
 				ctx.fillRect(this.hitbox.cuerpo.x, this.hitbox.cuerpo.y, this.hitbox.cuerpo.width, this.hitbox.cuerpo.height);
 				// console.log(this.hitbox.cuerpo.x);
-			} 
-			
+			}
 			
 		}
 	}
@@ -1310,7 +1359,10 @@ window.onload = function () {
 
 
 - TAREAS QUE REALIZAR:
-* estaba comprobando el error de que no puedes golpear mientras caminas porque this.personajeSTate = 'caminando' y no igual a 'movingPunch'
+* Ponerse ya a quitar todas las hitbox de cabeza y tronco, quedarse con las de cuerpo y comprobar que esté bien en todas las animaciones.
+* Ponerse con las colisiones de puño y pierna.
+* Añadir puñetazos y patadas bajas.
+* Buscar de que manera al dar puñetazos y patadas cortando su animación el personaje no se desplaze de manera descontrolada.
 
 
 
