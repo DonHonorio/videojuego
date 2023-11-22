@@ -442,17 +442,14 @@ window.onload = function () {
 
 	function comprobarColisiones() {
 		// console.log(miPersonaje.personajeState);
-		// console.log('POSICIÓN Y SUPERIOR DE PUÑO: ' + (miPersonaje.hitbox.punio.y));
-		// if(miEnemigo.personajeState === 'caminando') {
-			
+		// console.log('POSICIÓN Y SUPERIOR DE PUÑO: ' + (miEnemigo.hitbox.punio.y));
+		// if(miPersonaje.personajeState === 'kick') {
+		// 	console.log('POSICIÓN Y INFERIOR DE CABEZA PERSONAJE: ' + (miPersonaje.hitbox.cabeza.y + miPersonaje.hitbox.cabeza.height));
 		// }
-		// console.log('POSICIÓN Y INFERIOR DE CABEZA ENEMIGO: ' + (miEnemigo.hitbox.cabeza.y + miEnemigo.hitbox.cabeza.height));
-		console.log(miPersonaje.x);
+			
 
-		// punto y más bajo cabeza enemigo caminando:  498.57
-		// punto y más bajo cabeza enemigo reposo: 500.14
-
-		// punto y más bajo puño: 502 
+		// punto más bajo puño miPersonaje: 502 
+		// punto y más bajo puño miEnemigo: 499 
 
 		if(seTropiezan()){
 			console.log('SE TROPEZARON');
@@ -770,7 +767,7 @@ window.onload = function () {
 						this.hitbox.cuerpo.height = this.height/1.05
 
 						this.hitbox.cabeza.x = this.x+17,
-						this.hitbox.cabeza.y = this.y+4,
+						this.hitbox.cabeza.y = this.y+7,
 						this.hitbox.cabeza.width = this.width/5,
 						this.hitbox.cabeza.height = this.height/7
 						break;
@@ -802,7 +799,7 @@ window.onload = function () {
 						this.hitbox.punio.height = null
 
 						this.hitbox.cabeza.x = this.x+17,
-						this.hitbox.cabeza.y = this.y+4,
+						this.hitbox.cabeza.y = this.y+7,
 						this.hitbox.cabeza.width = this.width/5,
 						this.hitbox.cabeza.height = this.height/7
 						break;
@@ -940,7 +937,7 @@ window.onload = function () {
 					this.hitbox.patada.height = this.height/14
 					
 					this.hitbox.cabeza.x = this.x+44,
-					this.hitbox.cabeza.y = this.y+2,
+					this.hitbox.cabeza.y = this.y+3,
 					this.hitbox.cabeza.width = this.width/5,
 					this.hitbox.cabeza.height = this.height/7
 					break;
@@ -1046,8 +1043,8 @@ window.onload = function () {
 					this.hitbox.cuerpo.y = this.y+4,
 					this.hitbox.cuerpo.width = this.width/2.1,
 					this.hitbox.cuerpo.height = this.height/1.1
-					
-					this.hitbox.cabeza.x = this.x+19,
+			
+					this.hitbox.cabeza.x = this.x+14,
 					this.hitbox.cabeza.y = this.y+1,
 					this.hitbox.cabeza.width = this.width/3.5,
 					this.hitbox.cabeza.height = this.height/6
@@ -1140,6 +1137,7 @@ window.onload = function () {
 					this.hitbox.tronco.height = null
 				}
 			} else {
+				this.x = 152;
 				if(this.personajeState === 'reposo') {
 					this.hitbox.cuerpo.x = this.x+16,
 					this.hitbox.cuerpo.y = this.y+2,
@@ -1359,7 +1357,7 @@ window.onload = function () {
 
 
 - TAREAS QUE REALIZAR:
-* Ponerse ya a quitar todas las hitbox de cabeza y tronco, quedarse con las de cuerpo y comprobar que esté bien en todas las animaciones.
+* Ponerse a hacer colisiones patadas (altas - a la cabeza) y comprobar que funcionen.
 * Ponerse con las colisiones de puño y pierna.
 * Añadir puñetazos y patadas bajas.
 * Buscar de que manera al dar puñetazos y patadas cortando su animación el personaje no se desplaze de manera descontrolada.
