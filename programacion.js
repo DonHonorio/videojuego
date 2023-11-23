@@ -12,13 +12,6 @@ window.onload = function () {
 		vy: 9,
 		weight: 0.3
 	}
-	// const TASA_REFRESCO_144Hz = {
-	// 	velocidadAnimacion: 20,
-	// 	velocidadAnimacionSalto: 23,
-	// 	velocidadX: 1,
-	// 	vy: 5,
-	// 	weight: 0.09
-	// }
 	const TASA_REFRESCO_144Hz = {
 		velocidadAnimacion: 20,
 		velocidadAnimacionSalto: 23,
@@ -26,7 +19,7 @@ window.onload = function () {
 		vy: 5,
 		weight: 0.09
 	}
-	const TASA_REFRESCO_ADECUADA = TASA_REFRESCO_60Hz;
+	const TASA_REFRESCO_ADECUADA = TASA_REFRESCO_144Hz;
 
 	// limites
 	const LIMITE_DERECHA = document.getElementById('miCanvas').width;
@@ -357,11 +350,11 @@ window.onload = function () {
 					miPersonaje.generaSaltar();
 				}
 				// Comprobamos para dar el puñetazo: pulsada tecla e, no se esté ejecuta dicho golpe y que no esté agachado para evitar bugs
-				if (teclasPresionadas.letraE && !miPersonaje.animacionEnProgresoMovingPunch && miPersonaje.y <= 507) {
+				if (teclasPresionadas.letraE && !miPersonaje.animacionEnProgresoMovingPunch  && !miPersonaje.animacionEnProgresoKick && miPersonaje.y <= 507) {
 					// console.log('Tecla "espacio" presionada. Iniciando animación puñetazo.');
 					miPersonaje.iniciarAnimacionMovingPunch(4.999);
 				}
-				if (teclasPresionadas.letraR && !miPersonaje.animacionEnProgresoKick && miPersonaje.y <= 507) {	
+				if (teclasPresionadas.letraR && !miPersonaje.animacionEnProgresoKick && !miPersonaje.animacionEnProgresoMovingPunch && miPersonaje.y <= 507) {	
 					// console.log('Tecla "espacio" presionada. Iniciando animación puñetazo.');
 					miPersonaje.iniciarAnimacionKick();
 				}
@@ -413,23 +406,35 @@ window.onload = function () {
 	}
 	function personaje1PunchingHead() {
 		let lanzandoPunio = (miPersonaje.animacionEnProgresoMovingPunch && miPersonaje.position === 2);
-		let colisionPunioCuerpoX = (miPersonaje.hitbox.punio.x < miEnemigo.hitbox.cabeza.x + miEnemigo.hitbox.cabeza.width) && (miPersonaje.hitbox.punio.x + miPersonaje.hitbox.punio.width > miEnemigo.hitbox.cabeza.x);;
-		let colisionPunioCuerpoY = (miPersonaje.hitbox.punio.y < miEnemigo.hitbox.cabeza.y + miEnemigo.hitbox.cabeza.height) && (miPersonaje.hitbox.punio.y + miPersonaje.hitbox.punio.height > miEnemigo.hitbox.cabeza.y);
-		let resultado = (lanzandoPunio && colisionPunioCuerpoX && colisionPunioCuerpoY);
-		if (!resultado) miPersonaje.golpeConectado = false;
+		let colisionPunioCabezaX = (miPersonaje.hitbox.punio.x < miEnemigo.hitbox.cabeza.x + miEnemigo.hitbox.cabeza.width) && (miPersonaje.hitbox.punio.x + miPersonaje.hitbox.punio.width > miEnemigo.hitbox.cabeza.x);;
+		let colisionPunioCabezaY = (miPersonaje.hitbox.punio.y < miEnemigo.hitbox.cabeza.y + miEnemigo.hitbox.cabeza.height) && (miPersonaje.hitbox.punio.y + miPersonaje.hitbox.punio.height > miEnemigo.hitbox.cabeza.y);
+		let resultado = (lanzandoPunio && colisionPunioCabezaX && colisionPunioCabezaY);
+		if (!resultado) miPersonaje.golpeConectado.punchHead = false;
 		return resultado;
 	}
 	function personaje2PunchingHead(){
-		let lanzandoPunio = (miEnemigo.personajeState === 'movingPunch' && miEnemigo.position === 1);
-		let colisionPunioCuerpoX = (miEnemigo.hitbox.punio.x < miPersonaje.hitbox.cabeza.x + miPersonaje.hitbox.cabeza.width) && (miEnemigo.hitbox.punio.x + miEnemigo.hitbox.punio.width > miPersonaje.hitbox.cabeza.x);;
-		let colisionPunioCuerpoY = (miEnemigo.hitbox.punio.y < miPersonaje.hitbox.cabeza.y + miPersonaje.hitbox.cabeza.height) && (miEnemigo.hitbox.punio.y + miEnemigo.hitbox.punio.height > miPersonaje.hitbox.cabeza.y);
-		let resultado = (lanzandoPunio && colisionPunioCuerpoX && colisionPunioCuerpoY)
-		if (!resultado) miEnemigo.golpeConectado = false;
+		let lanzandoPunio = (miEnemigo.animacionEnProgresoMovingPunch && miEnemigo.position === 1);
+		let colisionPunioCabezaX = (miEnemigo.hitbox.punio.x < miPersonaje.hitbox.cabeza.x + miPersonaje.hitbox.cabeza.width) && (miEnemigo.hitbox.punio.x + miEnemigo.hitbox.punio.width > miPersonaje.hitbox.cabeza.x);;
+		let colisionPunioCabezaY = (miEnemigo.hitbox.punio.y < miPersonaje.hitbox.cabeza.y + miPersonaje.hitbox.cabeza.height) && (miEnemigo.hitbox.punio.y + miEnemigo.hitbox.punio.height > miPersonaje.hitbox.cabeza.y);
+		let resultado = (lanzandoPunio && colisionPunioCabezaX && colisionPunioCabezaY)
+		if (!resultado) miEnemigo.golpeConectado.punchHead = false;
 		return resultado;
 	}
 	function personaje1KickingHead(){
+		let lanzadoPatada = (miPersonaje.animacionEnProgresoKick && miPersonaje.position === 1);
+		let colisionPatadaCabezaX = (miPersonaje.hitbox.patada.x < miEnemigo.hitbox.cabeza.x + miEnemigo.hitbox.cabeza.width) && (miPersonaje.hitbox.patada.x + miPersonaje.hitbox.patada.width > miEnemigo.hitbox.cabeza.x);;
+		let colisionPatadaCabezaY = (miPersonaje.hitbox.patada.y < miEnemigo.hitbox.cabeza.y + miEnemigo.hitbox.cabeza.height) && (miPersonaje.hitbox.patada.y + miPersonaje.hitbox.patada.height > miEnemigo.hitbox.cabeza.y);
+		let resultado = (lanzadoPatada && colisionPatadaCabezaX && colisionPatadaCabezaY);
+		if (!resultado) miPersonaje.golpeConectado.kickHead = false;
+		return resultado;
 	}
 	function personaje2KickingHead(){
+		let lanzadoPatada = (miEnemigo.animacionEnProgresoKick && miEnemigo.position === 1);
+		let colisionPatadaCabezaX = (miEnemigo.hitbox.patada.x < miPersonaje.hitbox.cabeza.x + miPersonaje.hitbox.cabeza.width) && (miEnemigo.hitbox.patada.x + miEnemigo.hitbox.patada.width > miPersonaje.hitbox.cabeza.x);;
+		let colisionPatadaCabezaY = (miEnemigo.hitbox.patada.y < miPersonaje.hitbox.cabeza.y + miPersonaje.hitbox.cabeza.height) && (miEnemigo.hitbox.patada.y + miEnemigo.hitbox.patada.height > miPersonaje.hitbox.cabeza.y);
+		let resultado = (lanzadoPatada && colisionPatadaCabezaX && colisionPatadaCabezaY);
+		if (!resultado) miEnemigo.golpeConectado.kickHead = false;
+		return resultado;
 	}
 	function personaje1KickingBody(){
 	}
@@ -457,15 +462,27 @@ window.onload = function () {
 			miPersonaje.x = miEnemigo.hitbox.cuerpo.x - (miPersonaje.hitbox.cuerpo.x + miPersonaje.hitbox.cuerpo.width - miPersonaje.x);
 		}
 		
-		if(personaje1PunchingHead() && !miPersonaje.golpeConectado){ //solo se produce el evento 1 vez, cada vez que el puño colisiona con la cabeza
-			miPersonaje.golpeConectado = true;  //se pone a true y se espera a que cuando deje de haber la colisión se ponga a false
+		if(personaje1PunchingHead() && !miPersonaje.golpeConectado.punchHead){ //solo se produce el evento 1 vez, cada vez que el puño colisiona con la cabeza
+			miPersonaje.golpeConectado.punchHead = true;  //se pone a true y se espera a que cuando deje de haber la colisión se ponga a false
 			console.log('PERSONAJE 1 HA GOLPEADO A LA CABEZA');
 			miEnemigo.vida -= 150;
 			miPersonaje.energia -= 15000;
 		}
-		if(personaje2PunchingHead() && !miEnemigo.golpeConectado){
-			miEnemigo.golpeConectado = true;
+		if(personaje2PunchingHead() && !miEnemigo.golpeConectado.punchHead){
+			miEnemigo.golpeConectado.punchHead = true;
 			console.log('PERSONAJE 2 HA GOLPEADO A LA CABEZA');
+			miPersonaje.vida -= 150;
+			miEnemigo.energia -= 15000;
+		}
+		if(personaje1KickingHead() && !miPersonaje.golpeConectado.kickHead){
+			miPersonaje.golpeConectado.kickHead = true;
+			console.log('PERSONAJE 1 HA PATEADO A LA CABEZA');
+			miEnemigo.vida -= 150;
+			miPersonaje.energia -= 15000;
+		}
+		if(personaje2KickingHead() && !miEnemigo.golpeConectado.kickHead){
+			miEnemigo.golpeConectado.kickHead = true;
+			console.log('PERSONAJE 2 HA PATEADO A LA CABEZA');
 			miPersonaje.vida -= 150;
 			miEnemigo.energia -= 15000;
 		}
@@ -623,8 +640,12 @@ window.onload = function () {
 			this.velocidadAnimacion = TASA_REFRESCO_ADECUADA.velocidadAnimacion;
 			this.AnimationFrame = 0;   //sirve para que las animaciones empiecen desde 0
 			
-			
-			this.golpeConectado = false; //sirve para que cuando se produzca un golpe (colisión) no se siga contando como varios golpes sino 1 solo.
+			//array para saber si se ha producido o no un determinado golpe
+			//sirve para que cuando se produzca un golpe (colisión) no se siga contando como varios golpes sino 1 solo.
+			this.golpeConectado = {
+				'punchHead': false,
+				'kickHead': false
+			}
 
 			//animaciones puñetazo                
 			this.inicioAnimacionMovingPunch = null;
@@ -873,7 +894,7 @@ window.onload = function () {
 						this.hitbox.cuerpo.width = this.width/2.1, 
 						this.hitbox.cuerpo.height = this.height/1.07 
 
-						this.hitbox.patada.x = this.x+48, 
+						this.hitbox.patada.x = this.x+47, 
 						this.hitbox.patada.y = this.y+1, 
 						this.hitbox.patada.width = this.width/3.2, 
 						this.hitbox.patada.height = this.height/11
@@ -1038,6 +1059,7 @@ window.onload = function () {
 			}
 
 			if (this.id === 1){
+				// this.x = 260;
 				if(this.personajeState === 'reposo') {
 					this.hitbox.cuerpo.x = this.x+8,
 					this.hitbox.cuerpo.y = this.y+4,
@@ -1137,7 +1159,6 @@ window.onload = function () {
 					this.hitbox.tronco.height = null
 				}
 			} else {
-				this.x = 152;
 				if(this.personajeState === 'reposo') {
 					this.hitbox.cuerpo.x = this.x+16,
 					this.hitbox.cuerpo.y = this.y+2,
@@ -1265,7 +1286,7 @@ window.onload = function () {
 			this.frameY = this.spriteAnimations[this.personajeState].loc[this.position].y;
 			this.spriteWidth = this.spriteAnimations[this.personajeState].loc[this.position].width;
 			this.spriteHeight = this.spriteAnimations[this.personajeState].loc[this.position].height;
-			// let Loc = 2;
+			// let Loc = 0;
 			// if(this.id === 1) Loc = 0;
 			// this.frameX = this.spriteAnimations['kick'].loc[Loc].x;
 			// this.frameY = this.spriteAnimations['kick'].loc[Loc].y;
@@ -1281,27 +1302,23 @@ window.onload = function () {
 				
 			// ctx.fillRect(this.x+8, this.y+4, this.width/2.1, this.height/1.1);
 			
-			ctx.fillStyle = "#f008";
+			ctx.fillStyle = "#f000";
 			if(this.id === 1) {
 				// ctx.fillRect(this.x+8, this.y+3, this.width/3.5, this.height/6);
-				ctx.fillRect(this.hitbox.cabeza.x, this.hitbox.cabeza.y, this.hitbox.cabeza.width, this.hitbox.cabeza.height);
+				ctx.fillRect(this.hitbox.patada.x, this.hitbox.patada.y, this.hitbox.patada.width, this.hitbox.patada.height);
 
 				ctx.fillStyle = "#fff0";
-				// ctx.fillRect(this.x+22, this.y+2, this.width/2.9, this.height/1.05);
-				ctx.fillRect(this.hitbox.cuerpo.x, this.hitbox.cuerpo.y, this.hitbox.cuerpo.width, this.hitbox.cuerpo.height);
+				// ctx.fillRect(this.x+8, this.y+3, this.width/3.5, this.height/6);
+				ctx.fillRect(this.hitbox.cabeza.x, this.hitbox.cabeza.y, this.hitbox.cabeza.width, this.hitbox.cabeza.height);
 				// console.log(this.hitbox.cuerpo.width);
 			}
-			ctx.fillStyle = "#f008";
+			ctx.fillStyle = "#f000";
 			if(this.id === 2) {
-				x = this.x+20;
-				y = this.y+5;
-				width = this.width/5;
-				height = this.height/7;
 				// ctx.fillRect(this.x+20, this.y+5, this.width/5, this.height/7);
-				ctx.fillRect(this.hitbox.cabeza.x, this.hitbox.cabeza.y, this.hitbox.cabeza.width, this.hitbox.cabeza.height);
+				ctx.fillRect(this.hitbox.patada.x, this.hitbox.patada.y, this.hitbox.patada.width, this.hitbox.patada.height);
 				ctx.fillStyle = "#fff0";
 				// ctx.fillRect(this.x+25, this.y+4, this.width/3.4, this.height/1.05);
-				ctx.fillRect(this.hitbox.cuerpo.x, this.hitbox.cuerpo.y, this.hitbox.cuerpo.width, this.hitbox.cuerpo.height);
+				ctx.fillRect(this.hitbox.cabeza.x, this.hitbox.cabeza.y, this.hitbox.cabeza.width, this.hitbox.cabeza.height);
 				// console.log(this.hitbox.cuerpo.x);
 			}
 			
@@ -1357,7 +1374,7 @@ window.onload = function () {
 
 
 - TAREAS QUE REALIZAR:
-* Ponerse a hacer colisiones patadas (altas - a la cabeza) y comprobar que funcionen.
+* Crear animaciones patadas bajas y luego puños bajos
 * Ponerse con las colisiones de puño y pierna.
 * Añadir puñetazos y patadas bajas.
 * Buscar de que manera al dar puñetazos y patadas cortando su animación el personaje no se desplaze de manera descontrolada.
