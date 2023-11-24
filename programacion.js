@@ -112,6 +112,13 @@ window.onload = function () {
 			{ x: 134, y: 260, width: 50, height: 86 },
 		]
 	}
+	spriteAnimationsKen['lowKick'] = {
+		loc: [
+			{ x: 498, y: 262, width: 47, height: 84 },
+			{ x: 551, y: 262, width: 71, height: 84 },
+			{ x: 628, y: 262, width: 47, height: 84 },
+		]
+	}
 	spriteAnimationsKen['bloquearArriba'] = {
 		loc: [
 			{ x: 1210, y: 16, width: 45, height: 84 }
@@ -386,7 +393,7 @@ window.onload = function () {
 		}
 	}
 	function detectarControlesEnemigo() {
-		if (teclasPresionadas.arriba && miEnemigo.onGround() || teclasPresionadas.abajo && miEnemigo.onGround() || teclasPresionadas.derecha || teclasPresionadas.izquierda || teclasPresionadas.letraO && !miEnemigo.animacionEnProgresoMovingPunch || teclasPresionadas.letraP && !miEnemigo.animacionEnProgresoKick || teclasPresionadas.cero && miEnemigo.onGround()){
+		if (teclasPresionadas.arriba && miEnemigo.onGround() || teclasPresionadas.abajo && miEnemigo.onGround() || teclasPresionadas.derecha || teclasPresionadas.izquierda || teclasPresionadas.letraO && !miEnemigo.seEstaEjecutandoAtaque() || teclasPresionadas.letraP && !miEnemigo.seEstaEjecutandoAtaque() || teclasPresionadas.cero && miEnemigo.onGround()){
 			if (teclasPresionadas.abajo && miEnemigo.onGround() || teclasPresionadas.cero && miEnemigo.onGround()) {
 				if (teclasPresionadas.cero && teclasPresionadas.abajo){   
 					miEnemigo.generaBloquearAbajo();					
@@ -684,6 +691,11 @@ window.onload = function () {
 			this.inicioAnimacionKick = null;
       		this.duracionAnimacionKick = 500; // Duración de animación milisegundos (500)
 			this.animacionEnProgresoKick = false;
+			//animaciones patadas bajas
+			this.inicioAnimacionLowKick = null;
+			this.duracionAnimacionLowKick = 500;
+			this.animacionEnProgresoLowKick = false;
+
 
 			//variables creadas para solucionar error del sprite que se carga en una mala posición debido a sus dimensiones.
 			this.primeraVez = true;
@@ -693,12 +705,12 @@ window.onload = function () {
 
 		// devuelve booleano para saber si el personaje está realizando algún ataque
 		seEstaEjecutandoAtaque(){
-			let ataques = (this.animacionEnProgresoKick) || (this.animacionEnProgresoMovingPunch) || (this.animacionEnProgresoAgachadoPunch);
+			let ataques = (this.animacionEnProgresoKick) || (this.animacionEnProgresoMovingPunch) || (this.animacionEnProgresoAgachadoPunch) || (this.animacionEnProgresoLowKick);
 			return ataques;
 		}
 
 		generaReposo() {
-			if (!this.animacionEnProgresoMovingPunch && !this.animacionEnProgresoKick && !this.animacionEnProgresoAgachadoPunch) {
+			if (!this.animacionEnProgresoMovingPunch && !this.animacionEnProgresoKick && !this.animacionEnProgresoAgachadoPunch && !this.animacionEnProgresoLowKick) {
 				this.personajeState = 'reposo';
 			}
 			this.velocidadAnimacion = TASA_REFRESCO_ADECUADA.velocidadAnimacion;
@@ -891,7 +903,8 @@ window.onload = function () {
 			  // Actualizar la animación (código específico de animación aquí)
 			  this.personajeState = 'agachadoPunch';
 			  this.position = Math.floor(progreso * 2.999);
-			  console.log('posición: ' + this.position);
+			  console.log(progreso);
+			//   console.log('posición: ' + this.position);
 
 			  this.height = this.spriteAnimations[this.personajeState].loc[this.position].height;
 			  this.y = LIMITE_ABAJO - this.height;
@@ -1033,7 +1046,7 @@ window.onload = function () {
 				// Continuar animación si no ha alcanzado la duración máxima
 				requestAnimationFrame(() => this.animarAgachadoPunch());
 			  } else {
-				// console.log('ANIMACIÓN PUÑETAZO TERMINADA');
+				// console.log('ANIMACIÓN PUÑETAZO BAJO TERMINADA');
 				if (this.id === 2) this.x = this.x+4;
 				this.animacionEnProgresoAgachadoPunch = false;
 				this.primeraVez = true;
@@ -1199,6 +1212,147 @@ window.onload = function () {
 			}
 		  }
 
+		
+		iniciarAnimacionLowKick() {
+			this.animacionEnProgresoLowKick = true;
+			this.inicioAnimacionLowKick = performance.now();
+			this.animarLowKick();
+		}
+
+		animarLowKick() {
+			if (this.animacionEnProgresoLowKick) {
+			  const tiempoActual = performance.now();
+			  const tiempoTranscurrido = tiempoActual - this.inicioAnimacionLowKick;
+			  const progreso = Math.min(tiempoTranscurrido / this.duracionAnimacionLowKick, 1);
+		
+			  // Actualizar la animación (código específico de animación aquí)
+			  this.personajeState = 'lowKick';
+			  this.position = Math.floor(progreso * 2.999);
+		
+			  this.height = this.spriteAnimations[this.personajeState].loc[this.position].height;
+			  this.y = LIMITE_ABAJO - this.height;
+
+			  if (this.id === 1){
+
+				switch(this.position){
+					case 0:
+						this.hitbox.cuerpo.x = this.x+4, 
+						this.hitbox.cuerpo.y = this.y+2, 
+						this.hitbox.cuerpo.width = this.width/1.5, 
+						this.hitbox.cuerpo.height = this.height/1.05
+						
+						this.hitbox.cabeza.x = this.x+8,
+						this.hitbox.cabeza.y = this.y+3,
+						this.hitbox.cabeza.width = this.width/3.5,
+						this.hitbox.cabeza.height = this.height/6
+						break;
+					case 1:
+						this.hitbox.cuerpo.x = this.x+3, 
+						this.hitbox.cuerpo.y = this.y+3, 
+						this.hitbox.cuerpo.width = this.width/2.1, 
+						this.hitbox.cuerpo.height = this.height/1.07 
+
+						this.hitbox.patada.x = this.x+47, 
+						this.hitbox.patada.y = this.y+1, 
+						this.hitbox.patada.width = this.width/3.2, 
+						this.hitbox.patada.height = this.height/11
+
+						this.hitbox.cabeza.x = this.x-2,
+						this.hitbox.cabeza.y = this.y+3,
+						this.hitbox.cabeza.width = this.width/3.5,
+						this.hitbox.cabeza.height = this.height/6
+						break;
+					case 2:
+						this.hitbox.cuerpo.x = this.x+4, 
+						this.hitbox.cuerpo.y = this.y+2, 
+						this.hitbox.cuerpo.width = this.width/1.5, 
+						this.hitbox.cuerpo.height = this.height/1.05
+
+						this.hitbox.patada.x = null, 
+						this.hitbox.patada.y = null, 
+						this.hitbox.patada.width = null, 
+						this.hitbox.patada.height = null
+						
+						this.hitbox.cabeza.x = this.x+8,
+						this.hitbox.cabeza.y = this.y+3,
+						this.hitbox.cabeza.width = this.width/3.5,
+						this.hitbox.cabeza.height = this.height/6
+						break;
+					default:
+						break;
+				}
+			  } else {
+
+				if(this.primeraVez && this.position === 1) {
+					this.x = this.x-11;
+					this.primeraVez = false;
+				}
+				if(this.segundaVez && this.position === 2) {
+					this.x = this.x+11;
+					this.segundaVez = false;
+				}
+
+				switch(this.position){
+				case 0:
+					this.hitbox.cuerpo.x = this.x+30, 
+					this.hitbox.cuerpo.y = this.y+1, 
+					this.hitbox.cuerpo.width = this.width/3.2, 
+					this.hitbox.cuerpo.height = this.height/1.1
+					
+					this.hitbox.cabeza.x = this.x+34,
+					this.hitbox.cabeza.y = this.y+4,
+					this.hitbox.cabeza.width = this.width/5,
+					this.hitbox.cabeza.height = this.height/7
+					break;
+				case 1:
+					this.hitbox.cuerpo.x = this.x+28, 
+					this.hitbox.cuerpo.y = this.y+4, 
+					this.hitbox.cuerpo.width = this.width/2.4, 
+					this.hitbox.cuerpo.height = this.height/1.1
+					
+					this.hitbox.patada.x = this.x, 
+					this.hitbox.patada.y = this.y+10, 
+					this.hitbox.patada.width = this.width/3.2, 
+					this.hitbox.patada.height = this.height/14
+					
+					this.hitbox.cabeza.x = this.x+44,
+					this.hitbox.cabeza.y = this.y+3,
+					this.hitbox.cabeza.width = this.width/5,
+					this.hitbox.cabeza.height = this.height/7
+					break;
+				case 2:
+					this.hitbox.cuerpo.x = this.x+30, 
+					this.hitbox.cuerpo.y = this.y+1, 
+					this.hitbox.cuerpo.width = this.width/3.2, 
+					this.hitbox.cuerpo.height = this.height/1.1
+
+					this.hitbox.patada.x = null, 
+					this.hitbox.patada.y = null, 
+					this.hitbox.patada.width = null, 
+					this.hitbox.patada.height = null
+					
+					this.hitbox.cabeza.x = this.x+34,
+					this.hitbox.cabeza.y = this.y+4,
+					this.hitbox.cabeza.width = this.width/5,
+					this.hitbox.cabeza.height = this.height/7
+					break;
+				default:
+					break;
+				}
+			  }
+
+			  if (tiempoTranscurrido < this.duracionAnimacionLowKick) {
+				// Continuar animación si no ha alcanzado la duración máxima
+				requestAnimationFrame(() => this.animarLowKick());
+			  } else {
+				// console.log('ANIMACIÓN PATADA BAJA TERMINADA');
+				this.animacionEnProgresoLowKick = false;
+				this.primeraVez = true;
+				this.segundaVez = true;
+			  }
+			}
+		  }
+
 		generaAgacharse() {
 			this.personajeState = 'agacharse';
 			this.velocidadX = 0;
@@ -1239,8 +1393,7 @@ window.onload = function () {
 
 
 		comprobarHitBox(){
-			// if(this.personajeState !== 'saltar') {
-				if(this.personajeState !== 'saltar' && this.personajeState !== 'movingPunch' && this.personajeState !== 'kick') {
+				if(this.personajeState !== 'saltar' && this.personajeState !== 'movingPunch' && this.personajeState !== 'kick' && this.personajeState !== 'agachadoPunch' && this.personajeState !== 'lowKick') {
 				// position2 es igual que position -> para no crear problemas de sincronización
 				this.position2 = Math.floor(gameFrame / this.velocidadAnimacion) % this.spriteAnimations[this.personajeState].loc.length;
 				this.height = this.spriteAnimations[this.personajeState].loc[this.position2].height;
@@ -1473,7 +1626,7 @@ window.onload = function () {
 			if(this.personajeState === 'saltar'){
 				this.position = Math.floor(this.AnimationFrame / this.velocidadAnimacion) % this.spriteAnimations[this.personajeState].loc.length;
 				// console.log('POSICIÓN ANIMACIÓN: '+this.position);
-			} else if(this.personajeState === 'movingPunch' || this.personajeState === 'kick' || this.personajeState === 'agachadoPunch') {
+			} else if(this.personajeState === 'movingPunch' || this.personajeState === 'kick' || this.personajeState === 'agachadoPunch' || this.personajeState === 'lowKick') {
 				// console.log('POSICIÓN ANIMACIÓN: '+this.position);
 			} else {
 				this.position = Math.floor(gameFrame / this.velocidadAnimacion) % this.spriteAnimations[this.personajeState].loc.length;
@@ -1549,8 +1702,7 @@ window.onload = function () {
 		// console.log('Y:' + miEnemigo.y);
 		// console.log('LIMITE_ABAJO - ALTURA:' + (LIMITE_ABAJO - miEnemigo.height));
 		// console.log('Y:' + miEnemigo.y);
-		console.log('posicion x: ' + (miEnemigo.x));
-
+		// console.log('posicion x: ' + (miEnemigo.x));
 
 		detectarControlesPersonaje();
 		detectarControlesEnemigo();
@@ -1578,6 +1730,9 @@ window.onload = function () {
 
 
 - TAREAS QUE REALIZAR:
+
+* Resolver error miEnemigo puñetazo agachado
+
 * Buscar como hacer combos de teclado, para poder hacer la low kick
 * Ponerse con las animaciones de ser golpeado y derrotado
 * Crear animación patada baja agachado
