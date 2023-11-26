@@ -19,7 +19,7 @@ window.onload = function () {
 		vy: 5,
 		weight: 0.09
 	}
-	const TASA_REFRESCO_ADECUADA = TASA_REFRESCO_60Hz;
+	const TASA_REFRESCO_ADECUADA = TASA_REFRESCO_144Hz;
 
 	// limites
 	const LIMITE_DERECHA = document.getElementById('miCanvas').width;
@@ -197,6 +197,21 @@ window.onload = function () {
 			{ x: 129, y: 255, width: 51, height: 82 },
 		]
 	}
+	spriteAnimationsCammy['lowKick'] = {
+		loc: [
+			// { x: 188, y: 239, width: 53, height: 98 },
+			// { x: 246, y: 239, width: 69, height: 98 },
+			// { x: 318, y: 239, width: 84, height: 98 },
+			// { x: 407, y: 239, width: 69, height: 98 },
+			// { x: 480, y: 239, width: 53, height: 98 },
+
+			{ x: 540, y: 263, width: 47, height: 74 },
+			{ x: 592, y: 263, width: 43, height: 74 },
+			{ x: 641, y: 263, width: 66, height: 74 },
+			{ x: 714, y: 263, width: 77, height: 74 },
+			{ x: 795, y: 263, width: 45, height: 74 },
+		]
+	}
 	spriteAnimationsCammy['bloquearArriba'] = {
 		loc: [
 			{ x: 1199, y: 136, width: 48, height: 82 }
@@ -216,6 +231,7 @@ window.onload = function () {
 	const TECLA_LEFT_SHIFT = 16;
 	const TECLA_0 = 45;  //45 o 96
 	const TECLA_T = 84;
+	const TECLA_I = 73;
 	const TECLA_A = 65;
 	const TECLA_S = 83;
 	const TECLA_W = 87;
@@ -235,6 +251,7 @@ window.onload = function () {
 		leftShift: false,
 		cero: false,
 		letraT: false,
+		letraI: false,
 		letraA: false,
 		letraS: false,
 		letraW: false,
@@ -265,6 +282,9 @@ window.onload = function () {
 				break;
 			case TECLA_T:
 				teclasPresionadas.letraT = true;
+				break;
+			case TECLA_I:
+				teclasPresionadas.letraI = true;
 				break;
 			case TECLA_Q:
 				teclasPresionadas.letraQ = true;
@@ -321,6 +341,8 @@ window.onload = function () {
 			case TECLA_Q:
 				teclasPresionadas.letraQ = false;
 				break;
+			case TECLA_I:
+				teclasPresionadas.letraI = false;
 			case TECLA_0:
 				teclasPresionadas.cero = false;
 				break;
@@ -354,7 +376,7 @@ window.onload = function () {
 	document.addEventListener("keyup", desactivaMovimiento, false);
 
 	function detectarControlesPersonaje() {
-		if (teclasPresionadas.letraW && miPersonaje.onGround() || teclasPresionadas.letraS && miPersonaje.onGround() || teclasPresionadas.letraD || teclasPresionadas.letraA || teclasPresionadas.letraE && !miPersonaje.seEstaEjecutandoAtaque() || teclasPresionadas.letraR && !miPersonaje.seEstaEjecutandoAtaque() || teclasPresionadas.letraQ && miPersonaje.onGround()){
+		if (teclasPresionadas.letraW && miPersonaje.onGround() || teclasPresionadas.letraS && miPersonaje.onGround() || teclasPresionadas.letraD || teclasPresionadas.letraA || teclasPresionadas.letraE && !miPersonaje.seEstaEjecutandoAtaque() || teclasPresionadas.letraR && !miPersonaje.seEstaEjecutandoAtaque() || teclasPresionadas.letraT && !miPersonaje.seEstaEjecutandoAtaque() || teclasPresionadas.letraQ && miPersonaje.onGround()){
 			if (teclasPresionadas.letraS && miPersonaje.onGround() || teclasPresionadas.letraQ && miPersonaje.onGround()) {
 				if (teclasPresionadas.letraQ && teclasPresionadas.letraS){ //
 					miPersonaje.generaBloquearAbajo();					
@@ -385,21 +407,25 @@ window.onload = function () {
 						// console.log('Tecla "espacio" presionada. Iniciando animación puñetazo.');
 						miPersonaje.iniciarAnimacionKick();
 					}
+					if (teclasPresionadas.letraT && miPersonaje.y <= 507) {	
+						// console.log('Tecla "espacio" presionada. Iniciando animación puñetazo.');
+						miPersonaje.iniciarAnimacionLowKick(2.999);
+					}
 				}
 			}
 		} else {
 			miPersonaje.generaReposo();
-			// miPersonaje.generaBloquearAbajo();
+			// miPersonaje.generaAgacharse();
 		}
 	}
 	function detectarControlesEnemigo() {
-		if (teclasPresionadas.arriba && miEnemigo.onGround() || teclasPresionadas.abajo && miEnemigo.onGround() || teclasPresionadas.derecha || teclasPresionadas.izquierda || teclasPresionadas.letraO && !miEnemigo.seEstaEjecutandoAtaque() || teclasPresionadas.letraP && !miEnemigo.seEstaEjecutandoAtaque() || teclasPresionadas.cero && miEnemigo.onGround()){
+		if (teclasPresionadas.arriba && miEnemigo.onGround() || teclasPresionadas.abajo && miEnemigo.onGround() || teclasPresionadas.derecha || teclasPresionadas.izquierda || teclasPresionadas.letraO && !miEnemigo.seEstaEjecutandoAtaque() || teclasPresionadas.letraP && !miEnemigo.seEstaEjecutandoAtaque() || teclasPresionadas.letraI && !miEnemigo.seEstaEjecutandoAtaque() || teclasPresionadas.cero && miEnemigo.onGround()){
 			if (teclasPresionadas.abajo && miEnemigo.onGround() || teclasPresionadas.cero && miEnemigo.onGround()) {
 				if (teclasPresionadas.cero && teclasPresionadas.abajo){   
 					miEnemigo.generaBloquearAbajo();					
 				} else if(teclasPresionadas.cero) {
 					miEnemigo.generaBloquearArriba();
-				} else if (teclasPresionadas.abajo && teclasPresionadas.letraO && !miPersonaje.seEstaEjecutandoAtaque()) {
+				} else if (teclasPresionadas.abajo && teclasPresionadas.letraO && !miEnemigo.seEstaEjecutandoAtaque()) {
 					miEnemigo.iniciarAnimacionAgachadoPunch();
 				} else {
 					miEnemigo.generaAgacharse();
@@ -421,6 +447,10 @@ window.onload = function () {
 					if (teclasPresionadas.letraP && miEnemigo.y <= 507) {	
 						// console.log('Tecla "espacio" presionada. Iniciando animación puñetazo.');
 						miEnemigo.iniciarAnimacionKick();
+					}
+					if (teclasPresionadas.letraI && miEnemigo.y <= 507) {	
+						// console.log('Tecla "espacio" presionada. Iniciando animación puñetazo.');
+						miEnemigo.iniciarAnimacionLowKick(4.999);
 					}
 				}
 			}
@@ -693,7 +723,7 @@ window.onload = function () {
 			this.animacionEnProgresoKick = false;
 			//animaciones patadas bajas
 			this.inicioAnimacionLowKick = null;
-			this.duracionAnimacionLowKick = 500;
+			this.duracionAnimacionLowKick = 5000;
 			this.animacionEnProgresoLowKick = false;
 
 
@@ -1213,13 +1243,13 @@ window.onload = function () {
 		  }
 
 		
-		iniciarAnimacionLowKick() {
+		iniciarAnimacionLowKick(numAnimaciones) {
 			this.animacionEnProgresoLowKick = true;
 			this.inicioAnimacionLowKick = performance.now();
-			this.animarLowKick();
+			this.animarLowKick(numAnimaciones);
 		}
 
-		animarLowKick() {
+		animarLowKick(numAnimaciones) {
 			if (this.animacionEnProgresoLowKick) {
 			  const tiempoActual = performance.now();
 			  const tiempoTranscurrido = tiempoActual - this.inicioAnimacionLowKick;
@@ -1227,7 +1257,7 @@ window.onload = function () {
 		
 			  // Actualizar la animación (código específico de animación aquí)
 			  this.personajeState = 'lowKick';
-			  this.position = Math.floor(progreso * 2.999);
+			  this.position = Math.floor(progreso * numAnimaciones);
 		
 			  this.height = this.spriteAnimations[this.personajeState].loc[this.position].height;
 			  this.y = LIMITE_ABAJO - this.height;
@@ -1283,11 +1313,16 @@ window.onload = function () {
 				}
 			  } else {
 
-				if(this.primeraVez && this.position === 1) {
+				
+				if(this.primeraVez && this.position === 2) {
+					this.x = this.x-21;
+					this.primeraVez = false;
+				}
+				if(this.primeraVez && this.position === 3) {
 					this.x = this.x-11;
 					this.primeraVez = false;
 				}
-				if(this.segundaVez && this.position === 2) {
+				if(this.segundaVez && this.position === 4) {
 					this.x = this.x+11;
 					this.segundaVez = false;
 				}
@@ -1343,7 +1378,7 @@ window.onload = function () {
 
 			  if (tiempoTranscurrido < this.duracionAnimacionLowKick) {
 				// Continuar animación si no ha alcanzado la duración máxima
-				requestAnimationFrame(() => this.animarLowKick());
+				requestAnimationFrame(() => this.animarLowKick(numAnimaciones));
 			  } else {
 				// console.log('ANIMACIÓN PATADA BAJA TERMINADA');
 				this.animacionEnProgresoLowKick = false;
@@ -1731,9 +1766,7 @@ window.onload = function () {
 
 - TAREAS QUE REALIZAR:
 
-* Resolver error miEnemigo puñetazo agachado
-
-* Buscar como hacer combos de teclado, para poder hacer la low kick
+* Hacer low kick de ambos personajes pero con otra tecla (T, I)
 * Ponerse con las animaciones de ser golpeado y derrotado
 * Crear animación patada baja agachado
 * Hitbox tronco para low-kick, puño agachado y patada baja
