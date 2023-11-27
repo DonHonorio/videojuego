@@ -109,6 +109,22 @@ window.onload = function () {
 			{ x: 127, y: 420, width: 47, height: 54 }
 		]
 	}
+	spriteAnimationsKen['agachadoUpper'] = {
+		loc: [
+			{ x: 401, y: 362, width: 43, height: 112 },
+			{ x: 450, y: 362, width: 49, height: 112 },
+			{ x: 505, y: 362, width: 44, height: 112 },
+			{ x: 555, y: 362, width: 49, height: 112 },
+			{ x: 610, y: 362, width: 43, height: 112 },
+		]
+	}
+	spriteAnimationsKen['agachadoBarrido'] = {
+		loc: [
+			{ x: 846, y: 418, width: 49, height: 56 },
+			{ x: 900, y: 418, width: 89, height: 56 },
+			{ x: 993, y: 418, width: 49, height: 56 }
+		]
+	}
 	spriteAnimationsKen['kick'] = {
 		loc: [
 			{ x: 5, y: 260, width: 50, height: 86 },
@@ -129,6 +145,39 @@ window.onload = function () {
 		]
 	}
 	spriteAnimationsKen['bloquearAbajo'] = {
+		loc: [
+			{ x: 1259, y: 37, width: 45, height: 62 }
+		]
+	}
+	spriteAnimationsKen['faceHit'] = {
+		loc: [
+			{ x: 1259, y: 37, width: 45, height: 83 },
+			{ x: 1259, y: 37, width: 45, height: 83 },
+			{ x: 1259, y: 37, width: 45, height: 83 },
+			{ x: 1259, y: 37, width: 45, height: 83 }
+		]
+	}
+	spriteAnimationsKen['hit'] = {
+		loc: [
+			{ x: 1259, y: 37, width: 45, height: 62 }
+		]
+	}
+	spriteAnimationsKen['agachadoHit'] = {
+		loc: [
+			{ x: 1259, y: 37, width: 45, height: 62 }
+		]
+	}
+	spriteAnimationsKen['knockdownRecovery'] = {
+		loc: [
+			{ x: 1259, y: 37, width: 45, height: 62 }
+		]
+	}
+	spriteAnimationsKen['stunned'] = {
+		loc: [
+			{ x: 1259, y: 37, width: 45, height: 62 }
+		]
+	}
+	spriteAnimationsKen['KO'] = {
 		loc: [
 			{ x: 1259, y: 37, width: 45, height: 62 }
 		]
@@ -192,6 +241,21 @@ window.onload = function () {
 			// { x: 185, y: 487, width: 49, height: 49 },
 			// { x: 235, y: 487, width: 67, height: 49 },
 			// { x: 306, y: 487, width: 44, height: 49 }
+		]
+	}
+	spriteAnimationsCammy['agachadoUpper'] = {
+		loc: [
+			{ x: 358, y: 460, width: 66, height: 76 },
+			{ x: 429, y: 460, width: 67, height: 76 },
+			{ x: 500, y: 460, width: 72, height: 76 },
+			{ x: 576, y: 460, width: 66, height: 76 }
+		]
+	}
+	spriteAnimationsCammy['agachadoBarrido'] = {
+		loc: [
+			{ x: 650, y: 491, width: 47, height: 45 },
+			{ x: 701, y: 491, width: 66, height: 45 },
+			{ x: 771, y: 491, width: 47, height: 45 }
 		]
 	}
 	spriteAnimationsCammy['kick'] = {
@@ -389,6 +453,10 @@ window.onload = function () {
 					miPersonaje.generaBloquearArriba();
 				} else if(teclasPresionadas.letraS && teclasPresionadas.letraE && !miPersonaje.seEstaEjecutandoAtaque()) {
 					miPersonaje.iniciarAnimacionAgachadoPunch();
+				} else if(teclasPresionadas.letraS && teclasPresionadas.letraR && !miPersonaje.seEstaEjecutandoAtaque()) {
+					miPersonaje.iniciarAnimacionAgachadoBarrido();
+				} else if(teclasPresionadas.letraS && teclasPresionadas.letraT && !miPersonaje.seEstaEjecutandoAtaque()) {
+					miPersonaje.iniciarAnimacionAgachadoUpper(4.999);
 				} else {
 					miPersonaje.generaAgacharse();
 				}
@@ -431,6 +499,10 @@ window.onload = function () {
 					miEnemigo.generaBloquearArriba();
 				} else if (teclasPresionadas.abajo && teclasPresionadas.letraO && !miEnemigo.seEstaEjecutandoAtaque()) {
 					miEnemigo.iniciarAnimacionAgachadoPunch();
+				} else if (teclasPresionadas.abajo && teclasPresionadas.letraP && !miEnemigo.seEstaEjecutandoAtaque()) {
+					miEnemigo.iniciarAnimacionAgachadoBarrido();
+				} else if (teclasPresionadas.abajo && teclasPresionadas.letraI && !miEnemigo.seEstaEjecutandoAtaque()) {
+					miEnemigo.iniciarAnimacionAgachadoUpper(3.999);
 				} else {
 					miEnemigo.generaAgacharse();
 				}
@@ -722,21 +794,29 @@ window.onload = function () {
 
 			//animaciones puñetazo                
 			this.inicioAnimacionMovingPunch = null;
-      		this.duracionAnimacionMovingPunch = 600; // Duración de animación milisegundos (600)
+      this.duracionAnimacionMovingPunch = 600; // Duración de animación milisegundos (600)
 			this.animacionEnProgresoMovingPunch = false;
 			//animaciones puñetazo agachado
 			this.inicioAnimacionAgachadoPunch = null;
-      		this.duracionAnimacionAgachadoPunch = 300; // Duración de animación milisegundos (300)
+      this.duracionAnimacionAgachadoPunch = 300; // Duración de animación milisegundos (300)
 			this.animacionEnProgresoAgachadoPunch = false;
 
 			//animaciones patadas                
 			this.inicioAnimacionKick = null;
-      		this.duracionAnimacionKick = 500; // Duración de animación milisegundos (500)
+      this.duracionAnimacionKick = 500; // Duración de animación milisegundos (500)
 			this.animacionEnProgresoKick = false;
 			//animaciones patadas bajas
 			this.inicioAnimacionLowKick = null;
 			this.duracionAnimacionLowKick = 800;
 			this.animacionEnProgresoLowKick = false;
+			//animaciones barrido agachado
+			this.inicioAnimacionAgachadoBarrido = null;
+			this.duracionAnimacionAgachadoBarrido = 600;
+			this.animacionEnProgresoAgachadoBarrido = false;
+			//animaciones upper agachado
+			this.inicioAnimacionAgachadoUpper = null;
+			this.duracionAnimacionAgachadoUpper = 600;
+			this.animacionEnProgresoAgachadoUpper = false;
 
 
 			//variables creadas para solucionar error del sprite que se carga en una mala posición debido a sus dimensiones.
@@ -747,7 +827,7 @@ window.onload = function () {
 
 		// devuelve booleano para saber si el personaje está realizando algún ataque
 		seEstaEjecutandoAtaque(){
-			let ataques = (this.animacionEnProgresoKick) || (this.animacionEnProgresoMovingPunch) || (this.animacionEnProgresoAgachadoPunch) || (this.animacionEnProgresoLowKick);
+			let ataques = (this.animacionEnProgresoKick) || (this.animacionEnProgresoMovingPunch) || (this.animacionEnProgresoAgachadoPunch) || (this.animacionEnProgresoLowKick) || (this.animacionEnProgresoAgachadoBarrido) || (this.animacionEnProgresoAgachadoUpper);
 			return ataques;
 		}
 
@@ -1099,6 +1179,175 @@ window.onload = function () {
 			}
 		}
 
+		iniciarAnimacionAgachadoBarrido() {
+			this.animacionEnProgresoAgachadoBarrido = true;
+			this.inicioAnimacionAgachadoBarrido = performance.now();
+			this.animarAgachadoBarrido();
+		}
+
+		animarAgachadoBarrido() {
+			if (this.animacionEnProgresoAgachadoBarrido) {
+			  const tiempoActual = performance.now();
+			  const tiempoTranscurrido = tiempoActual - this.inicioAnimacionAgachadoBarrido;
+			  const progreso = Math.min(tiempoTranscurrido / this.duracionAnimacionAgachadoBarrido, 1);
+		     
+			  // Actualizar la animación (código específico de animación aquí)
+			  this.personajeState = 'agachadoBarrido';
+			  this.position = Math.floor(progreso * 2.999);
+			  console.log(progreso);
+			//   console.log('posición: ' + this.position);
+
+			  this.height = this.spriteAnimations[this.personajeState].loc[this.position].height;
+			  this.y = LIMITE_ABAJO - this.height;
+			  
+			  if (this.id === 1){
+				switch(this.position){
+					case 0:
+						this.hitbox.cuerpo.x = this.x+9, 
+						this.hitbox.cuerpo.y = this.y+6, 
+						this.hitbox.cuerpo.width = this.width/2, 
+						this.hitbox.cuerpo.height = this.height/1.1
+
+						this.hitbox.cabeza.x = this.x+18,
+						this.hitbox.cabeza.y = this.y+5,
+						this.hitbox.cabeza.width = this.width/3.5,
+						this.hitbox.cabeza.height = this.height/6
+						break;
+					case 1:
+						this.hitbox.cuerpo.x = this.x+17, 
+						this.hitbox.cuerpo.y = this.y+2, 
+						this.hitbox.cuerpo.width = this.width/2, 
+						this.hitbox.cuerpo.height = this.height/1.05
+						
+						this.hitbox.cabeza.x = this.x+24,
+						this.hitbox.cabeza.y = this.y+2,
+						this.hitbox.cabeza.width = this.width/3.5,
+						this.hitbox.cabeza.height = this.height/6
+						break;
+					case 2:
+						this.hitbox.cuerpo.x = this.x+22, 
+						this.hitbox.cuerpo.y = this.y+2, 
+						this.hitbox.cuerpo.width = this.width/2.9, 
+						this.hitbox.cuerpo.height = this.height/1.05
+
+						this.hitbox.punio.x = this.x+38, 
+						this.hitbox.punio.y = this.y+15, 
+						this.hitbox.punio.width = this.width/2.1, 
+						this.hitbox.punio.height = this.height/12
+						
+						this.hitbox.cabeza.x = this.x+24,
+						this.hitbox.cabeza.y = this.y+2,
+						this.hitbox.cabeza.width = this.width/3.5,
+						this.hitbox.cabeza.height = this.height/6
+						break;
+					case 3:
+						this.hitbox.cuerpo.x = this.x+17, 
+						this.hitbox.cuerpo.y = this.y+2, 
+						this.hitbox.cuerpo.width = this.width/2, 
+						this.hitbox.cuerpo.height = this.height/1.05
+
+						this.hitbox.punio.x = null, 
+						this.hitbox.punio.y = null, 
+						this.hitbox.punio.width = null, 
+						this.hitbox.punio.height = null
+						
+						this.hitbox.cabeza.x = this.x+24,
+						this.hitbox.cabeza.y = this.y+2,
+						this.hitbox.cabeza.width = this.width/3.5,
+						this.hitbox.cabeza.height = this.height/6
+						break;
+					case 4:
+						this.hitbox.cuerpo.x = this.x+9, 
+						this.hitbox.cuerpo.y = this.y+6, 
+						this.hitbox.cuerpo.width = this.width/2, 
+						this.hitbox.cuerpo.height = this.height/1.1
+						
+						this.hitbox.cabeza.x = this.x+18,
+						this.hitbox.cabeza.y = this.y+5,
+						this.hitbox.cabeza.width = this.width/3.5,
+						this.hitbox.cabeza.height = this.height/6
+						break;
+					default:
+						break;
+				}
+			  } else {
+				
+				if (this.primeraVez && this.position === 0) {
+					this.x = this.x-2;
+					this.primeraVez = false;	
+				}
+				if(this.segundaVez && this.position === 1) {
+					this.x = this.x-20;
+					this.segundaVez = false;
+				}
+				if(this.tercerVez && this.position === 2) {
+					this.x = this.x+20;
+					this.tercerVez = false;
+				}
+				  switch(this.position){
+					case 0:
+						this.hitbox.cuerpo.x = this.x+14, 
+						this.hitbox.cuerpo.y = this.y+2, 
+						this.hitbox.cuerpo.width = this.width/2.7, 
+						this.hitbox.cuerpo.height = this.height/1.05
+
+						this.hitbox.cabeza.x = this.x+17,
+						this.hitbox.cabeza.y = this.y+7,
+						this.hitbox.cabeza.width = this.width/5,
+						this.hitbox.cabeza.height = this.height/7
+						break;
+					case 1:
+						this.hitbox.cuerpo.x = this.x+25, 
+						this.hitbox.cuerpo.y = this.y+4, 
+						this.hitbox.cuerpo.width = this.width/3.4, 
+						this.hitbox.cuerpo.height = this.height/1.05
+
+						this.hitbox.punio.x = this.x+1, 
+						this.hitbox.punio.y = this.y+16, 
+						this.hitbox.punio.width = this.width/2.2, 
+						this.hitbox.punio.height = this.height/15
+						
+						this.hitbox.cabeza.x = this.x+25,
+						this.hitbox.cabeza.y = this.y+7,
+						this.hitbox.cabeza.width = this.width/5,
+						this.hitbox.cabeza.height = this.height/7
+						break;
+					case 2:
+						this.hitbox.cuerpo.x = this.x+14, 
+						this.hitbox.cuerpo.y = this.y+2, 
+						this.hitbox.cuerpo.width = this.width/2.7, 
+						this.hitbox.cuerpo.height = this.height/1.05
+
+						this.hitbox.punio.x = null, 
+						this.hitbox.punio.y = null, 
+						this.hitbox.punio.width = null, 
+						this.hitbox.punio.height = null
+
+						this.hitbox.cabeza.x = this.x+17,
+						this.hitbox.cabeza.y = this.y+7,
+						this.hitbox.cabeza.width = this.width/5,
+						this.hitbox.cabeza.height = this.height/7
+						break;
+					default:
+						break;
+				}
+			  }
+
+			  if (tiempoTranscurrido < this.duracionAnimacionAgachadoBarrido) {
+				// Continuar animación si no ha alcanzado la duración máxima
+				requestAnimationFrame(() => this.animarAgachadoBarrido());
+			  } else {
+				// console.log('ANIMACIÓN PUÑETAZO BAJO TERMINADA');
+				if (this.id === 2) this.x = this.x+2;
+				this.animacionEnProgresoAgachadoBarrido = false;
+				this.primeraVez = true;
+				this.segundaVez = true;
+				this.tercerVez = true;
+				
+			  }
+			}
+		}
+
 		iniciarAnimacionKick() {
 			this.animacionEnProgresoKick = true;
 			this.inicioAnimacionKick = performance.now();
@@ -1399,7 +1648,154 @@ window.onload = function () {
 				this.tercerVez = true;
 			  }
 			}
-		  }
+		}
+		
+		iniciarAnimacionAgachadoUpper(numAnimaciones) {
+			this.animacionEnProgresoAgachadoUpper = true;
+			this.inicioAnimacionAgachadoUpper = performance.now();
+			this.animarAgachadoUpper(numAnimaciones);
+		}
+
+		animarAgachadoUpper(numAnimaciones) {
+			if (this.animacionEnProgresoAgachadoUpper) {
+			  const tiempoActual = performance.now();
+			  const tiempoTranscurrido = tiempoActual - this.inicioAnimacionAgachadoUpper;
+			  const progreso = Math.min(tiempoTranscurrido / this.duracionAnimacionAgachadoUpper, 1);
+		
+			  // Actualizar la animación (código específico de animación aquí)
+			  this.personajeState = 'agachadoUpper';
+			  this.position = Math.floor(progreso * numAnimaciones);
+		
+			  this.height = this.spriteAnimations[this.personajeState].loc[this.position].height;
+			  this.y = LIMITE_ABAJO - this.height;
+
+			  if (this.id === 1){
+
+				switch(this.position){
+					case 0:
+						this.hitbox.cuerpo.x = this.x+4, 
+						this.hitbox.cuerpo.y = this.y+2, 
+						this.hitbox.cuerpo.width = this.width/1.5, 
+						this.hitbox.cuerpo.height = this.height/1.05
+						
+						this.hitbox.cabeza.x = this.x+8,
+						this.hitbox.cabeza.y = this.y+3,
+						this.hitbox.cabeza.width = this.width/3.5,
+						this.hitbox.cabeza.height = this.height/6
+						break;
+					case 1:
+						this.hitbox.cuerpo.x = this.x+3, 
+						this.hitbox.cuerpo.y = this.y+3, 
+						this.hitbox.cuerpo.width = this.width/2.1, 
+						this.hitbox.cuerpo.height = this.height/1.07 
+
+						this.hitbox.patada.x = this.x+47, 
+						this.hitbox.patada.y = this.y+1, 
+						this.hitbox.patada.width = this.width/3.2, 
+						this.hitbox.patada.height = this.height/11
+
+						this.hitbox.cabeza.x = this.x-2,
+						this.hitbox.cabeza.y = this.y+3,
+						this.hitbox.cabeza.width = this.width/3.5,
+						this.hitbox.cabeza.height = this.height/6
+						break;
+					case 2:
+						this.hitbox.cuerpo.x = this.x+4, 
+						this.hitbox.cuerpo.y = this.y+2, 
+						this.hitbox.cuerpo.width = this.width/1.5, 
+						this.hitbox.cuerpo.height = this.height/1.05
+
+						this.hitbox.patada.x = null, 
+						this.hitbox.patada.y = null, 
+						this.hitbox.patada.width = null, 
+						this.hitbox.patada.height = null
+						
+						this.hitbox.cabeza.x = this.x+8,
+						this.hitbox.cabeza.y = this.y+3,
+						this.hitbox.cabeza.width = this.width/3.5,
+						this.hitbox.cabeza.height = this.height/6
+						break;
+					default:
+						break;
+				}
+			  } else {
+
+				
+				if(this.primeraVez && this.position === 0) {
+					this.x = this.x-2;
+					this.primeraVez = false;
+				}
+				if(this.segundaVez && this.position === 2) {
+					this.x = this.x-6;
+					this.segundaVez = false;
+				}
+				if(this.tercerVez && this.position === 3) {
+					this.x = this.x+6;
+					this.tercerVez = false;
+				}
+
+				switch(this.position){
+				case 0:
+					this.hitbox.cuerpo.x = this.x+30, 
+					this.hitbox.cuerpo.y = this.y+1, 
+					this.hitbox.cuerpo.width = this.width/3.2, 
+					this.hitbox.cuerpo.height = this.height/1.1
+					
+					this.hitbox.cabeza.x = this.x+34,
+					this.hitbox.cabeza.y = this.y+4,
+					this.hitbox.cabeza.width = this.width/5,
+					this.hitbox.cabeza.height = this.height/7
+					break;
+				case 1:
+					this.hitbox.cuerpo.x = this.x+28, 
+					this.hitbox.cuerpo.y = this.y+4, 
+					this.hitbox.cuerpo.width = this.width/2.4, 
+					this.hitbox.cuerpo.height = this.height/1.1
+					
+					this.hitbox.patada.x = this.x, 
+					this.hitbox.patada.y = this.y+10, 
+					this.hitbox.patada.width = this.width/3.2, 
+					this.hitbox.patada.height = this.height/14
+					
+					this.hitbox.cabeza.x = this.x+44,
+					this.hitbox.cabeza.y = this.y+3,
+					this.hitbox.cabeza.width = this.width/5,
+					this.hitbox.cabeza.height = this.height/7
+					break;
+				case 2:
+					this.hitbox.cuerpo.x = this.x+30, 
+					this.hitbox.cuerpo.y = this.y+1, 
+					this.hitbox.cuerpo.width = this.width/3.2, 
+					this.hitbox.cuerpo.height = this.height/1.1
+
+					this.hitbox.patada.x = null, 
+					this.hitbox.patada.y = null, 
+					this.hitbox.patada.width = null, 
+					this.hitbox.patada.height = null
+					
+					this.hitbox.cabeza.x = this.x+34,
+					this.hitbox.cabeza.y = this.y+4,
+					this.hitbox.cabeza.width = this.width/5,
+					this.hitbox.cabeza.height = this.height/7
+					break;
+				default:
+					break;
+				}
+			  }
+
+			  if (tiempoTranscurrido < this.duracionAnimacionAgachadoUpper) {
+				// Continuar animación si no ha alcanzado la duración máxima
+				requestAnimationFrame(() => this.animarAgachadoUpper(numAnimaciones));
+			  } else {
+				// console.log('ANIMACIÓN PATADA BAJA TERMINADA');
+				this.animacionEnProgresoAgachadoUpper = false;
+				if (this.id === 2) this.x = this.x + 2;
+				this.primeraVez = true;
+				this.segundaVez = true;
+				this.tercerVez = true;
+			  }
+			}
+		}
 
 		generaAgacharse() {
 			this.personajeState = 'agacharse';
@@ -1441,7 +1837,7 @@ window.onload = function () {
 
 
 		comprobarHitBox(){
-				if(this.personajeState !== 'saltar' && this.personajeState !== 'movingPunch' && this.personajeState !== 'kick' && this.personajeState !== 'agachadoPunch' && this.personajeState !== 'lowKick') {
+				if(this.personajeState !== 'saltar' && this.personajeState !== 'movingPunch' && this.personajeState !== 'kick' && this.personajeState !== 'agachadoPunch' && this.personajeState !== 'lowKick' && this.personajeState !== 'agachadoBarrido' && this.personajeState !== 'agachadoUpper') {
 				// position2 es igual que position -> para no crear problemas de sincronización
 				this.position2 = Math.floor(gameFrame / this.velocidadAnimacion) % this.spriteAnimations[this.personajeState].loc.length;
 				this.height = this.spriteAnimations[this.personajeState].loc[this.position2].height;
@@ -1674,7 +2070,7 @@ window.onload = function () {
 			if(this.personajeState === 'saltar'){
 				this.position = Math.floor(this.AnimationFrame / this.velocidadAnimacion) % this.spriteAnimations[this.personajeState].loc.length;
 				// console.log('POSICIÓN ANIMACIÓN: '+this.position);
-			} else if(this.personajeState === 'movingPunch' || this.personajeState === 'kick' || this.personajeState === 'agachadoPunch' || this.personajeState === 'lowKick') {
+			} else if(this.personajeState === 'movingPunch' || this.personajeState === 'kick' || this.personajeState === 'agachadoPunch' || this.personajeState === 'lowKick' || this.personajeState === 'agachadoBarrido' || this.personajeState === 'agachadoUpper') {
 				// console.log('POSICIÓN ANIMACIÓN: '+this.position);
 			} else {
 				this.position = Math.floor(gameFrame / this.velocidadAnimacion) % this.spriteAnimations[this.personajeState].loc.length;
@@ -1781,7 +2177,6 @@ window.onload = function () {
 
 - TAREAS QUE REALIZAR:
 
-* Hacer low kick de ambos personajes pero con otra tecla (T, I)
 * Ponerse con las animaciones de ser golpeado y derrotado
 * Crear animación patada baja agachado
 * Hitbox tronco para low-kick, puño agachado y patada baja
