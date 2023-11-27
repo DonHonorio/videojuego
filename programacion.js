@@ -19,7 +19,7 @@ window.onload = function () {
 		vy: 5,
 		weight: 0.09
 	}
-	const TASA_REFRESCO_ADECUADA = TASA_REFRESCO_144Hz;
+	const TASA_REFRESCO_ADECUADA = TASA_REFRESCO_60Hz;
 
 	// limites
 	const LIMITE_DERECHA = document.getElementById('miCanvas').width;
@@ -37,6 +37,10 @@ window.onload = function () {
 	const vida2 = document.getElementById('vida2');
 	const energia1 = document.getElementById('energia1');
 	const energia2 = document.getElementById('energia2');
+
+	//variables de sonidos
+
+	let sonidoStrongHit;
 
 	// inicializamos variables
 	const VIDA_TOTAL = 2000;
@@ -460,6 +464,10 @@ window.onload = function () {
 		}
 	}
 
+	function inicialiazarSonidos(){
+		sonidoStrongHit = document.getElementById('audioStrongHit');
+	}
+
 	function seTropiezan() {
 		let colisionEnX = (miPersonaje.hitbox.cuerpo.x < miEnemigo.hitbox.cuerpo.x + miEnemigo.hitbox.cuerpo.width) && (miPersonaje.hitbox.cuerpo.x + miPersonaje.hitbox.cuerpo.width > miEnemigo.hitbox.cuerpo.x);
 		let colisionEnY = (miPersonaje.hitbox.cuerpo.y < miEnemigo.hitbox.cuerpo.y + miEnemigo.hitbox.cuerpo.height) && (miPersonaje.hitbox.cuerpo.y + miPersonaje.hitbox.cuerpo.height > miEnemigo.hitbox.cuerpo.y);
@@ -526,12 +534,16 @@ window.onload = function () {
 		if(personaje1PunchingHead() && !miPersonaje.golpeConectado.punchHead){ //solo se produce el evento 1 vez, cada vez que el puño colisiona con la cabeza
 			miPersonaje.golpeConectado.punchHead = true;  //se pone a true y se espera a que cuando deje de haber la colisión se ponga a false
 			console.log('PERSONAJE 1 HA GOLPEADO A LA CABEZA');
+			sonidoStrongHit.currentTime = 0;
+			sonidoStrongHit.play();
 			miEnemigo.vida -= 150;
 			miPersonaje.energia -= 15000;
 		}
 		if(personaje2PunchingHead() && !miEnemigo.golpeConectado.punchHead){
 			miEnemigo.golpeConectado.punchHead = true;
 			console.log('PERSONAJE 2 HA GOLPEADO A LA CABEZA');
+			sonidoStrongHit.currentTime = 0;
+			sonidoStrongHit.play();
 			miPersonaje.vida -= 150;
 			miEnemigo.energia -= 15000;
 		}
@@ -1721,6 +1733,8 @@ window.onload = function () {
 
 	const miPersonaje = new Personaje(personajeImage, spriteAnimationsKen, spriteHeightKen, 100, 1);
 	const miEnemigo = new Personaje(enemigoImage, spriteAnimationsCammy, spriteHeightCammy, 300, 2);
+
+	inicialiazarSonidos();
 
 	function pintarJuego(timeStamp) {
 		ctx.clearRect(0, 0, LIMITE_DERECHA, CANVAS_HEIGHT);
