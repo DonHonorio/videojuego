@@ -723,7 +723,7 @@ window.onload = function () {
 			this.animacionEnProgresoKick = false;
 			//animaciones patadas bajas
 			this.inicioAnimacionLowKick = null;
-			this.duracionAnimacionLowKick = 5000;
+			this.duracionAnimacionLowKick = 800;
 			this.animacionEnProgresoLowKick = false;
 
 
@@ -1318,13 +1318,13 @@ window.onload = function () {
 					this.x = this.x-21;
 					this.primeraVez = false;
 				}
-				if(this.primeraVez && this.position === 3) {
-					this.x = this.x-11;
-					this.primeraVez = false;
-				}
-				if(this.segundaVez && this.position === 4) {
-					this.x = this.x+11;
+				if(this.segundaVez && this.position === 3) {
+					this.x = this.x-14;
 					this.segundaVez = false;
+				}
+				if(this.tercerVez && this.position === 4) {
+					this.x = this.x+35;
+					this.tercerVez = false;
 				}
 
 				switch(this.position){
@@ -1384,6 +1384,7 @@ window.onload = function () {
 				this.animacionEnProgresoLowKick = false;
 				this.primeraVez = true;
 				this.segundaVez = true;
+				this.tercerVez = true;
 			  }
 			}
 		  }
