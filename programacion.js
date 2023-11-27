@@ -151,30 +151,30 @@ window.onload = function () {
 	}
 	spriteAnimationsKen['faceHit'] = {
 		loc: [
-			{ x: 1259, y: 37, width: 45, height: 83 },
-			{ x: 1259, y: 37, width: 45, height: 83 },
-			{ x: 1259, y: 37, width: 45, height: 83 },
-			{ x: 1259, y: 37, width: 45, height: 83 }
+			{ x: 217, y: 777, width: 48, height: 83 },
+			{ x: 270, y: 777, width: 53, height: 83 },
+			{ x: 326, y: 777, width: 60, height: 83 },
+			{ x: 391, y: 777, width: 43, height: 83 }
 		]
 	}
 	spriteAnimationsKen['hit'] = {
 		loc: [
-			{ x: 1259, y: 37, width: 45, height: 62 }
+			{ x: 5, y: 779, width: 43, height: 81 },
+			{ x: 53, y: 779, width: 47, height: 81 },
+			{ x: 106, y: 779, width: 49, height: 81 },
+			{ x: 163, y: 779, width: 43, height: 81 }
 		]
 	}
 	spriteAnimationsKen['agachadoHit'] = {
 		loc: [
-			{ x: 1259, y: 37, width: 45, height: 62 }
-		]
-	}
-	spriteAnimationsKen['knockdownRecovery'] = {
-		loc: [
-			{ x: 1259, y: 37, width: 45, height: 62 }
+			{ x: 449, y: 798, width: 47, height: 62 }
 		]
 	}
 	spriteAnimationsKen['stunned'] = {
 		loc: [
-			{ x: 1259, y: 37, width: 45, height: 62 }
+			{ x: 1003, y: 779, width: 51, height: 81 },
+			{ x: 1060, y: 779, width: 43, height: 81 },
+			{ x: 1110, y: 779, width: 43, height: 81 }
 		]
 	}
 	spriteAnimationsKen['KO'] = {
@@ -182,6 +182,11 @@ window.onload = function () {
 			{ x: 1259, y: 37, width: 45, height: 62 }
 		]
 	}
+	// spriteAnimationsKen['knockdownRecovery'] = {
+	// 	loc: [
+	// 		{ x: 1259, y: 37, width: 45, height: 62 }  //de momento lo dejo sin hacer
+	// 	]
+	// }							
 
 	const spriteAnimationsCammy = [];
 
@@ -481,7 +486,7 @@ window.onload = function () {
 					}
 					if (teclasPresionadas.letraT && miPersonaje.y <= 507) {	
 						// console.log('Tecla "espacio" presionada. Iniciando animación puñetazo.');
-						miPersonaje.iniciarAnimacionLowKick(2.999);
+						miPersonaje.iniciarAnimacionLowKick(2.999, 600);
 					}
 				}
 			}
@@ -526,7 +531,7 @@ window.onload = function () {
 					}
 					if (teclasPresionadas.letraI && miEnemigo.y <= 507) {	
 						// console.log('Tecla "espacio" presionada. Iniciando animación puñetazo.');
-						miEnemigo.iniciarAnimacionLowKick(4.999);
+						miEnemigo.iniciarAnimacionLowKick(4.999, 800);
 					}
 				}
 			}
@@ -618,6 +623,7 @@ window.onload = function () {
 			sonidoStrongHit.play();
 			miPersonaje.vida -= 150;
 			miEnemigo.energia -= 15000;
+			miPersonaje.iniciarAnimacionAgachadoHit();
 		}
 		if(personaje1KickingHead() && !miPersonaje.golpeConectado.kickHead){
 			miPersonaje.golpeConectado.kickHead = true;
@@ -794,21 +800,21 @@ window.onload = function () {
 
 			//animaciones puñetazo                
 			this.inicioAnimacionMovingPunch = null;
-      this.duracionAnimacionMovingPunch = 600; // Duración de animación milisegundos (600)
+      		this.duracionAnimacionMovingPunch = 600; // Duración de animación milisegundos (600)
 			this.animacionEnProgresoMovingPunch = false;
 			//animaciones puñetazo agachado
 			this.inicioAnimacionAgachadoPunch = null;
-      this.duracionAnimacionAgachadoPunch = 300; // Duración de animación milisegundos (300)
+      		this.duracionAnimacionAgachadoPunch = 300; // Duración de animación milisegundos (300)
 			this.animacionEnProgresoAgachadoPunch = false;
 
 			//animaciones patadas                
 			this.inicioAnimacionKick = null;
-      this.duracionAnimacionKick = 500; // Duración de animación milisegundos (500)
+      		this.duracionAnimacionKick = 500; // Duración de animación milisegundos (500)
 			this.animacionEnProgresoKick = false;
 			//animaciones patadas bajas
 			this.inicioAnimacionLowKick = null;
-			this.duracionAnimacionLowKick = 800;
 			this.animacionEnProgresoLowKick = false;
+
 			//animaciones barrido agachado
 			this.inicioAnimacionAgachadoBarrido = null;
 			this.duracionAnimacionAgachadoBarrido = 600;
@@ -817,6 +823,19 @@ window.onload = function () {
 			this.inicioAnimacionAgachadoUpper = null;
 			this.duracionAnimacionAgachadoUpper = 600;
 			this.animacionEnProgresoAgachadoUpper = false;
+
+			//animaciones recibir golpe en la cara (faceHit)
+			this.inicioAnimacionFaceHit = null;
+			this.duracionAnimacionFaceHit = 600;
+			this.animacionEnProgresoFaceHit = false;
+			//animaciones recibir golpe (hit)
+			this.inicioAnimacionHit = null;
+			this.duracionAnimacionHit = 600;
+			this.animacionEnProgresoHit = false;
+			//animaciones recibir golpe en la cara agachado (agachadoHit)
+			this.inicioAnimacionAgachadoHit = null;
+			this.duracionAnimacionAgachadoHit = 600;
+			this.animacionEnProgresoAgachadoHit = false;
 
 
 			//variables creadas para solucionar error del sprite que se carga en una mala posición debido a sus dimensiones.
@@ -1350,14 +1369,14 @@ window.onload = function () {
 
 		iniciarAnimacionKick() {
 			this.animacionEnProgresoKick = true;
-			this.inicioAnimacionKick = performance.now();
+			this.inicioAnimacionFaceHit = performance.now();
 			this.animarKick();
 		}
 
 		animarKick() {
 			if (this.animacionEnProgresoKick) {
 			  const tiempoActual = performance.now();
-			  const tiempoTranscurrido = tiempoActual - this.inicioAnimacionKick;
+			  const tiempoTranscurrido = tiempoActual - this.inicioAnimacionFaceHit;
 			  const progreso = Math.min(tiempoTranscurrido / this.duracionAnimacionKick, 1);
 		
 			  // Actualizar la animación (código específico de animación aquí)
@@ -1503,18 +1522,497 @@ window.onload = function () {
 			}
 		  }
 
+		iniciarAnimacionFaceHit() {
+			this.animacionEnProgresoFaceHit = true;
+			this.inicioAnimacionFaceHit = performance.now();
+			this.animarFaceHit();
+		}
+  
+		animarFaceHit() {
+			if (this.animacionEnProgresoFaceHit) {
+			const tiempoActual = performance.now();
+			const tiempoTranscurrido = tiempoActual - this.inicioAnimacionFaceHit;
+			const progreso = Math.min(tiempoTranscurrido / this.duracionAnimacionFaceHit, 1);
 		
-		iniciarAnimacionLowKick(numAnimaciones) {
-			this.animacionEnProgresoLowKick = true;
-			this.inicioAnimacionLowKick = performance.now();
-			this.animarLowKick(numAnimaciones);
+			// Actualizar la animación (código específico de animación aquí)
+			this.personajeState = 'faceHit';
+			this.position = Math.floor(progreso * 3.999);
+		
+			this.height = this.spriteAnimations[this.personajeState].loc[this.position].height;
+			this.y = LIMITE_ABAJO - this.height;
+
+			if (this.id === 1){
+
+				if(this.primeraVez && this.position === 0) {
+					this.x = this.x-6;
+					this.primeraVez = false;
+				}
+				if(this.segundaVez && this.position === 1) {
+					this.x = this.x-11;
+					this.segundaVez = false;
+				}
+				if(this.tercerVez && this.position === 2) {
+					this.x = this.x+11;
+					this.tercerVez = false;
+				}
+
+				switch(this.position){
+					case 0:
+						this.hitbox.cuerpo.x = this.x+4, 
+						this.hitbox.cuerpo.y = this.y+2, 
+						this.hitbox.cuerpo.width = this.width/1.5, 
+						this.hitbox.cuerpo.height = this.height/1.05
+						
+						this.hitbox.cabeza.x = this.x+8,
+						this.hitbox.cabeza.y = this.y+3,
+						this.hitbox.cabeza.width = this.width/3.5,
+						this.hitbox.cabeza.height = this.height/6
+						break;
+					case 1:
+						this.hitbox.cuerpo.x = this.x+3, 
+						this.hitbox.cuerpo.y = this.y+3, 
+						this.hitbox.cuerpo.width = this.width/2.1, 
+						this.hitbox.cuerpo.height = this.height/1.07 
+
+						this.hitbox.patada.x = this.x+47, 
+						this.hitbox.patada.y = this.y+1, 
+						this.hitbox.patada.width = this.width/3.2, 
+						this.hitbox.patada.height = this.height/11
+
+						this.hitbox.cabeza.x = this.x-2,
+						this.hitbox.cabeza.y = this.y+3,
+						this.hitbox.cabeza.width = this.width/3.5,
+						this.hitbox.cabeza.height = this.height/6
+						break;
+					case 2:
+						this.hitbox.cuerpo.x = this.x+4, 
+						this.hitbox.cuerpo.y = this.y+2, 
+						this.hitbox.cuerpo.width = this.width/1.5, 
+						this.hitbox.cuerpo.height = this.height/1.05
+
+						this.hitbox.patada.x = null, 
+						this.hitbox.patada.y = null, 
+						this.hitbox.patada.width = null, 
+						this.hitbox.patada.height = null
+						
+						this.hitbox.cabeza.x = this.x+8,
+						this.hitbox.cabeza.y = this.y+3,
+						this.hitbox.cabeza.width = this.width/3.5,
+						this.hitbox.cabeza.height = this.height/6
+						break;
+					default:
+						break;
+				}
+			} else {
+
+				if(this.primeraVez && this.position === 0) {
+					this.x = this.x-6;
+					this.primeraVez = false;
+				}
+				if(this.segundaVez && this.position === 1) {
+					this.x = this.x-11;
+					this.segundaVez = false;
+				}
+				if(this.tercerVez && this.position === 2) {
+					this.x = this.x+11;
+					this.tercerVez = false;
+				}
+
+				switch(this.position){
+				case 0:
+					this.hitbox.cuerpo.x = this.x+30, 
+					this.hitbox.cuerpo.y = this.y+1, 
+					this.hitbox.cuerpo.width = this.width/3.2, 
+					this.hitbox.cuerpo.height = this.height/1.1
+					
+					this.hitbox.cabeza.x = this.x+34,
+					this.hitbox.cabeza.y = this.y+4,
+					this.hitbox.cabeza.width = this.width/5,
+					this.hitbox.cabeza.height = this.height/7
+					break;
+				case 1:
+					this.hitbox.cuerpo.x = this.x+28, 
+					this.hitbox.cuerpo.y = this.y+4, 
+					this.hitbox.cuerpo.width = this.width/2.4, 
+					this.hitbox.cuerpo.height = this.height/1.1
+					
+					this.hitbox.patada.x = this.x, 
+					this.hitbox.patada.y = this.y+10, 
+					this.hitbox.patada.width = this.width/3.2, 
+					this.hitbox.patada.height = this.height/14
+					
+					this.hitbox.cabeza.x = this.x+44,
+					this.hitbox.cabeza.y = this.y+3,
+					this.hitbox.cabeza.width = this.width/5,
+					this.hitbox.cabeza.height = this.height/7
+					break;
+				case 2:
+					this.hitbox.cuerpo.x = this.x+30, 
+					this.hitbox.cuerpo.y = this.y+1, 
+					this.hitbox.cuerpo.width = this.width/3.2, 
+					this.hitbox.cuerpo.height = this.height/1.1
+
+					this.hitbox.patada.x = null, 
+					this.hitbox.patada.y = null, 
+					this.hitbox.patada.width = null, 
+					this.hitbox.patada.height = null
+					
+					this.hitbox.cabeza.x = this.x+34,
+					this.hitbox.cabeza.y = this.y+4,
+					this.hitbox.cabeza.width = this.width/5,
+					this.hitbox.cabeza.height = this.height/7
+					break;
+				default:
+					break;
+				}
+			}
+
+			if (tiempoTranscurrido < this.duracionAnimacionFaceHit) {
+				// Continuar animación si no ha alcanzado la duración máxima
+				requestAnimationFrame(() => this.animarFaceHit());
+			} else {
+				// console.log('ANIMACIÓN PUÑETAZO TERMINADA');
+				this.animacionEnProgresoFaceHit = false;
+				if (this.id === 1) this.x = this.x + 6;
+				this.primeraVez = true;
+				this.segundaVez = true;
+				this.tercerVez = true;
+			}
+			}
 		}
 
-		animarLowKick(numAnimaciones) {
+		iniciarAnimacionHit() {
+			this.animacionEnProgresoHit = true;
+			this.inicioAnimacionHit = performance.now();
+			this.animarHit();
+		}
+  
+		animarHit() {
+			if (this.animacionEnProgresoHit) {
+			const tiempoActual = performance.now();
+			const tiempoTranscurrido = tiempoActual - this.inicioAnimacionHit;
+			const progreso = Math.min(tiempoTranscurrido / this.duracionAnimacionHit, 1);
+		
+			// Actualizar la animación (código específico de animación aquí)
+			this.personajeState = 'hit';
+			this.position = Math.floor(progreso * 3.999);
+		
+			this.height = this.spriteAnimations[this.personajeState].loc[this.position].height;
+			this.y = LIMITE_ABAJO - this.height;
+
+			if (this.id === 1){
+
+				if(this.primeraVez && this.position === 0) {
+					this.x = this.x-6;
+					this.primeraVez = false;
+				}
+				if(this.segundaVez && this.position === 1) {
+					this.x = this.x-11;
+					this.segundaVez = false;
+				}
+				if(this.tercerVez && this.position === 2) {
+					this.x = this.x+11;
+					this.tercerVez = false;
+				}
+
+				switch(this.position){
+					case 0:
+						this.hitbox.cuerpo.x = this.x+4, 
+						this.hitbox.cuerpo.y = this.y+2, 
+						this.hitbox.cuerpo.width = this.width/1.5, 
+						this.hitbox.cuerpo.height = this.height/1.05
+						
+						this.hitbox.cabeza.x = this.x+8,
+						this.hitbox.cabeza.y = this.y+3,
+						this.hitbox.cabeza.width = this.width/3.5,
+						this.hitbox.cabeza.height = this.height/6
+						break;
+					case 1:
+						this.hitbox.cuerpo.x = this.x+3, 
+						this.hitbox.cuerpo.y = this.y+3, 
+						this.hitbox.cuerpo.width = this.width/2.1, 
+						this.hitbox.cuerpo.height = this.height/1.07 
+
+						this.hitbox.patada.x = this.x+47, 
+						this.hitbox.patada.y = this.y+1, 
+						this.hitbox.patada.width = this.width/3.2, 
+						this.hitbox.patada.height = this.height/11
+
+						this.hitbox.cabeza.x = this.x-2,
+						this.hitbox.cabeza.y = this.y+3,
+						this.hitbox.cabeza.width = this.width/3.5,
+						this.hitbox.cabeza.height = this.height/6
+						break;
+					case 2:
+						this.hitbox.cuerpo.x = this.x+4, 
+						this.hitbox.cuerpo.y = this.y+2, 
+						this.hitbox.cuerpo.width = this.width/1.5, 
+						this.hitbox.cuerpo.height = this.height/1.05
+
+						this.hitbox.patada.x = null, 
+						this.hitbox.patada.y = null, 
+						this.hitbox.patada.width = null, 
+						this.hitbox.patada.height = null
+						
+						this.hitbox.cabeza.x = this.x+8,
+						this.hitbox.cabeza.y = this.y+3,
+						this.hitbox.cabeza.width = this.width/3.5,
+						this.hitbox.cabeza.height = this.height/6
+						break;
+					default:
+						break;
+				}
+			} else {
+
+				if(this.primeraVez && this.position === 0) {
+					this.x = this.x-6;
+					this.primeraVez = false;
+				}
+				if(this.segundaVez && this.position === 1) {
+					this.x = this.x-11;
+					this.segundaVez = false;
+				}
+				if(this.tercerVez && this.position === 2) {
+					this.x = this.x+11;
+					this.tercerVez = false;
+				}
+
+				switch(this.position){
+				case 0:
+					this.hitbox.cuerpo.x = this.x+30, 
+					this.hitbox.cuerpo.y = this.y+1, 
+					this.hitbox.cuerpo.width = this.width/3.2, 
+					this.hitbox.cuerpo.height = this.height/1.1
+					
+					this.hitbox.cabeza.x = this.x+34,
+					this.hitbox.cabeza.y = this.y+4,
+					this.hitbox.cabeza.width = this.width/5,
+					this.hitbox.cabeza.height = this.height/7
+					break;
+				case 1:
+					this.hitbox.cuerpo.x = this.x+28, 
+					this.hitbox.cuerpo.y = this.y+4, 
+					this.hitbox.cuerpo.width = this.width/2.4, 
+					this.hitbox.cuerpo.height = this.height/1.1
+					
+					this.hitbox.patada.x = this.x, 
+					this.hitbox.patada.y = this.y+10, 
+					this.hitbox.patada.width = this.width/3.2, 
+					this.hitbox.patada.height = this.height/14
+					
+					this.hitbox.cabeza.x = this.x+44,
+					this.hitbox.cabeza.y = this.y+3,
+					this.hitbox.cabeza.width = this.width/5,
+					this.hitbox.cabeza.height = this.height/7
+					break;
+				case 2:
+					this.hitbox.cuerpo.x = this.x+30, 
+					this.hitbox.cuerpo.y = this.y+1, 
+					this.hitbox.cuerpo.width = this.width/3.2, 
+					this.hitbox.cuerpo.height = this.height/1.1
+
+					this.hitbox.patada.x = null, 
+					this.hitbox.patada.y = null, 
+					this.hitbox.patada.width = null, 
+					this.hitbox.patada.height = null
+					
+					this.hitbox.cabeza.x = this.x+34,
+					this.hitbox.cabeza.y = this.y+4,
+					this.hitbox.cabeza.width = this.width/5,
+					this.hitbox.cabeza.height = this.height/7
+					break;
+				default:
+					break;
+				}
+			}
+
+			if (tiempoTranscurrido < this.duracionAnimacionHit) {
+				// Continuar animación si no ha alcanzado la duración máxima
+				requestAnimationFrame(() => this.animarHit());
+			} else {
+				// console.log('ANIMACIÓN PUÑETAZO TERMINADA');
+				this.animacionEnProgresoHit = false;
+				if (this.id === 1) this.x = this.x + 6;
+				this.primeraVez = true;
+				this.segundaVez = true;
+				this.tercerVez = true;
+			}
+			}
+		}
+		
+		iniciarAnimacionAgachadoHit() {
+			this.animacionEnProgresoAgachadoHit = true;
+			this.inicioAnimacionAgachadoHit = performance.now();
+			this.animarAgachadoHit();
+		}
+  
+		animarAgachadoHit() {
+			if (this.animacionEnProgresoAgachadoHit) {
+			const tiempoActual = performance.now();
+			const tiempoTranscurrido = tiempoActual - this.inicioAnimacionAgachadoHit;
+			const progreso = Math.min(tiempoTranscurrido / this.duracionAnimacionAgachadoHit, 1);
+		
+			// Actualizar la animación (código específico de animación aquí)
+			this.personajeState = 'agachadoHit';
+			this.position = Math.floor(progreso * 3.999);
+		
+			this.height = this.spriteAnimations[this.personajeState].loc[this.position].height;
+			this.y = LIMITE_ABAJO - this.height;
+
+			if (this.id === 1){
+
+				if(this.primeraVez && this.position === 0) {
+					this.x = this.x-6;
+					this.primeraVez = false;
+				}
+				if(this.segundaVez && this.position === 1) {
+					this.x = this.x-11;
+					this.segundaVez = false;
+				}
+				if(this.tercerVez && this.position === 2) {
+					this.x = this.x+11;
+					this.tercerVez = false;
+				}
+
+				switch(this.position){
+					case 0:
+						this.hitbox.cuerpo.x = this.x+4, 
+						this.hitbox.cuerpo.y = this.y+2, 
+						this.hitbox.cuerpo.width = this.width/1.5, 
+						this.hitbox.cuerpo.height = this.height/1.05
+						
+						this.hitbox.cabeza.x = this.x+8,
+						this.hitbox.cabeza.y = this.y+3,
+						this.hitbox.cabeza.width = this.width/3.5,
+						this.hitbox.cabeza.height = this.height/6
+						break;
+					case 1:
+						this.hitbox.cuerpo.x = this.x+3, 
+						this.hitbox.cuerpo.y = this.y+3, 
+						this.hitbox.cuerpo.width = this.width/2.1, 
+						this.hitbox.cuerpo.height = this.height/1.07 
+
+						this.hitbox.patada.x = this.x+47, 
+						this.hitbox.patada.y = this.y+1, 
+						this.hitbox.patada.width = this.width/3.2, 
+						this.hitbox.patada.height = this.height/11
+
+						this.hitbox.cabeza.x = this.x-2,
+						this.hitbox.cabeza.y = this.y+3,
+						this.hitbox.cabeza.width = this.width/3.5,
+						this.hitbox.cabeza.height = this.height/6
+						break;
+					case 2:
+						this.hitbox.cuerpo.x = this.x+4, 
+						this.hitbox.cuerpo.y = this.y+2, 
+						this.hitbox.cuerpo.width = this.width/1.5, 
+						this.hitbox.cuerpo.height = this.height/1.05
+
+						this.hitbox.patada.x = null, 
+						this.hitbox.patada.y = null, 
+						this.hitbox.patada.width = null, 
+						this.hitbox.patada.height = null
+						
+						this.hitbox.cabeza.x = this.x+8,
+						this.hitbox.cabeza.y = this.y+3,
+						this.hitbox.cabeza.width = this.width/3.5,
+						this.hitbox.cabeza.height = this.height/6
+						break;
+					default:
+						break;
+				}
+			} else {
+
+				if(this.primeraVez && this.position === 0) {
+					this.x = this.x-6;
+					this.primeraVez = false;
+				}
+				if(this.segundaVez && this.position === 1) {
+					this.x = this.x-11;
+					this.segundaVez = false;
+				}
+				if(this.tercerVez && this.position === 2) {
+					this.x = this.x+11;
+					this.tercerVez = false;
+				}
+
+				switch(this.position){
+				case 0:
+					this.hitbox.cuerpo.x = this.x+30, 
+					this.hitbox.cuerpo.y = this.y+1, 
+					this.hitbox.cuerpo.width = this.width/3.2, 
+					this.hitbox.cuerpo.height = this.height/1.1
+					
+					this.hitbox.cabeza.x = this.x+34,
+					this.hitbox.cabeza.y = this.y+4,
+					this.hitbox.cabeza.width = this.width/5,
+					this.hitbox.cabeza.height = this.height/7
+					break;
+				case 1:
+					this.hitbox.cuerpo.x = this.x+28, 
+					this.hitbox.cuerpo.y = this.y+4, 
+					this.hitbox.cuerpo.width = this.width/2.4, 
+					this.hitbox.cuerpo.height = this.height/1.1
+					
+					this.hitbox.patada.x = this.x, 
+					this.hitbox.patada.y = this.y+10, 
+					this.hitbox.patada.width = this.width/3.2, 
+					this.hitbox.patada.height = this.height/14
+					
+					this.hitbox.cabeza.x = this.x+44,
+					this.hitbox.cabeza.y = this.y+3,
+					this.hitbox.cabeza.width = this.width/5,
+					this.hitbox.cabeza.height = this.height/7
+					break;
+				case 2:
+					this.hitbox.cuerpo.x = this.x+30, 
+					this.hitbox.cuerpo.y = this.y+1, 
+					this.hitbox.cuerpo.width = this.width/3.2, 
+					this.hitbox.cuerpo.height = this.height/1.1
+
+					this.hitbox.patada.x = null, 
+					this.hitbox.patada.y = null, 
+					this.hitbox.patada.width = null, 
+					this.hitbox.patada.height = null
+					
+					this.hitbox.cabeza.x = this.x+34,
+					this.hitbox.cabeza.y = this.y+4,
+					this.hitbox.cabeza.width = this.width/5,
+					this.hitbox.cabeza.height = this.height/7
+					break;
+				default:
+					break;
+				}
+			}
+
+			if (tiempoTranscurrido < this.duracionAnimacionAgachadoHit) {
+				// Continuar animación si no ha alcanzado la duración máxima
+				requestAnimationFrame(() => this.animarAgachadoHit());
+			} else {
+				// console.log('ANIMACIÓN PUÑETAZO TERMINADA');
+				this.animacionEnProgresoAgachadoHit = false;
+				if (this.id === 1) this.x = this.x + 6;
+				this.primeraVez = true;
+				this.segundaVez = true;
+				this.tercerVez = true;
+			}
+			}
+		}
+
+		/**TOCA COPIAR ANIMACION DE FACE HIT Y HACER EL RESTO */		
+
+		
+		iniciarAnimacionLowKick(numAnimaciones, duracionAnimacionLowKick) {
+			this.animacionEnProgresoLowKick = true;
+			this.inicioAnimacionLowKick = performance.now();
+			this.animarLowKick(numAnimaciones, duracionAnimacionLowKick);
+		}
+
+		animarLowKick(numAnimaciones, duracionAnimacionLowKick) {
 			if (this.animacionEnProgresoLowKick) {
 			  const tiempoActual = performance.now();
 			  const tiempoTranscurrido = tiempoActual - this.inicioAnimacionLowKick;
-			  const progreso = Math.min(tiempoTranscurrido / this.duracionAnimacionLowKick, 1);
+			  const progreso = Math.min(tiempoTranscurrido / duracionAnimacionLowKick, 1);
 		
 			  // Actualizar la animación (código específico de animación aquí)
 			  this.personajeState = 'lowKick';
@@ -1637,9 +2135,9 @@ window.onload = function () {
 				}
 			  }
 
-			  if (tiempoTranscurrido < this.duracionAnimacionLowKick) {
+			  if (tiempoTranscurrido < duracionAnimacionLowKick) {
 				// Continuar animación si no ha alcanzado la duración máxima
-				requestAnimationFrame(() => this.animarLowKick(numAnimaciones));
+				requestAnimationFrame(() => this.animarLowKick(numAnimaciones, duracionAnimacionLowKick));
 			  } else {
 				// console.log('ANIMACIÓN PATADA BAJA TERMINADA');
 				this.animacionEnProgresoLowKick = false;
@@ -2178,8 +2676,10 @@ window.onload = function () {
 - TAREAS QUE REALIZAR:
 
 * Ponerse con las animaciones de ser golpeado y derrotado
-* Crear animación patada baja agachado
-* Hitbox tronco para low-kick, puño agachado y patada baja
+
+* Ponerse con todas las hitbox
+* Poner todas las colisiones
+* Poner sonidos
 
 * Solucionar hitbox del cuerpo bara que cuando se agache y levante no empuje al otro
 * Hacer que al darle al botón de abajo se agache y para levantarse tenga que darle al de arriba
