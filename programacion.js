@@ -662,8 +662,8 @@ window.onload = function () {
 			miPersonaje.energia -= 15000;
 			// miEnemigo.iniciarAnimacionHit();
 			// miEnemigo.iniciarAnimacionFaceHit();
-			miEnemigo.iniciarAnimacionAgachadoHit();
-			// miEnemigo.iniciarAnimacionStunned(2.999);
+			// miEnemigo.iniciarAnimacionAgachadoHit();
+			miEnemigo.iniciarAnimacionStunned(3.999);
 			// miEnemigo.iniciarAnimacionKO();
 		}
 		if(personaje2PunchingHead() && !miEnemigo.golpeConectado.punchHead){
@@ -675,8 +675,8 @@ window.onload = function () {
 			miEnemigo.energia -= 15000;
 			// miPersonaje.iniciarAnimacionHit();
 			// miPersonaje.iniciarAnimacionFaceHit();
-			miPersonaje.iniciarAnimacionAgachadoHit();
-			// miPersonaje.iniciarAnimacionStunned(2.999);
+			// miPersonaje.iniciarAnimacionAgachadoHit();
+			miPersonaje.iniciarAnimacionStunned(2.999);
 			// miPersonaje.iniciarAnimacionKO();
 		}
 		if(personaje1KickingHead() && !miPersonaje.golpeConectado.kickHead){
@@ -1996,8 +1996,13 @@ window.onload = function () {
 		animarStunned(numAnimaciones) {
 			if (this.animacionEnProgresoStunned) {
 			const tiempoActual = performance.now();
-			const tiempoTranscurrido = tiempoActual - this.inicioAnimacionStunned;
-			const progreso = Math.min(tiempoTranscurrido / this.duracionAnimacionStunned, 1);
+			// const tiempoTranscurrido = tiempoActual - this.inicioAnimacionStunned;
+			if (typeof tiempoTranscurrido === 'undefined') {
+				// let tiempoTranscurrido = tiempoActual - this.inicioAnimacionStunned;
+				let tiempoTranscurrido = 0;
+			}
+			tiempoTranscurrido = (tiempoTranscurrido >= this.duracionAnimacionStunned/3) ? 0 : (tiempoActual - this.inicioAnimacionStunned);
+			const progreso = Math.min(tiempoTranscurrido / (this.duracionAnimacionStunned/3), 1);
 		
 			// Actualizar la animación (código específico de animación aquí)
 			this.personajeState = 'stunned';
@@ -2664,18 +2669,17 @@ window.onload = function () {
 		}
 
 
-		comprobarHitBox(){ // 
-				// if(this.personajeState !== 'saltar' && this.personajeState !== 'movingPunch' && this.personajeState !== 'kick' && this.personajeState !== 'agachadoPunch' && this.personajeState !== 'lowKick' && this.personajeState !== 'agachadoBarrido' && this.personajeState !== 'agachadoUpper') {
-				if ( !animacionesLargas.some( (value) => this.personajeState === value )){
+		comprobarHitBox(){
+			if ( !animacionesLargas.some( (value) => this.personajeState === value )){
 				// position2 es igual que position -> para no crear problemas de sincronización
 				this.position2 = Math.floor(gameFrame / this.velocidadAnimacion) % this.spriteAnimations[this.personajeState].loc.length;
 				this.height = this.spriteAnimations[this.personajeState].loc[this.position2].height;
 				this.y = LIMITE_ABAJO - this.height;
 
 				//excepción porque el sprite de bloquear abajo de miEnemigo esta diseñado de forma distinta
-				if (this.id === 2 && this.personajeState === 'bloquearAbajo') this.y += 2;
-				if (this.id === 2 && this.personajeState === 'agachadoHit') this.y += 2;
+				if (this.id === 2 && this.personajeState === 'bloquearAbajo') this.y += 12;
 			}
+			if (this.id === 2 && this.personajeState === 'agachadoHit') this.y += 2;
 
 			if (this.personajeState !== 'movingPunch'){
 				this.hitbox.punio.x = null, 
