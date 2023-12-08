@@ -4,45 +4,73 @@
 
   <head>
     <meta charset="utf-8">
-	<title>VideoJuego</title>
-	<script src="./programacion.js"></script>
-	<!-- <script src="./teoriaTemporizador.js"></script> -->
-  <script src="./combos2.js"></script>
-	<link rel="stylesheet" type="text/css" href="./style.css" title="style" />
+    <title>VideoJuego</title>
+    <script src="./programacion.js"></script>
+    <link rel="stylesheet" type="text/css" href="./style.css" title="style" />
   </head>
 
   <body>
 
-  <div id="marcador">
-    <div class="top">
-      <div id="player1">Deontay Wilder</div>
-      <div class="logotipo">GYPSY POCKET-KNIVE RUMBLE</div>
-      <div id="player2">Tyson Fury</div>
+    <div id="pantallaBienvenida">
+      <div class="contenedorNombres">
+        <div class="nombres">
+          <div class="nombre1">Jugador1</div>
+          <div class="nombre2">Jugador2</div>
+        </div>
+        <div class="inputs">
+          <input type="text" id="nombreJugador1">
+          <input type="text" id="nombreJugador2">
+        </div>
+      </div>
+      <div class="record">
+        <h2>RECORD</h2>
+        <ol id="listaRecord">
+          <!-- <li>Luismi - 10500pts</li>
+          <li>Josefa - 10500pts</li>
+          <li>MariaAntonietta - 10500pts</li>
+          <li>Miami - 10500pts</li> -->
+        </ol>
+      </div>
+      <input type="button" value="Jugar" id="botonIniciaPartida">
     </div>
 
-    <div class="bottom">
-      <div class="vida">
-        <div id="vida1"></div>
+    <div id="marcador">
+      <div class="top">
+        <div id="player1"></div>
+        <div class="logotipo">GYPSY POCKET-KNIVE RUMBLE</div>
+        <div id="player2"></div>
       </div>
-      <div class="vida">
-        <div id="vida2"></div>
+
+      <div class="bottom">
+        <div class="vida">
+          <div id="vida1"></div>
+        </div>
+        <div class="vida">
+          <div id="vida2"></div>
+        </div>
       </div>
     </div>
-  </div>
-  <!-- <canvas id="miCanvas" width="1800" height="800"> -->
-  <canvas id="miCanvas" width="700" height="570"></canvas>
-  <div id="marcadorDos">
-      <div class="energia">
-        <div id="energia1"></div>
-      </div>
-      <div class="energia">
-        <div id="energia2"></div>
-      </div>
-  </div>
-  <!-- <canvas id="miCanvas" width="1400" height="756"> -->
+    <!-- <canvas id="miCanvas" width="1800" height="800"> -->
+    <canvas id="miCanvas" width="700" height="570"></canvas>
+    <div id="marcadorDos">
+        <div class="energia">
+          <div id="energia1"></div>
+        </div>
+        <div class="energia">
+          <div id="energia2"></div>
+        </div>
+    </div>
+    <!-- <canvas id="miCanvas" width="1400" height="756"> -->
 
-  <audio id="audioStrongHit" src="./sonidos/Moves & Hits/Strong Hit.wav"></audio>
+    <audio id="audioStrongHit" src="./sonidos/Moves & Hits/Strong Hit.wav"></audio>
+    <audio id="audioJab" src="./sonidos/Moves & Hits/Jab Hit.wav"></audio>
+    <audio id="audioBloqueo" src="./sonidos/Moves & Hits/Blocked.wav"></audio>
+    <audio id="audioFierceHit" src="./sonidos/Moves & Hits/Fierce Hit.wav"></audio>
+    <audio id="audioBarrido" src="./sonidos/Moves & Hits/Hard Attack1.wav"></audio>
+    <audio id="audioAterrizaje" src="./sonidos/Moves & Hits/SFII_53 - Landing.wav"></audio>
+    <audio id="audioShortHit" src="./sonidos/Moves & Hits/Short Hit.wav"></audio>
 
-</body>
+
+  </body>
 
 </html>

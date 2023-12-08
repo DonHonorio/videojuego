@@ -1,5 +1,10 @@
 window.onload = function () {
 	// CONSTANTES
+
+	let XXXposition1;  //VARIABLE DE PRUEBA BORRAR
+	let XXXposition2;  //VARIABLE DE PRUEBA BORRAR
+	let Loc;
+
 	let x;
 	let y;
 	let width;
@@ -19,7 +24,7 @@ window.onload = function () {
 		vy: 5,
 		weight: 0.09
 	}
-	const TASA_REFRESCO_ADECUADA = TASA_REFRESCO_144Hz;
+	const TASA_REFRESCO_ADECUADA = TASA_REFRESCO_60Hz;
 
 	// limites
 	const LIMITE_DERECHA = document.getElementById('miCanvas').width;
@@ -32,19 +37,60 @@ window.onload = function () {
 	const canvas = document.getElementById("miCanvas");
 	const ctx = canvas.getContext('2d');
 
+	const pantallaBienvenida = document.getElementById('pantallaBienvenida');
+	const listaRecord = document.getElementById('listaRecord');
+
+	const nombreJugador1 = document.getElementById('player1');
+	const nombreJugador2 = document.getElementById('player2');
+
 	// localizamos la caja que va a mostrar la vida de los personajes
 	const vida1 = document.getElementById('vida1');
 	const vida2 = document.getElementById('vida2');
 	const energia1 = document.getElementById('energia1');
 	const energia2 = document.getElementById('energia2');
 
+	let record = [1, 2, 3, 4, 5];
+
 	//variables de sonidos
 
-	let sonidoStrongHit;
+	let audioStrongHit;
+	let audioJab;
+	let audioBloqueo;
+	let audioFierceHit;
+	let audioSpinningBack;
+	let audioAterrizaje;
+	let audioShortHit;
 
 	// inicializamos variables
-	const VIDA_TOTAL = 2000;
-	const ENERGIA_TOTAL = 100000;
+	const VIDA_TOTAL = 100;
+	const ENERGIA_TOTAL = 100;
+
+	const danioGolpe = {
+		'movingPunch': 40,
+		'agachadoPunch': 40,
+		'agachadoUpper': 40,
+		'kick': 40,
+		'lowKick': 40,
+		'lowKickHead': 40,
+		'agachadoBarrido': 40
+	}
+	const danioGolpeBloqueado = {
+		'movingPunch': 5,
+		'agachadoPunch': 5,
+		'agachadoUpper': 5,
+		'kick': 5,
+		'lowKick': 5,
+		'lowKickHead': 5,
+		'agachadoBarrido': 5
+	}
+	const energiaGolpe = {
+		'movingPunch': 40,
+		'agachadoPunch': 40,
+		'agachadoUpper': 40,
+		'kick': 40,
+		'lowKick': 40,
+		'agachadoBarrido': 40
+	}
 
 	const personajeImage = new Image();
 	personajeImage.src = './img/KenStreetFighter.png';
@@ -340,6 +386,9 @@ window.onload = function () {
 
 	const animacionesLargas = ['saltar','movingPunch','agachadoPunch','agachadoUpper','agachadoBarrido','kick','lowKick','faceHit','hit','agachadoHit','stunned','KO'];
 	//las animaciones largas son aquellas que tienen una propia funcion que las inicia como puñetazo, patada...
+	const animacionesNecesitaEquilibrio = ['caminando','movingPunch','agachadoUpper','kick','lowKick'];
+	//las animaciones largas son aquellas que tienen una propia funcion que las inicia como puñetazo, patada...
+
 
 	const TECLA_ARRIBA = 38;
 	const TECLA_ABAJO = 40;
@@ -494,8 +543,8 @@ window.onload = function () {
 	document.addEventListener("keyup", desactivaMovimiento, false);
 
 	function detectarControlesPersonaje() {
-		if (teclasPresionadas.letraW && miPersonaje.onGround() || teclasPresionadas.letraS && miPersonaje.onGround() || teclasPresionadas.letraD || teclasPresionadas.letraA || teclasPresionadas.letraE && !miPersonaje.seEstaEjecutandoAtaque() || teclasPresionadas.letraR && !miPersonaje.seEstaEjecutandoAtaque() || teclasPresionadas.letraT && !miPersonaje.seEstaEjecutandoAtaque() || teclasPresionadas.letraQ && miPersonaje.onGround()){
-			if (teclasPresionadas.letraS && miPersonaje.onGround() || teclasPresionadas.letraQ && miPersonaje.onGround()) {
+		if ( teclasPresionadas.letraW && miPersonaje.onGround() || teclasPresionadas.letraS && miPersonaje.onGround() || teclasPresionadas.letraD || teclasPresionadas.letraA || teclasPresionadas.letraE && !miPersonaje.seEstaEjecutandoAtaque() || teclasPresionadas.letraR && !miPersonaje.seEstaEjecutandoAtaque() || teclasPresionadas.letraT && !miPersonaje.seEstaEjecutandoAtaque() || teclasPresionadas.letraQ && miPersonaje.onGround() ){
+			if ((teclasPresionadas.letraS && miPersonaje.onGround() || teclasPresionadas.letraQ && miPersonaje.onGround()) && (!miPersonaje.seEstaEjecutandoRecibirGolpe())) {
 				if (teclasPresionadas.letraQ && teclasPresionadas.letraS){ //
 					miPersonaje.generaBloquearAbajo();					
 				} else  												   //
@@ -517,10 +566,10 @@ window.onload = function () {
 				if (teclasPresionadas.letraA) {
 					miPersonaje.generaCaminarIzquierda();
 				}
-				if (teclasPresionadas.letraW && miPersonaje.onGround()) {
+				if ((teclasPresionadas.letraW && miPersonaje.onGround()) && (!miPersonaje.seEstaEjecutandoRecibirGolpe())) {
 					miPersonaje.generaSaltar();
 				}
-				if (!miPersonaje.seEstaEjecutandoAtaque()){
+				if (!miPersonaje.seEstaEjecutandoAtaque() && (!miPersonaje.seEstaEjecutandoRecibirGolpe())){
 					if (teclasPresionadas.letraE && miPersonaje.y <= 507) {
 						// console.log('Tecla "espacio" presionada. Iniciando animación puñetazo.');
 						miPersonaje.iniciarAnimacionMovingPunch(4.999);
@@ -531,18 +580,18 @@ window.onload = function () {
 					}
 					if (teclasPresionadas.letraT && miPersonaje.y <= 507) {	
 						// console.log('Tecla "espacio" presionada. Iniciando animación puñetazo.');
-						miPersonaje.iniciarAnimacionLowKick(2.999, 999000); //600
+						miPersonaje.iniciarAnimacionLowKick(2.999, 600); //600
 					}
 				}
 			}
 		} else {
 			miPersonaje.generaReposo();
-			// miPersonaje.generaBloquearAbajo();
+			// miPersonaje.generaCaminarDerecha();
 		}
 	}
 	function detectarControlesEnemigo() {
 		if (teclasPresionadas.arriba && miEnemigo.onGround() || teclasPresionadas.abajo && miEnemigo.onGround() || teclasPresionadas.derecha || teclasPresionadas.izquierda || teclasPresionadas.letraO && !miEnemigo.seEstaEjecutandoAtaque() || teclasPresionadas.letraP && !miEnemigo.seEstaEjecutandoAtaque() || teclasPresionadas.letraI && !miEnemigo.seEstaEjecutandoAtaque() || teclasPresionadas.cero && miEnemigo.onGround()){
-			if (teclasPresionadas.abajo && miEnemigo.onGround() || teclasPresionadas.cero && miEnemigo.onGround()) {
+			if ((teclasPresionadas.abajo && miEnemigo.onGround() || teclasPresionadas.cero && miEnemigo.onGround()) && (!miEnemigo.seEstaEjecutandoRecibirGolpe())) {
 				if (teclasPresionadas.cero && teclasPresionadas.abajo){   
 					miEnemigo.generaBloquearAbajo();					
 				} else if(teclasPresionadas.cero) {
@@ -563,10 +612,10 @@ window.onload = function () {
 				if (teclasPresionadas.izquierda) {
 					miEnemigo.generaCaminarIzquierda();
 				}
-				if (teclasPresionadas.arriba && miEnemigo.onGround()) {
+				if ((teclasPresionadas.arriba && miEnemigo.onGround()) && (!miEnemigo.seEstaEjecutandoRecibirGolpe())) {
 					miEnemigo.generaSaltar();
 				}
-				if (!miEnemigo.seEstaEjecutandoAtaque()){
+				if (!miEnemigo.seEstaEjecutandoAtaque() && (!miEnemigo.seEstaEjecutandoRecibirGolpe())){
 					if (teclasPresionadas.letraO && miEnemigo.y <= 507) {
 						miEnemigo.iniciarAnimacionMovingPunch(2.999);
 					}
@@ -576,18 +625,24 @@ window.onload = function () {
 					}
 					if (teclasPresionadas.letraI && miEnemigo.y <= 507) {	
 						// console.log('Tecla "espacio" presionada. Iniciando animación puñetazo.');
-						miEnemigo.iniciarAnimacionLowKick(4.999, 800);
+						miEnemigo.iniciarAnimacionLowKick(4.999, 800); //800
 					}
 				}
 			}
 		} else {
 			miEnemigo.generaReposo();
-			// miEnemigo.generaBloquearAbajo();
+			// miEnemigo.generaCaminarIzquierda();
 		}
 	}
 
-	function inicialiazarSonidos(){
-		sonidoStrongHit = document.getElementById('audioStrongHit');
+	function inicialiazarSonidos(){ 
+		audioStrongHit = document.getElementById('audioStrongHit');
+		audioJab = document.getElementById('audioJab');
+		audioBloqueo = document.getElementById('audioBloqueo');
+		audioFierceHit = document.getElementById('audioFierceHit');
+		audioBarrido = document.getElementById('audioBarrido');
+		audioAterrizaje = document.getElementById('audioAterrizaje');
+		audioShortHit = document.getElementById('audioShortHit');
 	}
 
 	function seTropiezan() {
@@ -595,12 +650,18 @@ window.onload = function () {
 		let colisionEnY = (miPersonaje.hitbox.cuerpo.y < miEnemigo.hitbox.cuerpo.y + miEnemigo.hitbox.cuerpo.height) && (miPersonaje.hitbox.cuerpo.y + miPersonaje.hitbox.cuerpo.height > miEnemigo.hitbox.cuerpo.y);
 		return colisionEnX && colisionEnY;
 	}
+
 	function personaje1PunchingHead() {
 		let lanzandoPunio = (miPersonaje.animacionEnProgresoMovingPunch && miPersonaje.position === 2);
 		let colisionPunioCabezaX = (miPersonaje.hitbox.punio.x < miEnemigo.hitbox.cabeza.x + miEnemigo.hitbox.cabeza.width) && (miPersonaje.hitbox.punio.x + miPersonaje.hitbox.punio.width > miEnemigo.hitbox.cabeza.x);;
 		let colisionPunioCabezaY = (miPersonaje.hitbox.punio.y < miEnemigo.hitbox.cabeza.y + miEnemigo.hitbox.cabeza.height) && (miPersonaje.hitbox.punio.y + miPersonaje.hitbox.punio.height > miEnemigo.hitbox.cabeza.y);
 		let resultado = (lanzandoPunio && colisionPunioCabezaX && colisionPunioCabezaY);
-		if (!resultado) miPersonaje.golpeConectado.punchHead = false;
+		if (resultado) {
+			//comprobamos si se está cubriendo o no
+			(miEnemigo.personajeState === 'bloquearArriba') ? miEnemigo.cubierto = true : miEnemigo.cubierto = false;
+		} else {
+			miPersonaje.golpeConectado.punchHead = false;
+		}
 		return resultado;
 	}
 	function personaje2PunchingHead(){
@@ -608,15 +669,60 @@ window.onload = function () {
 		let colisionPunioCabezaX = (miEnemigo.hitbox.punio.x < miPersonaje.hitbox.cabeza.x + miPersonaje.hitbox.cabeza.width) && (miEnemigo.hitbox.punio.x + miEnemigo.hitbox.punio.width > miPersonaje.hitbox.cabeza.x);;
 		let colisionPunioCabezaY = (miEnemigo.hitbox.punio.y < miPersonaje.hitbox.cabeza.y + miPersonaje.hitbox.cabeza.height) && (miEnemigo.hitbox.punio.y + miEnemigo.hitbox.punio.height > miPersonaje.hitbox.cabeza.y);
 		let resultado = (lanzandoPunio && colisionPunioCabezaX && colisionPunioCabezaY)
-		if (!resultado) miEnemigo.golpeConectado.punchHead = false;
+		if (resultado)  {
+			(miPersonaje.personajeState === 'bloquearArriba') ? miPersonaje.cubierto = true : miPersonaje.cubierto = false;
+		} else {
+			miEnemigo.golpeConectado.punchHead = false;
+		}
 		return resultado;
 	}
+	function personaje1PunchingBody(){
+		let lanzandoPunio = (miPersonaje.animacionEnProgresoAgachadoPunch && miPersonaje.position === 1);
+		let colisionPunioCuerpoX = (miPersonaje.hitbox.punio.x < miEnemigo.hitbox.tronco.x + miEnemigo.hitbox.tronco.width) && (miPersonaje.hitbox.punio.x + miPersonaje.hitbox.punio.width > miEnemigo.hitbox.tronco.x);;
+		let colisionPunioCuerpoY = (miPersonaje.hitbox.punio.y < miEnemigo.hitbox.tronco.y + miEnemigo.hitbox.tronco.height) && (miPersonaje.hitbox.punio.y + miPersonaje.hitbox.punio.height > miEnemigo.hitbox.tronco.y);
+		let resultado = (lanzandoPunio && colisionPunioCuerpoX && colisionPunioCuerpoY);
+		if (!resultado) miPersonaje.golpeConectado.punchBody = false;
+		return resultado;
+	}
+	function personaje2PunchingBody(){
+		let lanzandoPunio = (miEnemigo.animacionEnProgresoAgachadoPunch && miEnemigo.position === 1);
+		let colisionPunioCuerpoX = (miEnemigo.hitbox.punio.x < miPersonaje.hitbox.tronco.x + miPersonaje.hitbox.tronco.width) && (miEnemigo.hitbox.punio.x + miEnemigo.hitbox.punio.width > miPersonaje.hitbox.tronco.x);;
+		let colisionPunioCuerpoY = (miEnemigo.hitbox.punio.y < miPersonaje.hitbox.tronco.y + miPersonaje.hitbox.tronco.height) && (miEnemigo.hitbox.punio.y + miEnemigo.hitbox.punio.height > miPersonaje.hitbox.tronco.y);
+		let resultado = (lanzandoPunio && colisionPunioCuerpoX && colisionPunioCuerpoY)
+		if (resultado) {
+			(miPersonaje.personajeState === 'bloquearAbajo') ? miPersonaje.cubierto = true : miPersonaje.cubierto = false;
+		} else {
+			miEnemigo.golpeConectado.punchBody = false;
+		}
+		return resultado;
+	}
+	function personaje1UpperPunch() {
+		let lanzandoPunio = (miPersonaje.animacionEnProgresoAgachadoUpper && miPersonaje.position === 1);
+		let colisionPunioCabezaX = (miPersonaje.hitbox.punio.x < miEnemigo.hitbox.cabeza.x + miEnemigo.hitbox.cabeza.width) && (miPersonaje.hitbox.punio.x + miPersonaje.hitbox.punio.width > miEnemigo.hitbox.cabeza.x);;
+		let colisionPunioCabezaY = (miPersonaje.hitbox.punio.y < miEnemigo.hitbox.cabeza.y + miEnemigo.hitbox.cabeza.height) && (miPersonaje.hitbox.punio.y + miPersonaje.hitbox.punio.height > miEnemigo.hitbox.cabeza.y);
+		let resultado = (lanzandoPunio && colisionPunioCabezaX && colisionPunioCabezaY);
+		if (!resultado) miPersonaje.golpeConectado.upperPunch = false;
+		return resultado;
+	}
+	function personaje2UpperPunch(){
+		let lanzandoPunio = (miEnemigo.animacionEnProgresoAgachadoUpper && miEnemigo.position === 2);
+		let colisionPunioCabezaX = (miEnemigo.hitbox.punio.x < miPersonaje.hitbox.cabeza.x + miPersonaje.hitbox.cabeza.width) && (miEnemigo.hitbox.punio.x + miEnemigo.hitbox.punio.width > miPersonaje.hitbox.cabeza.x);;
+		let colisionPunioCabezaY = (miEnemigo.hitbox.punio.y < miPersonaje.hitbox.cabeza.y + miPersonaje.hitbox.cabeza.height) && (miEnemigo.hitbox.punio.y + miEnemigo.hitbox.punio.height > miPersonaje.hitbox.cabeza.y);
+		let resultado = (lanzandoPunio && colisionPunioCabezaX && colisionPunioCabezaY)
+		if (!resultado) miEnemigo.golpeConectado.upperPunch = false;
+		return resultado;
+	}
+
 	function personaje1KickingHead(){
 		let lanzadoPatada = (miPersonaje.animacionEnProgresoKick && miPersonaje.position === 1);
 		let colisionPatadaCabezaX = (miPersonaje.hitbox.patada.x < miEnemigo.hitbox.cabeza.x + miEnemigo.hitbox.cabeza.width) && (miPersonaje.hitbox.patada.x + miPersonaje.hitbox.patada.width > miEnemigo.hitbox.cabeza.x);;
 		let colisionPatadaCabezaY = (miPersonaje.hitbox.patada.y < miEnemigo.hitbox.cabeza.y + miEnemigo.hitbox.cabeza.height) && (miPersonaje.hitbox.patada.y + miPersonaje.hitbox.patada.height > miEnemigo.hitbox.cabeza.y);
 		let resultado = (lanzadoPatada && colisionPatadaCabezaX && colisionPatadaCabezaY);
-		if (!resultado) miPersonaje.golpeConectado.kickHead = false;
+		if (resultado) {
+			(miEnemigo.personajeState === 'bloquearArriba') ? miEnemigo.cubierto = true : miEnemigo.cubierto = false;
+		} else {
+			miPersonaje.golpeConectado.kickHead = false;
+		}
 		return resultado;
 	}
 	function personaje2KickingHead(){
@@ -624,17 +730,77 @@ window.onload = function () {
 		let colisionPatadaCabezaX = (miEnemigo.hitbox.patada.x < miPersonaje.hitbox.cabeza.x + miPersonaje.hitbox.cabeza.width) && (miEnemigo.hitbox.patada.x + miEnemigo.hitbox.patada.width > miPersonaje.hitbox.cabeza.x);;
 		let colisionPatadaCabezaY = (miEnemigo.hitbox.patada.y < miPersonaje.hitbox.cabeza.y + miPersonaje.hitbox.cabeza.height) && (miEnemigo.hitbox.patada.y + miEnemigo.hitbox.patada.height > miPersonaje.hitbox.cabeza.y);
 		let resultado = (lanzadoPatada && colisionPatadaCabezaX && colisionPatadaCabezaY);
-		if (!resultado) miEnemigo.golpeConectado.kickHead = false;
+		if (resultado) {
+			(miPersonaje.personajeState === 'bloquearArriba') ? miPersonaje.cubierto = true : miPersonaje.cubierto = false;
+		} else {
+			miEnemigo.golpeConectado.kickHead = false;
+		}
 		return resultado;
 	}
 	function personaje1KickingBody(){
+		let lanzadoPatada = (miPersonaje.animacionEnProgresoLowKick && miPersonaje.position === 1);
+		let colisionPatadaCuerpoX = (miPersonaje.hitbox.patada.x < miEnemigo.hitbox.tronco.x + miEnemigo.hitbox.tronco.width) && (miPersonaje.hitbox.patada.x + miPersonaje.hitbox.patada.width > miEnemigo.hitbox.tronco.x);;
+		let colisionPatadaCuerpoY = (miPersonaje.hitbox.patada.y < miEnemigo.hitbox.tronco.y + miEnemigo.hitbox.tronco.height) && (miPersonaje.hitbox.patada.y + miPersonaje.hitbox.patada.height > miEnemigo.hitbox.tronco.y);
+		let resultado = (lanzadoPatada && colisionPatadaCuerpoX && colisionPatadaCuerpoY);
+		if (resultado) {
+			(miEnemigo.personajeState === 'bloquearArriba') ? miEnemigo.cubierto = true : miEnemigo.cubierto = false;
+		} else {
+			miPersonaje.golpeConectado.kickBody = false;
+		}
+		return resultado;
 	}
 	function personaje2KickingBody(){
+		let lanzadoPatada = (miEnemigo.animacionEnProgresoLowKick && miEnemigo.position === 3);
+		let colisionPatadaCuerpoX = (miEnemigo.hitbox.patada.x < miPersonaje.hitbox.tronco.x + miPersonaje.hitbox.tronco.width) && (miEnemigo.hitbox.patada.x + miEnemigo.hitbox.patada.width > miPersonaje.hitbox.tronco.x);;
+		let colisionPatadaCuerpoY = (miEnemigo.hitbox.patada.y < miPersonaje.hitbox.tronco.y + miPersonaje.hitbox.tronco.height) && (miEnemigo.hitbox.patada.y + miEnemigo.hitbox.patada.height > miPersonaje.hitbox.tronco.y);
+		let resultado = (lanzadoPatada && colisionPatadaCuerpoX && colisionPatadaCuerpoY)
+		if (resultado) {
+			(miPersonaje.personajeState === 'bloquearArriba') ? miPersonaje.cubierto = true : miPersonaje.cubierto = false;
+		} else {
+			miEnemigo.golpeConectado.kickBody = false;
+		}
+		return resultado;
 	}
-	function personaje1PunchingBody(){
+	function personaje1BarridoPies(){
+		let lanzadoPatada = (miPersonaje.animacionEnProgresoAgachadoBarrido && miPersonaje.position === 1);
+		let colisionPatadaPiesX = (miPersonaje.hitbox.patada.x < miEnemigo.hitbox.pies.x + miEnemigo.hitbox.pies.width) && (miPersonaje.hitbox.patada.x + miPersonaje.hitbox.patada.width > miEnemigo.hitbox.pies.x);
+		let colisionPatadaPiesY = (miPersonaje.hitbox.patada.y < miEnemigo.hitbox.pies.y + miEnemigo.hitbox.pies.height) && (miPersonaje.hitbox.patada.y + miPersonaje.hitbox.patada.height > miEnemigo.hitbox.pies.y);
+		let resultado = (lanzadoPatada && colisionPatadaPiesX && colisionPatadaPiesY);
+		if (!resultado) miPersonaje.golpeConectado.barridoBody = false;
+		return resultado;
 	}
-	function personaje2PunchingBody(){
+	function personaje2BarridoPies(){
+		let lanzadoPatada = (miEnemigo.animacionEnProgresoAgachadoBarrido && miEnemigo.position === 1);
+		let colisionPatadaPiesX = (miEnemigo.hitbox.patada.x < miPersonaje.hitbox.pies.x + miPersonaje.hitbox.pies.width) && (miEnemigo.hitbox.patada.x + miEnemigo.hitbox.patada.width > miPersonaje.hitbox.pies.x);
+		let colisionPatadaPiesY = (miEnemigo.hitbox.patada.y < miPersonaje.hitbox.pies.y + miPersonaje.hitbox.pies.height) && (miEnemigo.hitbox.patada.y + miEnemigo.hitbox.patada.height > miPersonaje.hitbox.pies.y);
+		let resultado = (lanzadoPatada && colisionPatadaPiesX && colisionPatadaPiesY);
+		if (!resultado) miEnemigo.golpeConectado.barridoBody = false;
+		return resultado;
 	}
+
+	function personaje2LowKickHead(){
+		let lanzadoPatada = (miEnemigo.animacionEnProgresoLowKick && miEnemigo.position === 3);
+		let enemigoAgachado = (miPersonaje.personajeState === 'agacharse' || miPersonaje.personajeState === 'bloquearAbajo')
+		let colisionPatadaCabezaX = (miEnemigo.hitbox.patada.x < miPersonaje.hitbox.cabeza.x + miPersonaje.hitbox.cabeza.width) && (miEnemigo.hitbox.patada.x + miEnemigo.hitbox.patada.width > miPersonaje.hitbox.cabeza.x);;
+		let colisionPatadaCabezaY = (miEnemigo.hitbox.patada.y < miPersonaje.hitbox.cabeza.y + miPersonaje.hitbox.cabeza.height) && (miEnemigo.hitbox.patada.y + miEnemigo.hitbox.patada.height > miPersonaje.hitbox.cabeza.y);
+		let resultado = (enemigoAgachado && lanzadoPatada && colisionPatadaCabezaX && colisionPatadaCabezaY)
+		if (!resultado) miEnemigo.golpeConectado.lowKickHead = false;
+		return resultado;
+	}
+	function personaje1PunchingHeadAgachado() {
+		let lanzandoPunio = (miPersonaje.animacionEnProgresoAgachadoPunch && miPersonaje.position === 1);
+		let colisionPunioCabezaX = (miPersonaje.hitbox.punio.x < miEnemigo.hitbox.cabeza.x + miEnemigo.hitbox.cabeza.width) && (miPersonaje.hitbox.punio.x + miPersonaje.hitbox.punio.width > miEnemigo.hitbox.cabeza.x);;
+		let colisionPunioCabezaY = (miPersonaje.hitbox.punio.y < miEnemigo.hitbox.cabeza.y + miEnemigo.hitbox.cabeza.height) && (miPersonaje.hitbox.punio.y + miPersonaje.hitbox.punio.height > miEnemigo.hitbox.cabeza.y);
+		let resultado = (lanzandoPunio && colisionPunioCabezaX && colisionPunioCabezaY);
+		if (resultado) {
+			(miEnemigo.personajeState === 'bloquearAbajo') ? miEnemigo.cubierto = true : miEnemigo.cubierto = false;
+		} else {
+			miPersonaje.golpeConectado.punchHeadAgachado = false;
+		}
+		return resultado;
+	}
+
+	
 
 	function comprobarColisiones() {
 		// console.log(miPersonaje.personajeState);
@@ -656,52 +822,257 @@ window.onload = function () {
 		if(personaje1PunchingHead() && !miPersonaje.golpeConectado.punchHead){ //solo se produce el evento 1 vez, cada vez que el puño colisiona con la cabeza
 			miPersonaje.golpeConectado.punchHead = true;  //se pone a true y se espera a que cuando deje de haber la colisión se ponga a false
 			console.log('PERSONAJE 1 HA GOLPEADO A LA CABEZA');
-			sonidoStrongHit.currentTime = 0;
-			sonidoStrongHit.play();
-			miEnemigo.vida -= 150;
-			miPersonaje.energia -= 15000;
-			// miEnemigo.iniciarAnimacionHit();
-			// miEnemigo.iniciarAnimacionFaceHit();
-			// miEnemigo.iniciarAnimacionAgachadoHit();
-			// miEnemigo.iniciarAnimacionStunned(3.999);                 //TOCA HIT-BOX RECIBIR KO con AMBOS personajes
-			// miEnemigo.iniciarAnimacionKO();
+			miPersonaje.energia -= energiaGolpe.movingPunch;
+			
+			if (miEnemigo.cubierto) {
+				miEnemigo.vida -= danioGolpeBloqueado.movingPunch;
+				miEnemigo.cubierto = false;
+				miEnemigo.iniciarAnimacionRetroceso(2);
+
+				audioBloqueo.currentTime = 0;
+				audioBloqueo.play();
+			} else {
+				miEnemigo.vida -= danioGolpe.movingPunch;
+				miEnemigo.iniciarAnimacionFaceHit();
+
+				audioJab.currentTime = 0;
+				audioJab.play();
+			}
 		}
 		if(personaje2PunchingHead() && !miEnemigo.golpeConectado.punchHead){
 			miEnemigo.golpeConectado.punchHead = true;
 			console.log('PERSONAJE 2 HA GOLPEADO A LA CABEZA');
-			sonidoStrongHit.currentTime = 0;
-			sonidoStrongHit.play();
-			miPersonaje.vida -= 150;
-			miEnemigo.energia -= 15000;
-			// miPersonaje.iniciarAnimacionHit();
-			// miPersonaje.iniciarAnimacionFaceHit();
-			// miPersonaje.iniciarAnimacionAgachadoHit();
-			// miPersonaje.iniciarAnimacionStunned(2.999);
-			// miPersonaje.iniciarAnimacionKO();
+			miEnemigo.energia -= energiaGolpe.movingPunch;
+
+			if (miPersonaje.cubierto) {
+				miPersonaje.vida -= danioGolpeBloqueado.movingPunch;
+				miPersonaje.cubierto = false;
+				miPersonaje.iniciarAnimacionRetroceso(2);
+
+				audioBloqueo.currentTime = 0;
+				audioBloqueo.play();
+			} else {
+				miPersonaje.vida -= danioGolpe.movingPunch;
+				miPersonaje.iniciarAnimacionFaceHit();
+
+				audioJab.currentTime = 0;
+				audioJab.play();
+			}
+			
 		}
+		if(personaje1PunchingBody() && !miPersonaje.golpeConectado.punchBody){ 
+			miPersonaje.golpeConectado.punchBody = true;
+			console.log('PERSONAJE 1 HA GOLPEADO EN EL CUERPO');
+			miPersonaje.energia -= energiaGolpe.agachadoPunch;
+			miEnemigo.vida -= danioGolpe.agachadoPunch;
+
+			miEnemigo.iniciarAnimacionRetroceso(4);
+
+			audioShortHit.currentTime = 0;
+			audioShortHit.play();
+
+		}
+		if(personaje2PunchingBody() && !miEnemigo.golpeConectado.punchBody){
+			miEnemigo.golpeConectado.punchBody = true;
+			console.log('PERSONAJE 2 HA GOLPEADO AL CUERPO');
+			miEnemigo.energia -= energiaGolpe.agachadoPunch;
+			
+			//dependiendo de si personaje1 está agachado o de pie:
+			if (miPersonaje.personajeState === 'agacharse' || miPersonaje.personajeState === 'bloquearAbajo'){
+				if (miPersonaje.cubierto) {
+					miPersonaje.vida -= danioGolpeBloqueado.agachadoPunch;
+					miPersonaje.cubierto = false;
+					miPersonaje.iniciarAnimacionRetroceso(4);
+
+					audioBloqueo.currentTime = 0;
+					audioBloqueo.play();
+				} else {
+					miPersonaje.vida -= danioGolpe.agachadoPunch;
+					miPersonaje.iniciarAnimacionAgachadoHit();
+
+					audioJab.currentTime = 0;
+					audioJab.play();
+				}
+			} else {
+				miPersonaje.vida -= danioGolpe.agachadoPunch;
+				miPersonaje.iniciarAnimacionRetroceso(4);
+
+				audioShortHit.currentTime = 0;
+				audioShortHit.play();
+			}
+
+		}
+		if(personaje1UpperPunch() && !miPersonaje.golpeConectado.upperPunch){
+			miPersonaje.golpeConectado.upperPunch = true;
+			console.log('PERSONAJE 1 HA GOLPEADO con un UPPER');
+			miEnemigo.vida -= danioGolpe.agachadoUpper;
+			miPersonaje.energia -= energiaGolpe.agachadoUpper;
+
+			miEnemigo.iniciarAnimacionStunned(3.999);
+
+			audioStrongHit.currentTime = 0;
+			audioStrongHit.play();
+		}
+		if(personaje2UpperPunch() && !miEnemigo.golpeConectado.upperPunch){
+			miEnemigo.golpeConectado.upperPunch = true;
+			console.log('PERSONAJE 2 HA GOLPEADO con un UPPER');
+			miPersonaje.vida -= danioGolpe.agachadoUpper;
+			miEnemigo.energia -= energiaGolpe.agachadoUpper;
+			
+			miPersonaje.iniciarAnimacionStunned(2.999);
+
+			audioStrongHit.currentTime = 0;
+			audioStrongHit.play();
+		}
+
+
 		if(personaje1KickingHead() && !miPersonaje.golpeConectado.kickHead){
 			miPersonaje.golpeConectado.kickHead = true;
 			console.log('PERSONAJE 1 HA PATEADO A LA CABEZA');
-			miEnemigo.vida -= 150;
-			miPersonaje.energia -= 15000;
+			miPersonaje.energia -= energiaGolpe.kick;
+
+			if (miEnemigo.cubierto) {
+				miEnemigo.vida -= danioGolpeBloqueado.kick;
+				miEnemigo.cubierto = false;
+				miEnemigo.iniciarAnimacionRetroceso(7);
+
+				audioBloqueo.currentTime = 0;
+				audioBloqueo.play();
+			} else {
+				miEnemigo.vida -= danioGolpe.kick;
+				miEnemigo.iniciarAnimacionStunned(3.999);
+
+				audioStrongHit.currentTime = 0;
+				audioStrongHit.play();
+			}
+			
 		}
 		if(personaje2KickingHead() && !miEnemigo.golpeConectado.kickHead){
 			miEnemigo.golpeConectado.kickHead = true;
 			console.log('PERSONAJE 2 HA PATEADO A LA CABEZA');
-			miPersonaje.vida -= 150;
-			miEnemigo.energia -= 15000;
+			miEnemigo.energia -= energiaGolpe.kick;
+
+			if (miPersonaje.cubierto) {
+				miPersonaje.vida -= danioGolpeBloqueado.kick;
+				miPersonaje.cubierto = false;
+				miPersonaje.iniciarAnimacionRetroceso(7);
+
+				audioBloqueo.currentTime = 0;
+				audioBloqueo.play();
+			} else {
+				miPersonaje.vida -= danioGolpe.kick;
+				miPersonaje.iniciarAnimacionStunned(2.999);
+
+				audioStrongHit.currentTime = 0;
+				audioStrongHit.play();
+			}
+			
+		}
+		if(personaje1KickingBody() && !miPersonaje.golpeConectado.kickBody){
+			miPersonaje.golpeConectado.kickBody = true;
+			console.log('PERSONAJE 1 HA PATEADO AL BODY');
+			miPersonaje.energia -= energiaGolpe.lowKick;
+
+			if (miEnemigo.cubierto) {
+				miEnemigo.vida -= danioGolpeBloqueado.lowKick;
+				miEnemigo.cubierto = false;
+				miEnemigo.iniciarAnimacionRetroceso(6);
+
+				audioBloqueo.currentTime = 0;
+				audioBloqueo.play();
+			} else {
+				miEnemigo.vida -= danioGolpe.lowKick;
+				miEnemigo.iniciarAnimacionHit();
+
+				audioFierceHit.currentTime = 0;
+				audioFierceHit.play();
+			}
+			
+		}
+		if(personaje2KickingBody() && !miEnemigo.golpeConectado.kickBody){
+			miEnemigo.golpeConectado.kickBody = true;
+			console.log('PERSONAJE 2 HA PATEADO AL BODY');
+			miEnemigo.energia -= energiaGolpe.lowKick;
+
+			if (miPersonaje.cubierto) {
+				miPersonaje.vida -= danioGolpeBloqueado.lowKick;
+				miPersonaje.cubierto = false;
+				miPersonaje.iniciarAnimacionRetroceso(6);
+
+				audioBloqueo.currentTime = 0;
+				audioBloqueo.play();
+			} else {
+				miPersonaje.vida -= danioGolpe.lowKick;
+				miPersonaje.iniciarAnimacionHit();
+
+				audioFierceHit.currentTime = 0;
+				audioFierceHit.play();
+			}
+			
+		}
+		if(personaje1BarridoPies() && !miPersonaje.golpeConectado.barridoBody){
+			miPersonaje.golpeConectado.barridoBody = true;
+			console.log('PERSONAJE 1 HA BARRIDO');
+			miEnemigo.vida -= danioGolpe.agachadoBarrido;
+			miPersonaje.energia -= energiaGolpe.agachadoBarrido;
+
+			audioBarrido.currentTime = 0;
+			audioBarrido.play();
+		}
+		if(personaje2BarridoPies() && !miEnemigo.golpeConectado.barridoBody){
+			miEnemigo.golpeConectado.barridoBody = true;
+			console.log('PERSONAJE 2 HA BARRIDO');
+			miPersonaje.vida -= danioGolpe.agachadoBarrido;
+			miEnemigo.energia -= energiaGolpe.agachadoBarrido;
+
+			audioBarrido.currentTime = 0;
+			audioBarrido.play();
+		}
+
+		if(personaje2LowKickHead() && !miEnemigo.golpeConectado.lowKickHead){
+			miEnemigo.golpeConectado.lowKickHead = true;
+			console.log('PERSONAJE 2 HA PATEADO AL LA CABEZA');
+			miPersonaje.vida -= danioGolpe.lowKickHead;
+			miEnemigo.energia -= energiaGolpe.lowKick;
+
+			miPersonaje.iniciarAnimacionAgachadoHit();
+
+			audioFierceHit.currentTime = 0;
+			audioFierceHit.play();
+		}
+
+		if(personaje1PunchingHeadAgachado() && !miPersonaje.golpeConectado.punchHeadAgachado){
+			miPersonaje.golpeConectado.punchHeadAgachado = true; 
+			console.log('PERSONAJE 1 HA GOLPEADO A LA CABEZA');
+			miPersonaje.energia -= energiaGolpe.agachadoPunch;
+			if (miEnemigo.cubierto) {
+				miEnemigo.vida -= danioGolpeBloqueado.movingPunch;
+			   miEnemigo.cubierto = false;
+			   miEnemigo.iniciarAnimacionRetroceso(4);
+
+			   audioBloqueo.currentTime = 0;
+			   audioBloqueo.play();
+		   } else {
+			   miEnemigo.vida -= danioGolpe.movingPunch;
+			   miEnemigo.iniciarAnimacionAgachadoHit();
+
+			   audioJab.currentTime = 0;
+			   audioJab.play();
+		   }
 		}
 	}
 
 	/*********************************************************************************************** */
 
 	function asignarVidaParaMostrarPorPantalla(){
+		//evito problemas en la barra de vida
 		if (miPersonaje.vida < 0) miPersonaje.vida = 0;
 		if (miPersonaje.vida > VIDA_TOTAL) miPersonaje.vida = VIDA_TOTAL;
 		if (miEnemigo.vida < 0) miEnemigo.vida = 0;
 		if (miEnemigo.vida > VIDA_TOTAL) miEnemigo.vida = VIDA_TOTAL;
-		vida1.style.width = (miPersonaje.vida/VIDA_TOTAL) * 100 + '%';
-		vida2.style.width = (miEnemigo.vida/VIDA_TOTAL) * 100 + '%';
+		//modifico la barra de vida verde
+		vida1.style.width = miPersonaje.vida + '%';
+		vida2.style.width = miEnemigo.vida + '%';
 	}
 
 	function asignarEnergiaParaMostrarPorPantalla(){
@@ -735,7 +1106,7 @@ window.onload = function () {
 				energiaRecuperacion = 0;
 				break;
 		}
-		miPersonaje.energia += energiaRecuperacion;
+		miPersonaje.energia += energiaRecuperacion * 0.001;
 		
 		switch (miEnemigo.personajeState) {
 			case 'reposo':
@@ -757,12 +1128,12 @@ window.onload = function () {
 				energiaRecuperacion = 0;
 				break;
 		}
-		miEnemigo.energia += energiaRecuperacion;
+		miEnemigo.energia += energiaRecuperacion * 0.001;
 	}
 
 	function recuperarVida(){
-		miPersonaje.vida += 0.1;
-		miEnemigo.vida += 0.1;
+		miPersonaje.vida += 0.005;
+		miEnemigo.vida += 0.005;
 	}
 
 	function controlarEventosPrincipales() {
@@ -819,6 +1190,12 @@ window.onload = function () {
 					y: 0,
 					width: 0,
 					height:0
+				},
+				pies: {
+					x: 0,
+					y: 0,
+					width: 0,
+					height:0
 				}
 			};
 
@@ -849,21 +1226,29 @@ window.onload = function () {
 			//sirve para que cuando se produzca un golpe (colisión) no se siga contando como varios golpes sino 1 solo.
 			this.golpeConectado = {
 				'punchHead': false,
-				'kickHead': false
+				'punchHeadAgachado': false,
+				'upperPunch': false,
+				'punchBody': false,
+				'kickHead': false,
+				'kickBody': false,
+				'barridoBody': false,
+				'lowKickHead': false
 			}
+
+			this.cubierto = false; //propiedad que define si se ha cubierto del golpe o le han impactado de lleno
 
 			//animaciones puñetazo                
 			this.inicioAnimacionMovingPunch = null;
-      		this.duracionAnimacionMovingPunch = 5000; // Duración de animación milisegundos (600)
+      		this.duracionAnimacionMovingPunch = 600; // Duración de animación milisegundos (600)
 			this.animacionEnProgresoMovingPunch = false;
 			//animaciones puñetazo agachado
 			this.inicioAnimacionAgachadoPunch = null;
-      		this.duracionAnimacionAgachadoPunch = 5000; // Duración de animación milisegundos (300)
+      		this.duracionAnimacionAgachadoPunch = 300; // Duración de animación milisegundos (300)
 			this.animacionEnProgresoAgachadoPunch = false;
 
 			//animaciones patadas                
 			this.inicioAnimacionKick = null;
-      		this.duracionAnimacionKick = 5000; // Duración de animación milisegundos (500)
+      		this.duracionAnimacionKick = 500; // Duración de animación milisegundos (500)
 			this.animacionEnProgresoKick = false;
 			//animaciones patadas bajas
 			this.inicioAnimacionLowKick = null;
@@ -871,34 +1256,37 @@ window.onload = function () {
 
 			//animaciones barrido agachado
 			this.inicioAnimacionAgachadoBarrido = null;
-			this.duracionAnimacionAgachadoBarrido = 5000; //600
+			this.duracionAnimacionAgachadoBarrido = 600; //600
 			this.animacionEnProgresoAgachadoBarrido = false;
 			//animaciones upper agachado
 			this.inicioAnimacionAgachadoUpper = null;
-			this.duracionAnimacionAgachadoUpper = 5000; // 600
+			this.duracionAnimacionAgachadoUpper = 600; // 600
 			this.animacionEnProgresoAgachadoUpper = false;
 
 			//animaciones recibir golpe en la cara (faceHit)
 			this.inicioAnimacionFaceHit = null;
-			this.duracionAnimacionFaceHit = 5000; //600
+			this.duracionAnimacionFaceHit = 600; //600
 			this.animacionEnProgresoFaceHit = false;
 			//animaciones recibir golpe (hit)
 			this.inicioAnimacionHit = null;
-			this.duracionAnimacionHit = 5000; //900
+			this.duracionAnimacionHit = 600; //900
 			this.animacionEnProgresoHit = false;
 			//animaciones recibir golpe en la cara agachado (agachadoHit)
 			this.inicioAnimacionAgachadoHit = null;
-			this.duracionAnimacionAgachadoHit = 5000; //600
+			this.duracionAnimacionAgachadoHit = 600; //600
 			this.animacionEnProgresoAgachadoHit = false;
 			//animaciones quedarse insconcinete de pie (stunned)
 			this.inicioAnimacionStunned = null;
-			this.duracionAnimacionStunned = 5000; //2000
+			this.duracionAnimacionStunned = 800; //2000
 			this.animacionEnProgresoStunned = false;
 			//animaciones quedarse KO (ko)
 			this.inicioAnimacionKO = null;
-			this.duracionAnimacionKO = 60000;
+			this.duracionAnimacionKO = 60000; //60000
 			this.animacionEnProgresoKO = false;
-
+			//animacion de hacer retroceder
+			this.inicioAnimacionRetroceso = null;
+			this.duracionAnimacionRetroceso = 100; //60000
+			this.animacionEnProgresoRetroceso = false;
 
 			//variables creadas para solucionar error del sprite que se carga en una mala posición debido a sus dimensiones.
 			this.primeraVez = true;
@@ -912,6 +1300,10 @@ window.onload = function () {
 		seEstaEjecutandoAtaque(){
 			let ataques = (this.animacionEnProgresoKick) || (this.animacionEnProgresoMovingPunch) || (this.animacionEnProgresoAgachadoPunch) || (this.animacionEnProgresoLowKick) || (this.animacionEnProgresoAgachadoBarrido) || (this.animacionEnProgresoAgachadoUpper);
 			return ataques;
+		}
+		seEstaEjecutandoRecibirGolpe(){
+			let golpeRecibidio = (this.animacionEnProgresoFaceHit) || (this.animacionEnProgresoHit) || (this.animacionEnProgresoAgachadoHit) || (this.animacionEnProgresoStunned) || (this.animacionEnProgresoKO);
+			return golpeRecibidio;
 		}
 
 		generaReposo() {
@@ -949,11 +1341,11 @@ window.onload = function () {
 			  this.position = Math.floor(progreso * numAnimaciones);
 		
 			// if (this.id === 1) this.position = 0;	// esto es para hacer pruebas (eliminar)
-			// if (this.id === 2) this.position = 2;	// esto es para hacer pruebas (eliminar)
+			// if (this.id === 2) this.position = 0;	// esto es para hacer pruebas (eliminar)
 			  
 			  this.height = this.spriteAnimations[this.personajeState].loc[this.position].height;
 			  this.y = LIMITE_ABAJO - this.height;
-
+			  
 			  if (this.id === 1){
 				switch(this.position){
 					case 0:
@@ -966,6 +1358,16 @@ window.onload = function () {
 						this.hitbox.cabeza.y = this.y+5,
 						this.hitbox.cabeza.width = this.width/3.5,
 						this.hitbox.cabeza.height = this.height/6
+
+						this.hitbox.tronco.x = this.x+7,
+						this.hitbox.tronco.y = this.y+20,
+						this.hitbox.tronco.width = this.width/2,
+						this.hitbox.tronco.height = this.height/1.3
+	
+						this.hitbox.pies.x = null,
+						this.hitbox.pies.y = null,
+						this.hitbox.pies.width = null,
+						this.hitbox.pies.height = null
 						break;
 					case 1:
 						this.hitbox.cuerpo.x = this.x+13, 
@@ -977,6 +1379,16 @@ window.onload = function () {
 						this.hitbox.cabeza.y = this.y+2,
 						this.hitbox.cabeza.width = this.width/3.5,
 						this.hitbox.cabeza.height = this.height/6
+
+						this.hitbox.tronco.x = this.x+17,
+						this.hitbox.tronco.y = this.y+20,
+						this.hitbox.tronco.width = this.width/2,
+						this.hitbox.tronco.height = this.height/1.3
+	
+						this.hitbox.pies.x = this.x+40,
+						this.hitbox.pies.y = this.y+73,
+						this.hitbox.pies.width = this.width/6,
+						this.hitbox.pies.height = this.height/7.8
 						break;
 					case 2:
 						this.hitbox.cuerpo.x = this.x+24, 
@@ -993,6 +1405,16 @@ window.onload = function () {
 						this.hitbox.cabeza.y = this.y+2,
 						this.hitbox.cabeza.width = this.width/3.5,
 						this.hitbox.cabeza.height = this.height/6
+
+						this.hitbox.tronco.x = this.x+20,
+						this.hitbox.tronco.y = this.y+16,
+						this.hitbox.tronco.width = this.width/2.9,
+						this.hitbox.tronco.height = this.height/1.3
+	
+						this.hitbox.pies.x = this.x+39,
+						this.hitbox.pies.y = this.y+73,
+						this.hitbox.pies.width = this.width/6,
+						this.hitbox.pies.height = this.height/7.8
 						break;
 					case 3:
 						this.hitbox.cuerpo.x = this.x+13, 
@@ -1009,6 +1431,16 @@ window.onload = function () {
 						this.hitbox.cabeza.y = this.y+2,
 						this.hitbox.cabeza.width = this.width/3.5,
 						this.hitbox.cabeza.height = this.height/6
+
+						this.hitbox.tronco.x = this.x+18,
+						this.hitbox.tronco.y = this.y+20,
+						this.hitbox.tronco.width = this.width/2.2,
+						this.hitbox.tronco.height = this.height/1.3
+	
+						this.hitbox.pies.x = this.x+40,
+						this.hitbox.pies.y = this.y+73,
+						this.hitbox.pies.width = this.width/6,
+						this.hitbox.pies.height = this.height/7.8
 						break;
 					case 4:
 						this.hitbox.cuerpo.x = this.x+9, 
@@ -1020,6 +1452,16 @@ window.onload = function () {
 						this.hitbox.cabeza.y = this.y+5,
 						this.hitbox.cabeza.width = this.width/3.5,
 						this.hitbox.cabeza.height = this.height/6
+
+						this.hitbox.tronco.x = this.x+7,
+						this.hitbox.tronco.y = this.y+20,
+						this.hitbox.tronco.width = this.width/2,
+						this.hitbox.tronco.height = this.height/1.3
+	
+						this.hitbox.pies.x = null,
+						this.hitbox.pies.y = null,
+						this.hitbox.pies.width = null,
+						this.hitbox.pies.height = null
 						break;
 					default:
 						break;
@@ -1029,11 +1471,11 @@ window.onload = function () {
 				if(this.primeraVez && this.position === 1) {
 					this.x = this.x-29;
 					this.primeraVez = false;
-				  }
-				  if(this.segundaVez && this.position === 2) {
+				}
+				if(this.segundaVez && this.position === 2) {
 					this.x = this.x+29;
 					this.segundaVez = false;
-				  }
+				}
 				  switch(this.position){
 					case 0:
 						this.hitbox.cuerpo.x = this.x+16, 
@@ -1045,6 +1487,16 @@ window.onload = function () {
 						this.hitbox.cabeza.y = this.y+7,
 						this.hitbox.cabeza.width = this.width/5,
 						this.hitbox.cabeza.height = this.height/7
+
+						this.hitbox.tronco.x = this.x+16,
+						this.hitbox.tronco.y = this.y+20,
+						this.hitbox.tronco.width = this.width/3.2,
+						this.hitbox.tronco.height = this.height/1.35
+	
+						this.hitbox.pies.x = this.x+1,
+						this.hitbox.pies.y = this.y+73,
+						this.hitbox.pies.width = this.width/6,
+						this.hitbox.pies.height = this.height/7.8
 						break;
 					case 1:
 						this.hitbox.cuerpo.x = this.x+30, 
@@ -1061,6 +1513,16 @@ window.onload = function () {
 						this.hitbox.cabeza.y = this.y+7,
 						this.hitbox.cabeza.width = this.width/5,
 						this.hitbox.cabeza.height = this.height/7
+
+						this.hitbox.tronco.x = this.x+31,
+						this.hitbox.tronco.y = this.y+20,
+						this.hitbox.tronco.width = this.width/4.4,
+						this.hitbox.tronco.height = this.height/1.35
+	
+						this.hitbox.pies.x = this.x+28,
+						this.hitbox.pies.y = this.y+73,
+						this.hitbox.pies.width = this.width/6,
+						this.hitbox.pies.height = this.height/7.8
 						break;
 					case 2:
 						this.hitbox.cuerpo.x = this.x+16, 
@@ -1077,6 +1539,16 @@ window.onload = function () {
 						this.hitbox.cabeza.y = this.y+7,
 						this.hitbox.cabeza.width = this.width/5,
 						this.hitbox.cabeza.height = this.height/7
+
+						this.hitbox.tronco.x = this.x+15,
+						this.hitbox.tronco.y = this.y+19,
+						this.hitbox.tronco.width = this.width/3,
+						this.hitbox.tronco.height = this.height/1.35
+	
+						this.hitbox.pies.x = this.x+1,
+						this.hitbox.pies.y = this.y+73,
+						this.hitbox.pies.width = this.width/6,
+						this.hitbox.pies.height = this.height/7.8
 						break;
 					default:
 						break;
@@ -1087,7 +1559,6 @@ window.onload = function () {
 				// Continuar animación si no ha alcanzado la duración máxima
 				requestAnimationFrame(() => this.animarMovingPunch(numAnimaciones));
 			  } else {
-				// console.log('ANIMACIÓN PUÑETAZO TERMINADA');
 				this.animacionEnProgresoMovingPunch = false;
 				this.primeraVez = true;
 				this.segundaVez = true;
@@ -1112,12 +1583,12 @@ window.onload = function () {
 			  this.personajeState = 'agachadoPunch';
 			  this.position = Math.floor(progreso * 2.999);
 
-			//   if (this.id === 1) this.position = 1;	// esto es para hacer pruebas (eliminar)
-			//   if (this.id === 2) this.position = 0;	// esto es para hacer pruebas (eliminar)
+			//   if (this.id === 1) this.position = 0;	// esto es para hacer pruebas (eliminar)
+			//   if (this.id === 2) this.position = 1;	// esto es para hacer pruebas (eliminar)
 
 			  this.height = this.spriteAnimations[this.personajeState].loc[this.position].height;
 			  this.y = LIMITE_ABAJO - this.height;
-			
+
 			  if (this.id === 1){
 				switch(this.position){
 					case 0:
@@ -1126,32 +1597,57 @@ window.onload = function () {
 						this.hitbox.cuerpo.width = this.width/2, 
 						this.hitbox.cuerpo.height = this.height/1.1
 
-						this.hitbox.cabeza.x = this.x+18,
+						this.hitbox.cabeza.x = this.x+23,
 						this.hitbox.cabeza.y = this.y+5,
 						this.hitbox.cabeza.width = this.width/3.5,
 						this.hitbox.cabeza.height = this.height/6
+
+						this.hitbox.tronco.x = this.x+13,
+						this.hitbox.tronco.y = this.y+13,
+						this.hitbox.tronco.width = this.width/2.6,
+						this.hitbox.tronco.height = this.height/1.4
 						break;
 					case 1:
 						this.hitbox.cuerpo.x = this.x+15, 
 						this.hitbox.cuerpo.y = this.y, 
 						this.hitbox.cuerpo.width = this.width/2.6, 
 						this.hitbox.cuerpo.height = this.height/1.1
+							
+						this.hitbox.punio.x = this.x+40, 
+						this.hitbox.punio.y = this.y+11, 
+						this.hitbox.punio.width = this.width/3, 
+						this.hitbox.punio.height = this.height/7.8
 						
-						this.hitbox.cabeza.x = this.x+24,
-						this.hitbox.cabeza.y = this.y+2,
+						this.hitbox.cabeza.x = this.x+22,
+						this.hitbox.cabeza.y = this.y+5,
 						this.hitbox.cabeza.width = this.width/3.5,
 						this.hitbox.cabeza.height = this.height/6
+
+						this.hitbox.tronco.x = this.x+14,
+						this.hitbox.tronco.y = this.y+13,
+						this.hitbox.tronco.width = this.width/3.2,
+						this.hitbox.tronco.height = this.height/1.4
 						break;
 					case 2:
 						this.hitbox.cuerpo.x = this.x+15, 
 						this.hitbox.cuerpo.y = this.y, 
 						this.hitbox.cuerpo.width = this.width/2, 
 						this.hitbox.cuerpo.height = this.height/1.1
+							
+						this.hitbox.punio.x = null,
+						this.hitbox.punio.y = null,
+						this.hitbox.punio.width = null,
+						this.hitbox.punio.height = null
 						
-						this.hitbox.cabeza.x = this.x+18,
+						this.hitbox.cabeza.x = this.x+23,
 						this.hitbox.cabeza.y = this.y+5,
 						this.hitbox.cabeza.width = this.width/3.5,
 						this.hitbox.cabeza.height = this.height/6
+
+						this.hitbox.tronco.x = this.x+13,
+						this.hitbox.tronco.y = this.y+13,
+						this.hitbox.tronco.width = this.width/2.6,
+						this.hitbox.tronco.height = this.height/1.4
 						break;
 					default:
 						break;
@@ -1177,10 +1673,15 @@ window.onload = function () {
 						this.hitbox.cuerpo.width = this.width/2.7, 
 						this.hitbox.cuerpo.height = this.height/1.05
 
-						this.hitbox.cabeza.x = this.x+17,
+						this.hitbox.cabeza.x = this.x+12,
 						this.hitbox.cabeza.y = this.y+7,
 						this.hitbox.cabeza.width = this.width/5,
 						this.hitbox.cabeza.height = this.height/7
+
+						this.hitbox.tronco.x = this.x+16,
+						this.hitbox.tronco.y = this.y+13,
+						this.hitbox.tronco.width = this.width/2.6,
+						this.hitbox.tronco.height = this.height/1.4
 						break;
 					case 1:
 						this.hitbox.cuerpo.x = this.x+26, 
@@ -1188,15 +1689,20 @@ window.onload = function () {
 						this.hitbox.cuerpo.width = this.width/2.7, 
 						this.hitbox.cuerpo.height = this.height/1.05
 
-						this.hitbox.punio.x = this.x+1, 
-						this.hitbox.punio.y = this.y+16, 
+						this.hitbox.punio.x = this.x, 
+						this.hitbox.punio.y = this.y+12, 
 						this.hitbox.punio.width = this.width/2.2, 
-						this.hitbox.punio.height = this.height/15
+						this.hitbox.punio.height = this.height/8
 						
 						this.hitbox.cabeza.x = this.x+25,
 						this.hitbox.cabeza.y = this.y+7,
 						this.hitbox.cabeza.width = this.width/5,
 						this.hitbox.cabeza.height = this.height/7
+
+						this.hitbox.tronco.x = this.x+29,
+						this.hitbox.tronco.y = this.y+13,
+						this.hitbox.tronco.width = this.width/3.5,
+						this.hitbox.tronco.height = this.height/1.4
 						break;
 					case 2:
 						this.hitbox.cuerpo.x = this.x+14, 
@@ -1209,10 +1715,15 @@ window.onload = function () {
 						this.hitbox.punio.width = null, 
 						this.hitbox.punio.height = null
 
-						this.hitbox.cabeza.x = this.x+17,
+						this.hitbox.cabeza.x = this.x+12,
 						this.hitbox.cabeza.y = this.y+7,
 						this.hitbox.cabeza.width = this.width/5,
 						this.hitbox.cabeza.height = this.height/7
+
+						this.hitbox.tronco.x = this.x+16,
+						this.hitbox.tronco.y = this.y+13,
+						this.hitbox.tronco.width = this.width/2.6,
+						this.hitbox.tronco.height = this.height/1.4
 						break;
 					default:
 						break;
@@ -1251,58 +1762,71 @@ window.onload = function () {
 			  this.position = Math.floor(progreso * 2.999);
 
 			//   if (this.id === 1) this.position = 0;	// esto es para hacer pruebas (eliminar)
-			//   if (this.id === 2) this.position = 2;	// esto es para hacer pruebas (eliminar)
+			//   if (this.id === 2) this.position = 0;	// esto es para hacer pruebas (eliminar)
 
 			  this.height = this.spriteAnimations[this.personajeState].loc[this.position].height;
 			  this.y = LIMITE_ABAJO - this.height;
-			  
-			  if (this.id === 1){
 
-				this.hitbox.cuerpo.x = this.x+16, 
-				this.hitbox.cuerpo.y = this.y, 
-				this.hitbox.cuerpo.width = this.width/2.3, 
-				this.hitbox.cuerpo.height = this.height/1.1
+			  if (this.id === 1){
 
 				switch(this.position){
 					case 0:
-						this.hitbox.cabeza.x = this.x+18,
-						this.hitbox.cabeza.y = this.y+5,
+						this.hitbox.cuerpo.x = this.x+16, 
+						this.hitbox.cuerpo.y = this.y, 
+						this.hitbox.cuerpo.width = this.width/2.3, 
+						this.hitbox.cuerpo.height = this.height/1.1
+
+						this.hitbox.cabeza.x = this.x+21,
+						this.hitbox.cabeza.y = this.y+1,
 						this.hitbox.cabeza.width = this.width/3.5,
 						this.hitbox.cabeza.height = this.height/6
+
+						this.hitbox.tronco.x = this.x+17,
+						this.hitbox.tronco.y = this.y+10,
+						this.hitbox.tronco.width = this.width/2.7,
+						this.hitbox.tronco.height = this.height/1.26
 						break;
 					case 1:
-						this.hitbox.cabeza.x = this.x+24,
-						this.hitbox.cabeza.y = this.y+2,
-						this.hitbox.cabeza.width = this.width/3.5,
+						this.hitbox.cuerpo.x = this.x+16, 
+						this.hitbox.cuerpo.y = this.y, 
+						this.hitbox.cuerpo.width = this.width/2.8, 
+						this.hitbox.cuerpo.height = this.height/1.1
+
+						this.hitbox.patada.x = this.x+25, 
+						this.hitbox.patada.y = this.y+45, 
+						this.hitbox.patada.width = this.width/1.43, 
+						this.hitbox.patada.height = this.height/8
+
+						this.hitbox.cabeza.x = this.x+22,
+						this.hitbox.cabeza.y = this.y+10,
+						this.hitbox.cabeza.width = this.width/9,
 						this.hitbox.cabeza.height = this.height/6
+
+						this.hitbox.tronco.x = this.x+19,
+						this.hitbox.tronco.y = this.y+19,
+						this.hitbox.tronco.width = this.width/4.7,
+						this.hitbox.tronco.height = this.height/1.65
 						break;
 					case 2:
-						this.hitbox.punio.x = this.x+38, 
-						this.hitbox.punio.y = this.y+15, 
-						this.hitbox.punio.width = this.width/2.1, 
-						this.hitbox.punio.height = this.height/12
+						this.hitbox.cuerpo.x = this.x+16, 
+						this.hitbox.cuerpo.y = this.y, 
+						this.hitbox.cuerpo.width = this.width/2.3, 
+						this.hitbox.cuerpo.height = this.height/1.1
+
+						this.hitbox.patada.x = null,
+						this.hitbox.patada.y = null,
+						this.hitbox.patada.width = null,
+						this.hitbox.patada.height = null
 						
-						this.hitbox.cabeza.x = this.x+24,
-						this.hitbox.cabeza.y = this.y+2,
+						this.hitbox.cabeza.x = this.x+21,
+						this.hitbox.cabeza.y = this.y+1,
 						this.hitbox.cabeza.width = this.width/3.5,
 						this.hitbox.cabeza.height = this.height/6
-						break;
-					case 3:
-						this.hitbox.punio.x = null, 
-						this.hitbox.punio.y = null, 
-						this.hitbox.punio.width = null, 
-						this.hitbox.punio.height = null
-						
-						this.hitbox.cabeza.x = this.x+24,
-						this.hitbox.cabeza.y = this.y+2,
-						this.hitbox.cabeza.width = this.width/3.5,
-						this.hitbox.cabeza.height = this.height/6
-						break;
-					case 4:
-						this.hitbox.cabeza.x = this.x+18,
-						this.hitbox.cabeza.y = this.y+5,
-						this.hitbox.cabeza.width = this.width/3.5,
-						this.hitbox.cabeza.height = this.height/6
+
+						this.hitbox.tronco.x = this.x+17,
+						this.hitbox.tronco.y = this.y+10,
+						this.hitbox.tronco.width = this.width/2.7,
+						this.hitbox.tronco.height = this.height/1.26
 						break;
 					default:
 						break;
@@ -1329,10 +1853,15 @@ window.onload = function () {
 						this.hitbox.cuerpo.width = this.width/2.3, 
 						this.hitbox.cuerpo.height = this.height/1.1
 
-						this.hitbox.cabeza.x = this.x+17,
-						this.hitbox.cabeza.y = this.y+7,
+						this.hitbox.cabeza.x = this.x+10,
+						this.hitbox.cabeza.y = this.y+2,
 						this.hitbox.cabeza.width = this.width/5,
-						this.hitbox.cabeza.height = this.height/7
+						this.hitbox.cabeza.height = this.height/5
+
+						this.hitbox.tronco.x = this.x+14,
+						this.hitbox.tronco.y = this.y+10,
+						this.hitbox.tronco.width = this.width/2.7,
+						this.hitbox.tronco.height = this.height/1.3
 						break;
 					case 1:
 						this.hitbox.cuerpo.x = this.x+30, 
@@ -1340,15 +1869,20 @@ window.onload = function () {
 						this.hitbox.cuerpo.width = this.width/3, 
 						this.hitbox.cuerpo.height = this.height/1.1
 
-						this.hitbox.punio.x = this.x+1, 
-						this.hitbox.punio.y = this.y+16, 
-						this.hitbox.punio.width = this.width/2.2, 
-						this.hitbox.punio.height = this.height/15
+						this.hitbox.patada.x = this.x+5, 
+						this.hitbox.patada.y = this.y+37, 
+						this.hitbox.patada.width = this.width/1.43, 
+						this.hitbox.patada.height = this.height/8
 						
-						this.hitbox.cabeza.x = this.x+25,
-						this.hitbox.cabeza.y = this.y+7,
+						this.hitbox.cabeza.x = this.x+31,
+						this.hitbox.cabeza.y = this.y,
 						this.hitbox.cabeza.width = this.width/5,
-						this.hitbox.cabeza.height = this.height/7
+						this.hitbox.cabeza.height = this.height/3.8
+
+						this.hitbox.tronco.x = this.x+33,
+						this.hitbox.tronco.y = this.y+10,
+						this.hitbox.tronco.width = this.width/3.3,
+						this.hitbox.tronco.height = this.height/1.3
 						break;
 					case 2:
 						this.hitbox.cuerpo.x = this.x+14, 
@@ -1356,15 +1890,20 @@ window.onload = function () {
 						this.hitbox.cuerpo.width = this.width/2.3, 
 						this.hitbox.cuerpo.height = this.height/1.1
 
-						this.hitbox.punio.x = null, 
-						this.hitbox.punio.y = null, 
-						this.hitbox.punio.width = null, 
-						this.hitbox.punio.height = null
+						this.hitbox.patada.x = null, 
+						this.hitbox.patada.y = null, 
+						this.hitbox.patada.width = null, 
+						this.hitbox.patada.height = null
 
-						this.hitbox.cabeza.x = this.x+17,
-						this.hitbox.cabeza.y = this.y+7,
+						this.hitbox.cabeza.x = this.x+10,
+						this.hitbox.cabeza.y = this.y+2,
 						this.hitbox.cabeza.width = this.width/5,
-						this.hitbox.cabeza.height = this.height/7
+						this.hitbox.cabeza.height = this.height/5
+
+						this.hitbox.tronco.x = this.x+14,
+						this.hitbox.tronco.y = this.y+10,
+						this.hitbox.tronco.width = this.width/2.7,
+						this.hitbox.tronco.height = this.height/1.3
 						break;
 					default:
 						break;
@@ -1402,8 +1941,8 @@ window.onload = function () {
 			  this.personajeState = 'kick';
 			  this.position = Math.floor(progreso * 2.999);
 		
-				// if (this.id === 1) this.position = 0;	// esto es para hacer pruebas (eliminar)
-				// if (this.id === 2) this.position = 0;	// esto es para hacer pruebas (eliminar)
+				// if (this.id === 1) this.position = 1;	// esto es para hacer pruebas (eliminar)
+				// if (this.id === 2) this.position = 1;	// esto es para hacer pruebas (eliminar)
 
 			  this.height = this.spriteAnimations[this.personajeState].loc[this.position].height;
 			  this.y = LIMITE_ABAJO - this.height;
@@ -1434,6 +1973,16 @@ window.onload = function () {
 						this.hitbox.cabeza.y = this.y+3,
 						this.hitbox.cabeza.width = this.width/3.5,
 						this.hitbox.cabeza.height = this.height/6
+
+						this.hitbox.tronco.x = this.x+13,
+						this.hitbox.tronco.y = this.y+17,
+						this.hitbox.tronco.width = this.width/2.4,
+						this.hitbox.tronco.height = this.height/1.35
+	
+						this.hitbox.pies.x = this.x+14,
+						this.hitbox.pies.y = this.y+72,
+						this.hitbox.pies.width = this.width/6,
+						this.hitbox.pies.height = this.height/7.8
 						break;
 					case 1:
 						this.hitbox.cuerpo.x = this.x+8, 
@@ -1450,6 +1999,16 @@ window.onload = function () {
 						this.hitbox.cabeza.y = this.y+3,
 						this.hitbox.cabeza.width = this.width/3.5,
 						this.hitbox.cabeza.height = this.height/6
+
+						this.hitbox.tronco.x = this.x+5,
+						this.hitbox.tronco.y = this.y+17,
+						this.hitbox.tronco.width = this.width/2.4,
+						this.hitbox.tronco.height = this.height/1.35
+	
+						this.hitbox.pies.x = this.x+25,
+						this.hitbox.pies.y = this.y+72,
+						this.hitbox.pies.width = this.width/6,
+						this.hitbox.pies.height = this.height/7.8
 						break;
 					case 2:
 						this.hitbox.cuerpo.x = this.x+10, 
@@ -1466,6 +2025,16 @@ window.onload = function () {
 						this.hitbox.cabeza.y = this.y+3,
 						this.hitbox.cabeza.width = this.width/3.5,
 						this.hitbox.cabeza.height = this.height/6
+
+						this.hitbox.tronco.x = this.x+13,
+						this.hitbox.tronco.y = this.y+17,
+						this.hitbox.tronco.width = this.width/2.4,
+						this.hitbox.tronco.height = this.height/1.35
+	
+						this.hitbox.pies.x = this.x+14,
+						this.hitbox.pies.y = this.y+72,
+						this.hitbox.pies.width = this.width/6,
+						this.hitbox.pies.height = this.height/7.8
 						break;
 					default:
 						break;
@@ -1492,6 +2061,16 @@ window.onload = function () {
 					this.hitbox.cabeza.y = this.y+4,
 					this.hitbox.cabeza.width = this.width/5,
 					this.hitbox.cabeza.height = this.height/7
+
+					this.hitbox.tronco.x = this.x+35,
+					this.hitbox.tronco.y = this.y+16,
+					this.hitbox.tronco.width = this.width/5.8,
+					this.hitbox.tronco.height = this.height/1.35
+	
+					this.hitbox.pies.x = this.x+30,
+					this.hitbox.pies.y = this.y+64,
+					this.hitbox.pies.width = this.width/6,
+					this.hitbox.pies.height = this.height/5
 					break;
 				case 1:
 					this.hitbox.cuerpo.x = this.x+28, 
@@ -1508,6 +2087,16 @@ window.onload = function () {
 					this.hitbox.cabeza.y = this.y+3,
 					this.hitbox.cabeza.width = this.width/5,
 					this.hitbox.cabeza.height = this.height/7
+
+					this.hitbox.tronco.x = this.x+37,
+					this.hitbox.tronco.y = this.y+16,
+					this.hitbox.tronco.width = this.width/8,
+					this.hitbox.tronco.height = this.height/1.3
+	
+					this.hitbox.pies.x = this.x+39,
+					this.hitbox.pies.y = this.y+64,
+					this.hitbox.pies.width = this.width/6,
+					this.hitbox.pies.height = this.height/5
 					break;
 				case 2:
 					this.hitbox.cuerpo.x = this.x+32, 
@@ -1524,6 +2113,16 @@ window.onload = function () {
 					this.hitbox.cabeza.y = this.y+4,
 					this.hitbox.cabeza.width = this.width/5,
 					this.hitbox.cabeza.height = this.height/7
+
+					this.hitbox.tronco.x = this.x+35,
+					this.hitbox.tronco.y = this.y+16,
+					this.hitbox.tronco.width = this.width/5.8,
+					this.hitbox.tronco.height = this.height/1.35
+	
+					this.hitbox.pies.x = this.x+30,
+					this.hitbox.pies.y = this.y+64,
+					this.hitbox.pies.width = this.width/6,
+					this.hitbox.pies.height = this.height/5
 					break;
 				default:
 					break;
@@ -1592,10 +2191,15 @@ window.onload = function () {
 				 
 				switch(this.position){
 					case 0:						
-						this.hitbox.cabeza.x = this.x+8,
-						this.hitbox.cabeza.y = this.y+3,
-						this.hitbox.cabeza.width = this.width/3.5,
+						this.hitbox.cabeza.x = this.x+1,
+						this.hitbox.cabeza.y = this.y+6,
+						this.hitbox.cabeza.width = this.width/4,
 						this.hitbox.cabeza.height = this.height/6
+
+						this.hitbox.tronco.x = this.x+3,
+						this.hitbox.tronco.y = this.y+20,
+						this.hitbox.tronco.width = this.width/2.55,
+						this.hitbox.tronco.height = this.height/1.4
 						break;
 					case 1:
 						this.hitbox.patada.x = this.x+47, 
@@ -1603,10 +2207,15 @@ window.onload = function () {
 						this.hitbox.patada.width = this.width/3.2, 
 						this.hitbox.patada.height = this.height/11
 
-						this.hitbox.cabeza.x = this.x-2,
-						this.hitbox.cabeza.y = this.y+3,
-						this.hitbox.cabeza.width = this.width/3.5,
+						this.hitbox.cabeza.x = this.x+1,
+						this.hitbox.cabeza.y = this.y+6,
+						this.hitbox.cabeza.width = this.width/4,
 						this.hitbox.cabeza.height = this.height/6
+
+						this.hitbox.tronco.x = this.x+3,
+						this.hitbox.tronco.y = this.y+20,
+						this.hitbox.tronco.width = this.width/2.55,
+						this.hitbox.tronco.height = this.height/1.4
 						break;
 					case 2:
 						this.hitbox.patada.x = null, 
@@ -1614,10 +2223,31 @@ window.onload = function () {
 						this.hitbox.patada.width = null, 
 						this.hitbox.patada.height = null
 						
-						this.hitbox.cabeza.x = this.x+8,
-						this.hitbox.cabeza.y = this.y+3,
-						this.hitbox.cabeza.width = this.width/3.5,
+						this.hitbox.cabeza.x = this.x+1,
+						this.hitbox.cabeza.y = this.y+5,
+						this.hitbox.cabeza.width = this.width/5,
 						this.hitbox.cabeza.height = this.height/6
+
+						this.hitbox.tronco.x = this.x+5,
+						this.hitbox.tronco.y = this.y+19,
+						this.hitbox.tronco.width = this.width/3,
+						this.hitbox.tronco.height = this.height/1.35
+						break;
+					case 3:
+						this.hitbox.patada.x = this.x+47, 
+						this.hitbox.patada.y = this.y+1, 
+						this.hitbox.patada.width = this.width/3.2, 
+						this.hitbox.patada.height = this.height/11
+
+						this.hitbox.cabeza.x = this.x+13,
+						this.hitbox.cabeza.y = this.y+2,
+						this.hitbox.cabeza.width = this.width/4,
+						this.hitbox.cabeza.height = this.height/8
+
+						this.hitbox.tronco.x = this.x+5,
+						this.hitbox.tronco.y = this.y+13,
+						this.hitbox.tronco.width = this.width/2,
+						this.hitbox.tronco.height = this.height/1.35
 						break;
 					default:
 						break;
@@ -1631,10 +2261,15 @@ window.onload = function () {
 					this.hitbox.cuerpo.width = this.width/2.5, 
 					this.hitbox.cuerpo.height = this.height/1.1
 					
-					this.hitbox.cabeza.x = this.x+34,
-					this.hitbox.cabeza.y = this.y+4,
-					this.hitbox.cabeza.width = this.width/5,
-					this.hitbox.cabeza.height = this.height/7
+					this.hitbox.cabeza.x = this.x+33,
+					this.hitbox.cabeza.y = this.y+2,
+					this.hitbox.cabeza.width = this.width/4.8,
+					this.hitbox.cabeza.height = this.height/9
+
+					this.hitbox.tronco.x = this.x+18,
+					this.hitbox.tronco.y = this.y+11,
+					this.hitbox.tronco.width = this.width/2.5,
+					this.hitbox.tronco.height = this.height/1.19
 					break;
 				case 1:
 					this.hitbox.cuerpo.x = this.x+20, 
@@ -1647,10 +2282,15 @@ window.onload = function () {
 					this.hitbox.patada.width = this.width/3.2, 
 					this.hitbox.patada.height = this.height/14
 					
-					this.hitbox.cabeza.x = this.x+44,
-					this.hitbox.cabeza.y = this.y+3,
-					this.hitbox.cabeza.width = this.width/5,
-					this.hitbox.cabeza.height = this.height/7
+					this.hitbox.cabeza.x = this.x+37,
+					this.hitbox.cabeza.y = this.y+4,
+					this.hitbox.cabeza.width = this.width/4.8,
+					this.hitbox.cabeza.height = this.height/9
+
+					this.hitbox.tronco.x = this.x+18,
+					this.hitbox.tronco.y = this.y+11,
+					this.hitbox.tronco.width = this.width/2.5,
+					this.hitbox.tronco.height = this.height/1.19
 					break;
 				case 2:
 					this.hitbox.cuerpo.x = this.x+20, 
@@ -1663,10 +2303,15 @@ window.onload = function () {
 					this.hitbox.patada.width = null, 
 					this.hitbox.patada.height = null
 					
-					this.hitbox.cabeza.x = this.x+34,
+					this.hitbox.cabeza.x = this.x+43,
 					this.hitbox.cabeza.y = this.y+4,
-					this.hitbox.cabeza.width = this.width/5,
-					this.hitbox.cabeza.height = this.height/7
+					this.hitbox.cabeza.width = this.width/6,
+					this.hitbox.cabeza.height = this.height/9
+
+					this.hitbox.tronco.x = this.x+18,
+					this.hitbox.tronco.y = this.y+11,
+					this.hitbox.tronco.width = this.width/2.5,
+					this.hitbox.tronco.height = this.height/1.19
 					break;
 				case 3:
 					this.hitbox.cuerpo.x = this.x+20, 
@@ -1679,10 +2324,15 @@ window.onload = function () {
 					this.hitbox.patada.width = null, 
 					this.hitbox.patada.height = null
 					
-					this.hitbox.cabeza.x = this.x+34,
+					this.hitbox.cabeza.x = this.x+38,
 					this.hitbox.cabeza.y = this.y+4,
-					this.hitbox.cabeza.width = this.width/5,
-					this.hitbox.cabeza.height = this.height/7
+					this.hitbox.cabeza.width = this.width/6,
+					this.hitbox.cabeza.height = this.height/9
+
+					this.hitbox.tronco.x = this.x+18,
+					this.hitbox.tronco.y = this.y+11,
+					this.hitbox.tronco.width = this.width/2.5,
+					this.hitbox.tronco.height = this.height/1.19
 					break;
 				default:
 					break;
@@ -1719,11 +2369,13 @@ window.onload = function () {
 			this.personajeState = 'hit';
 			this.position = Math.floor(progreso * 3.999);
 		
-			// if (this.id === 1) this.position = 0;	// esto es para hacer pruebas (eliminar)
-			// if (this.id === 2) this.position = 0;	// esto es para hacer pruebas (eliminar)
+			// if (this.id === 1) this.position = 3;	// esto es para hacer pruebas (eliminar)
+			// if (this.id === 2) this.position = 3;	// esto es para hacer pruebas (eliminar)
 
 			this.height = this.spriteAnimations[this.personajeState].loc[this.position].height;
 			this.y = LIMITE_ABAJO - this.height;
+
+			
 
 			if (this.id === 1){
 
@@ -1747,10 +2399,15 @@ window.onload = function () {
 						this.hitbox.cuerpo.width = this.width/2.3, 
 						this.hitbox.cuerpo.height = this.height/1.15
 						
-						this.hitbox.cabeza.x = this.x+8,
-						this.hitbox.cabeza.y = this.y+3,
+						this.hitbox.cabeza.x = this.x+13,
+						this.hitbox.cabeza.y = this.y+7,
 						this.hitbox.cabeza.width = this.width/3.5,
 						this.hitbox.cabeza.height = this.height/6
+
+						this.hitbox.tronco.x = this.x+3,
+						this.hitbox.tronco.y = this.y+20,
+						this.hitbox.tronco.width = this.width/2,
+						this.hitbox.tronco.height = this.height/1.4
 						break;
 					case 1:
 						this.hitbox.cuerpo.x = this.x+5, 
@@ -1763,10 +2420,15 @@ window.onload = function () {
 						this.hitbox.patada.width = this.width/3.2, 
 						this.hitbox.patada.height = this.height/11
 
-						this.hitbox.cabeza.x = this.x-2,
-						this.hitbox.cabeza.y = this.y+3,
-						this.hitbox.cabeza.width = this.width/3.5,
+						this.hitbox.cabeza.x = this.x+15,
+						this.hitbox.cabeza.y = this.y+11,
+						this.hitbox.cabeza.width = this.width/4.5,
 						this.hitbox.cabeza.height = this.height/6
+
+						this.hitbox.tronco.x = this.x+5,
+						this.hitbox.tronco.y = this.y+24,
+						this.hitbox.tronco.width = this.width/2,
+						this.hitbox.tronco.height = this.height/1.55
 						break;
 					case 2:
 						this.hitbox.cuerpo.x = this.x+5, 
@@ -1779,10 +2441,15 @@ window.onload = function () {
 						this.hitbox.patada.width = null, 
 						this.hitbox.patada.height = null
 						
-						this.hitbox.cabeza.x = this.x+8,
-						this.hitbox.cabeza.y = this.y+3,
-						this.hitbox.cabeza.width = this.width/3.5,
+						this.hitbox.cabeza.x = this.x+20,
+						this.hitbox.cabeza.y = this.y+25,
+						this.hitbox.cabeza.width = this.width/7,
 						this.hitbox.cabeza.height = this.height/6
+
+						this.hitbox.tronco.x = this.x+5,
+						this.hitbox.tronco.y = this.y+38,
+						this.hitbox.tronco.width = this.width/2,
+						this.hitbox.tronco.height = this.height/2
 						break;
 					case 3:
 						this.hitbox.cuerpo.x = this.x+7, 
@@ -1795,10 +2462,15 @@ window.onload = function () {
 						this.hitbox.patada.width = null, 
 						this.hitbox.patada.height = null
 						
-						this.hitbox.cabeza.x = this.x+8,
-						this.hitbox.cabeza.y = this.y+3,
-						this.hitbox.cabeza.width = this.width/3.5,
+						this.hitbox.cabeza.x = this.x+12,
+						this.hitbox.cabeza.y = this.y+1,
+						this.hitbox.cabeza.width = this.width/3.9,
 						this.hitbox.cabeza.height = this.height/6
+
+						this.hitbox.tronco.x = this.x+5,
+						this.hitbox.tronco.y = this.y+13,
+						this.hitbox.tronco.width = this.width/2.2,
+						this.hitbox.tronco.height = this.height/1.25
 						break;
 					default:
 						break;
@@ -1829,10 +2501,15 @@ window.onload = function () {
 					this.hitbox.cuerpo.width = this.width/2.5, 
 					this.hitbox.cuerpo.height = this.height/1.2
 					
-					this.hitbox.cabeza.x = this.x+34,
-					this.hitbox.cabeza.y = this.y+4,
-					this.hitbox.cabeza.width = this.width/5,
-					this.hitbox.cabeza.height = this.height/7
+					this.hitbox.cabeza.x = this.x+22,
+					this.hitbox.cabeza.y = this.y+12,
+					this.hitbox.cabeza.width = this.width/3.9,
+					this.hitbox.cabeza.height = this.height/6
+
+					this.hitbox.tronco.x = this.x+25,
+					this.hitbox.tronco.y = this.y+27,
+					this.hitbox.tronco.width = this.width/2.9,
+					this.hitbox.tronco.height = this.height/1.25
 					break;
 				case 1:
 					this.hitbox.cuerpo.x = this.x+18, 
@@ -1845,10 +2522,15 @@ window.onload = function () {
 					this.hitbox.patada.width = this.width/3.2, 
 					this.hitbox.patada.height = this.height/14
 					
-					this.hitbox.cabeza.x = this.x+44,
-					this.hitbox.cabeza.y = this.y+3,
-					this.hitbox.cabeza.width = this.width/5,
-					this.hitbox.cabeza.height = this.height/7
+					this.hitbox.cabeza.x = this.x+15,
+					this.hitbox.cabeza.y = this.y+17,
+					this.hitbox.cabeza.width = this.width/4.2,
+					this.hitbox.cabeza.height = this.height/9
+
+					this.hitbox.tronco.x = this.x+27,
+					this.hitbox.tronco.y = this.y+27,
+					this.hitbox.tronco.width = this.width/3.1,
+					this.hitbox.tronco.height = this.height/1.5
 					break;
 				case 2:
 					this.hitbox.cuerpo.x = this.x+18, 
@@ -1861,10 +2543,15 @@ window.onload = function () {
 					this.hitbox.patada.width = null, 
 					this.hitbox.patada.height = null
 					
-					this.hitbox.cabeza.x = this.x+34,
-					this.hitbox.cabeza.y = this.y+4,
-					this.hitbox.cabeza.width = this.width/5,
-					this.hitbox.cabeza.height = this.height/7
+					this.hitbox.cabeza.x = this.x+14,
+					this.hitbox.cabeza.y = this.y+17,
+					this.hitbox.cabeza.width = this.width/4.2,
+					this.hitbox.cabeza.height = this.height/9
+
+					this.hitbox.tronco.x = this.x+28,
+					this.hitbox.tronco.y = this.y+27,
+					this.hitbox.tronco.width = this.width/3.6,
+					this.hitbox.tronco.height = this.height/1.5
 					break;
 				case 3:
 					this.hitbox.cuerpo.x = this.x+20, 
@@ -1877,10 +2564,15 @@ window.onload = function () {
 					this.hitbox.patada.width = null, 
 					this.hitbox.patada.height = null
 					
-					this.hitbox.cabeza.x = this.x+34,
-					this.hitbox.cabeza.y = this.y+4,
-					this.hitbox.cabeza.width = this.width/5,
-					this.hitbox.cabeza.height = this.height/7
+					this.hitbox.cabeza.x = this.x+22,
+					this.hitbox.cabeza.y = this.y+12,
+					this.hitbox.cabeza.width = this.width/4.2,
+					this.hitbox.cabeza.height = this.height/9
+
+					this.hitbox.tronco.x = this.x+26,
+					this.hitbox.tronco.y = this.y+22,
+					this.hitbox.tronco.width = this.width/3.4,
+					this.hitbox.tronco.height = this.height/1.3
 					break;
 				default:
 					break;
@@ -1901,6 +2593,76 @@ window.onload = function () {
 			}
 		}
 		
+
+
+		iniciarAnimacionRetroceso(cantidadDesplazamiento = 4) {
+			this.animacionEnProgresoRetroceso = true;
+			this.inicioAnimacionRetroceso = performance.now();
+			this.animarRetroceso(cantidadDesplazamiento);
+		}
+
+		animarRetroceso(cantidadDesplazamiento) {
+			if (this.animacionEnProgresoRetroceso) {
+			const tiempoActual = performance.now();
+			const tiempoTranscurrido = tiempoActual - this.inicioAnimacionRetroceso;
+			const progreso = Math.min(tiempoTranscurrido / this.duracionAnimacionRetroceso, 1);
+
+			let despazamiento = cantidadDesplazamiento;
+
+			if (this.id === 1){
+
+				if(this.primeraVez && progreso < 0.25) {
+					this.x -= despazamiento;
+					this.primeraVez = false;
+				}
+				if(this.segundaVez && (progreso >= 0.25 && progreso < 0.5)) {
+					this.x -= despazamiento;
+					this.segundaVez = false;
+				}
+				if(this.tercerVez && (progreso >= 0.5 && progreso < 0.75)) {
+					this.x -= despazamiento;
+					this.tercerVez = false;
+				}
+				if(this.cuartaVez && progreso > 0.75) {
+					this.x -= despazamiento;
+					this.cuartaVez = false;
+				}
+
+			} else if (!this.animacionEnProgresoMovingPunch ) {
+
+				if(this.primeraVez && progreso < 0.25) {
+					this.x += despazamiento;
+					this.primeraVez = false;
+				}
+				if(this.segundaVez && (progreso >= 0.25 && progreso < 0.5)) {
+					this.x += despazamiento;
+					this.segundaVez = false;
+				}
+				if(this.tercerVez && (progreso >= 0.5 && progreso < 0.75)) {
+					this.x += despazamiento;
+					this.tercerVez = false;
+				}
+				if(this.cuartaVez && progreso > 0.75) {
+					this.x += despazamiento;
+					this.cuartaVez = false;
+				}
+			}
+
+			if (tiempoTranscurrido < this.duracionAnimacionHit) {
+				requestAnimationFrame(() => this.animarRetroceso(cantidadDesplazamiento));
+			} else {
+				// console.log('ANIMACIÓN PUÑETAZO TERMINADA');
+				this.animacionEnProgresoRetroceso = false;
+				this.primeraVez = true;
+				this.segundaVez = true;
+				this.tercerVez = true;
+				this.cuartaVez = true;
+			}
+			}
+		}
+
+
+		
 		iniciarAnimacionAgachadoHit() {
 			this.animacionEnProgresoAgachadoHit = true;
 			this.inicioAnimacionAgachadoHit = performance.now();
@@ -1917,8 +2679,12 @@ window.onload = function () {
 			this.personajeState = 'agachadoHit';
 			this.position = Math.floor(progreso * 0.999);
 		
+			// if (this.id === 1) this.position = 0;	// esto es para hacer pruebas (eliminar)
+			// if (this.id === 2) this.position = 0;	// esto es para hacer pruebas (eliminar)
+		
 			this.height = this.spriteAnimations[this.personajeState].loc[this.position].height;
 			this.y = LIMITE_ABAJO - this.height;
+
 
 			if (this.id === 1){
 				this.hitbox.cuerpo.x = this.x+4, 
@@ -1926,9 +2692,23 @@ window.onload = function () {
 				this.hitbox.cuerpo.width = this.width/1.5, 
 				this.hitbox.cuerpo.height = this.height/1.05
 
-				if(this.primeraVez && this.position === 0) {
+				this.hitbox.cabeza.x = this.x,
+				this.hitbox.cabeza.y = this.y+5,
+				this.hitbox.cabeza.width = this.width/3.8,
+				this.hitbox.cabeza.height = this.height/6
+
+				this.hitbox.tronco.x = this.x+4,
+				this.hitbox.tronco.y = this.y+15,
+				this.hitbox.tronco.width = this.width/2.3,
+				this.hitbox.tronco.height = this.height/1.19
+
+				if(this.primeraVez) {
 					this.x = this.x-6;
 					this.primeraVez = false;
+				}
+				if(this.segundaVez) {
+					this.x = this.x - 15;
+					this.segundaVez = false;
 				}
 
 			} else {
@@ -1936,10 +2716,24 @@ window.onload = function () {
 				this.hitbox.cuerpo.y = this.y+5, 
 				this.hitbox.cuerpo.width = this.width/2.1, 
 				this.hitbox.cuerpo.height = this.height/1.05
+				
+				this.hitbox.cabeza.x = this.x+13
+				this.hitbox.cabeza.y = this.y+5
+				this.hitbox.cabeza.width = this.width/3.8
+				this.hitbox.cabeza.height = this.height/6
 
-				if(this.primeraVez && this.position === 0) {
+				this.hitbox.tronco.x = this.x+14,
+				this.hitbox.tronco.y = this.y+15,
+				this.hitbox.tronco.width = this.width/3,
+				this.hitbox.tronco.height = this.height/1.19
+
+				if(this.primeraVez) {
 					this.x = this.x+15;
 					this.primeraVez = false;
+				}
+				if(this.segundaVez) {
+					this.x = this.x + 15;
+					this.segundaVez = false;
 				}
 			}
 
@@ -1952,6 +2746,7 @@ window.onload = function () {
 				if (this.id === 1) this.x = this.x + 6;
 				if (this.id === 2) this.x = this.x - 15;
 				this.primeraVez = true;
+				this.segundaVez = true;
 			}
 			}
 		}
@@ -1981,7 +2776,7 @@ window.onload = function () {
 			this.position = Math.floor(progreso * numAnimaciones);
 	
 			// if (this.id === 1) this.position = 2;	// esto es para hacer pruebas (eliminar)
-			// if (this.id === 2) this.position = 0;	// esto es para hacer pruebas (eliminar)
+			// if (this.id === 2) this.position = 3;	// esto es para hacer pruebas (eliminar)
 
 			this.height = this.spriteAnimations[this.personajeState].loc[this.position].height;
 			this.y = LIMITE_ABAJO - this.height;
@@ -2003,10 +2798,15 @@ window.onload = function () {
 						this.hitbox.cuerpo.width = this.width/1.9, 
 						this.hitbox.cuerpo.height = this.height/1.05			
 						
-						this.hitbox.cabeza.x = this.x+8,
+						this.hitbox.cabeza.x = this.x+28,
 						this.hitbox.cabeza.y = this.y+3,
-						this.hitbox.cabeza.width = this.width/3.5,
+						this.hitbox.cabeza.width = this.width/4.5,
 						this.hitbox.cabeza.height = this.height/6
+
+						this.hitbox.tronco.x = this.x+15,
+						this.hitbox.tronco.y = this.y+17,
+						this.hitbox.tronco.width = this.width/2.7,
+						this.hitbox.tronco.height = this.height/1.3
 						break;
 					case 1:
 						this.hitbox.cuerpo.x = this.x+8, 
@@ -2019,10 +2819,15 @@ window.onload = function () {
 						this.hitbox.patada.width = this.width/3.2, 
 						this.hitbox.patada.height = this.height/11
 
-						this.hitbox.cabeza.x = this.x-2,
-						this.hitbox.cabeza.y = this.y+3,
-						this.hitbox.cabeza.width = this.width/3.5,
-						this.hitbox.cabeza.height = this.height/6
+						this.hitbox.cabeza.x = this.x+18,
+						this.hitbox.cabeza.y = this.y,
+						this.hitbox.cabeza.width = this.width/3.7,
+						this.hitbox.cabeza.height = this.height/7
+
+						this.hitbox.tronco.x = this.x+9,
+						this.hitbox.tronco.y = this.y+12,
+						this.hitbox.tronco.width = this.width/2.1,
+						this.hitbox.tronco.height = this.height/1.2
 						break;
 					case 2:
 						this.hitbox.cuerpo.x = this.x+5, 
@@ -2035,10 +2840,15 @@ window.onload = function () {
 						this.hitbox.patada.width = null, 
 						this.hitbox.patada.height = null
 						
-						this.hitbox.cabeza.x = this.x+8,
-						this.hitbox.cabeza.y = this.y+3,
-						this.hitbox.cabeza.width = this.width/3.5,
-						this.hitbox.cabeza.height = this.height/6
+						this.hitbox.cabeza.x = this.x+10,
+						this.hitbox.cabeza.y = this.y+2,
+						this.hitbox.cabeza.width = this.width/3.7,
+						this.hitbox.cabeza.height = this.height/7
+
+						this.hitbox.tronco.x = this.x+7,
+						this.hitbox.tronco.y = this.y+12,
+						this.hitbox.tronco.width = this.width/2.1,
+						this.hitbox.tronco.height = this.height/1.2
 						break;
 					default:
 						break;
@@ -2060,10 +2870,15 @@ window.onload = function () {
 
 				switch(this.position){
 				case 0:					
-					this.hitbox.cabeza.x = this.x+34,
-					this.hitbox.cabeza.y = this.y+4,
-					this.hitbox.cabeza.width = this.width/5,
-					this.hitbox.cabeza.height = this.height/7
+					this.hitbox.cabeza.x = this.x+10,
+					this.hitbox.cabeza.y = this.y+1,
+					this.hitbox.cabeza.width = this.width/3.8,
+					this.hitbox.cabeza.height = this.height/6
+
+					this.hitbox.tronco.x = this.x+14,
+					this.hitbox.tronco.y = this.y+14,
+					this.hitbox.tronco.width = this.width/2.4,
+					this.hitbox.tronco.height = this.height/1.2
 					break;
 				case 1:
 					this.hitbox.patada.x = this.x, 
@@ -2071,10 +2886,15 @@ window.onload = function () {
 					this.hitbox.patada.width = this.width/3.2, 
 					this.hitbox.patada.height = this.height/14
 					
-					this.hitbox.cabeza.x = this.x+44,
-					this.hitbox.cabeza.y = this.y+3,
-					this.hitbox.cabeza.width = this.width/5,
-					this.hitbox.cabeza.height = this.height/7
+					this.hitbox.cabeza.x = this.x+15,
+					this.hitbox.cabeza.y = this.y+1,
+					this.hitbox.cabeza.width = this.width/3.8,
+					this.hitbox.cabeza.height = this.height/6
+
+					this.hitbox.tronco.x = this.x+14,
+					this.hitbox.tronco.y = this.y+15,
+					this.hitbox.tronco.width = this.width/2.4,
+					this.hitbox.tronco.height = this.height/1.3
 					break;
 				case 2:
 					this.hitbox.patada.x = null, 
@@ -2082,10 +2902,26 @@ window.onload = function () {
 					this.hitbox.patada.width = null, 
 					this.hitbox.patada.height = null
 					
-					this.hitbox.cabeza.x = this.x+34,
-					this.hitbox.cabeza.y = this.y+4,
-					this.hitbox.cabeza.width = this.width/5,
-					this.hitbox.cabeza.height = this.height/7
+					this.hitbox.cabeza.x = this.x+22,
+					this.hitbox.cabeza.y = this.y+3,
+					this.hitbox.cabeza.width = this.width/6,
+					this.hitbox.cabeza.height = this.height/6
+
+					this.hitbox.tronco.x = this.x+14,
+					this.hitbox.tronco.y = this.y+15,
+					this.hitbox.tronco.width = this.width/2.4,
+					this.hitbox.tronco.height = this.height/1.3
+					break;
+				case 3:
+					this.hitbox.cabeza.x = this.x+15,
+					this.hitbox.cabeza.y = this.y+1,
+					this.hitbox.cabeza.width = this.width/3.8,
+					this.hitbox.cabeza.height = this.height/6
+
+					this.hitbox.tronco.x = this.x+16,
+					this.hitbox.tronco.y = this.y+15,
+					this.hitbox.tronco.width = this.width/2.4,
+					this.hitbox.tronco.height = this.height/1.3
 					break;
 				default:
 					break;
@@ -2118,14 +2954,19 @@ window.onload = function () {
 		
 			// Actualizar la animación (código específico de animación aquí)
 			this.personajeState = 'KO';
-			this.position = Math.floor(progreso * 4.999);
+			// this.position = Math.floor(progreso * 4.999);
 	
-			// if (this.id === 1) this.position = 0;	// esto es para hacer pruebas (eliminar)
-			// if (this.id === 2) this.position = 0;	// esto es para hacer pruebas (eliminar)
+			if (this.id === 1) this.position = 0;	// esto es para hacer pruebas (eliminar)
+			if (this.id === 2) this.position = 0;	// esto es para hacer pruebas (eliminar)
 		
 			this.height = this.spriteAnimations[this.personajeState].loc[this.position].height;
 			this.y = LIMITE_ABAJO - this.height;
 				
+			this.hitbox.tronco.x = null,
+			this.hitbox.tronco.y = null,
+			this.hitbox.tronco.width = null,
+			this.hitbox.tronco.height = null
+
 			if (this.id === 1){
 
 				if(this.primeraVez && this.position === 0) {
@@ -2145,9 +2986,9 @@ window.onload = function () {
 						this.hitbox.cuerpo.height = this.height/1.4
 						
 						this.hitbox.cabeza.x = this.x+8,
-						this.hitbox.cabeza.y = this.y+3,
-						this.hitbox.cabeza.width = this.width/3.5,
-						this.hitbox.cabeza.height = this.height/6
+						this.hitbox.cabeza.y = this.y+5,
+						this.hitbox.cabeza.width = this.width/4,
+						this.hitbox.cabeza.height = this.height/4.7
 						break;
 					case 1:
 						this.hitbox.cuerpo.x = this.x, 
@@ -2160,10 +3001,10 @@ window.onload = function () {
 						this.hitbox.patada.width = this.width/3.2, 
 						this.hitbox.patada.height = this.height/11
 
-						this.hitbox.cabeza.x = this.x-2,
-						this.hitbox.cabeza.y = this.y+3,
-						this.hitbox.cabeza.width = this.width/3.5,
-						this.hitbox.cabeza.height = this.height/6
+						this.hitbox.cabeza.x = this.x-1,
+						this.hitbox.cabeza.y = this.y+31,
+						this.hitbox.cabeza.width = this.width/6,
+						this.hitbox.cabeza.height = this.height/4.7
 						break;
 					case 2:
 						this.hitbox.cuerpo.x = this.x, 
@@ -2176,10 +3017,10 @@ window.onload = function () {
 						this.hitbox.patada.width = null, 
 						this.hitbox.patada.height = null
 						
-						this.hitbox.cabeza.x = this.x+8,
-						this.hitbox.cabeza.y = this.y+3,
-						this.hitbox.cabeza.width = this.width/3.5,
-						this.hitbox.cabeza.height = this.height/6
+						this.hitbox.cabeza.x = this.x-1,
+						this.hitbox.cabeza.y = this.y+40,
+						this.hitbox.cabeza.width = this.width/6,
+						this.hitbox.cabeza.height = this.height/4.7
 						break;
 					case 3:
 						this.hitbox.cuerpo.x = this.x, 
@@ -2192,10 +3033,10 @@ window.onload = function () {
 						this.hitbox.patada.width = null, 
 						this.hitbox.patada.height = null
 						
-						this.hitbox.cabeza.x = this.x+8,
-						this.hitbox.cabeza.y = this.y+3,
-						this.hitbox.cabeza.width = this.width/3.5,
-						this.hitbox.cabeza.height = this.height/6
+						this.hitbox.cabeza.x = this.x-1,
+						this.hitbox.cabeza.y = this.y+31,
+						this.hitbox.cabeza.width = this.width/6,
+						this.hitbox.cabeza.height = this.height/4.7
 						break;
 					case 4:
 						this.hitbox.cuerpo.x = this.x+3, 
@@ -2208,10 +3049,10 @@ window.onload = function () {
 						this.hitbox.patada.width = null, 
 						this.hitbox.patada.height = null
 						
-						this.hitbox.cabeza.x = this.x+8,
-						this.hitbox.cabeza.y = this.y+3,
-						this.hitbox.cabeza.width = this.width/3.5,
-						this.hitbox.cabeza.height = this.height/6
+						this.hitbox.cabeza.x = this.x-1,
+						this.hitbox.cabeza.y = this.y+40,
+						this.hitbox.cabeza.width = this.width/6,
+						this.hitbox.cabeza.height = this.height/4.7
 						break;
 					default:
 						break;
@@ -2234,9 +3075,9 @@ window.onload = function () {
 					this.hitbox.cuerpo.width = this.width/1.3, 
 					this.hitbox.cuerpo.height = this.height/1.5
 					
-					this.hitbox.cabeza.x = this.x+34,
-					this.hitbox.cabeza.y = this.y+4,
-					this.hitbox.cabeza.width = this.width/5,
+					this.hitbox.cabeza.x = this.x+55,
+					this.hitbox.cabeza.y = this.y+3,
+					this.hitbox.cabeza.width = this.width/7,
 					this.hitbox.cabeza.height = this.height/7
 					break;
 				case 1:
@@ -2250,10 +3091,10 @@ window.onload = function () {
 					this.hitbox.patada.width = this.width/3.2, 
 					this.hitbox.patada.height = this.height/14
 					
-					this.hitbox.cabeza.x = this.x+44,
-					this.hitbox.cabeza.y = this.y+3,
-					this.hitbox.cabeza.width = this.width/5,
-					this.hitbox.cabeza.height = this.height/7
+					this.hitbox.cabeza.x = this.x+63,
+					this.hitbox.cabeza.y = this.y+21,
+					this.hitbox.cabeza.width = this.width/7,
+					this.hitbox.cabeza.height = this.height/6
 					break;
 				case 2:
 					this.hitbox.cuerpo.x = this.x+12, 
@@ -2266,10 +3107,10 @@ window.onload = function () {
 					this.hitbox.patada.width = null, 
 					this.hitbox.patada.height = null
 					
-					this.hitbox.cabeza.x = this.x+34,
-					this.hitbox.cabeza.y = this.y+4,
-					this.hitbox.cabeza.width = this.width/5,
-					this.hitbox.cabeza.height = this.height/7
+					this.hitbox.cabeza.x = this.x+64,
+					this.hitbox.cabeza.y = this.y+48,
+					this.hitbox.cabeza.width = this.width/7,
+					this.hitbox.cabeza.height = this.height/6
 					break;
 				case 3:
 					this.hitbox.cuerpo.x = this.x+12, 
@@ -2282,10 +3123,10 @@ window.onload = function () {
 					this.hitbox.patada.width = null, 
 					this.hitbox.patada.height = null
 					
-					this.hitbox.cabeza.x = this.x+34,
-					this.hitbox.cabeza.y = this.y+4,
-					this.hitbox.cabeza.width = this.width/5,
-					this.hitbox.cabeza.height = this.height/7
+					this.hitbox.cabeza.x = this.x+63,
+					this.hitbox.cabeza.y = this.y+21,
+					this.hitbox.cabeza.width = this.width/7,
+					this.hitbox.cabeza.height = this.height/6
 					break;
 				case 4:
 					this.hitbox.cuerpo.x = this.x+12, 
@@ -2298,10 +3139,10 @@ window.onload = function () {
 					this.hitbox.patada.width = null, 
 					this.hitbox.patada.height = null
 					
-					this.hitbox.cabeza.x = this.x+34,
-					this.hitbox.cabeza.y = this.y+4,
-					this.hitbox.cabeza.width = this.width/5,
-					this.hitbox.cabeza.height = this.height/7
+					this.hitbox.cabeza.x = this.x+64,
+					this.hitbox.cabeza.y = this.y+48,
+					this.hitbox.cabeza.width = this.width/7,
+					this.hitbox.cabeza.height = this.height/6
 					break;
 				default:
 					break;
@@ -2335,10 +3176,10 @@ window.onload = function () {
 		
 			  // Actualizar la animación (código específico de animación aquí)
 			  this.personajeState = 'lowKick';
-			//   this.position = Math.floor(progreso * numAnimaciones);
+			  this.position = Math.floor(progreso * numAnimaciones);
 
-				if (this.id === 1) this.position = 0;	// esto es para hacer pruebas (eliminar)
-				if (this.id === 2) this.position = 0;	// esto es para hacer pruebas (eliminar)
+				// if (this.id === 1) this.position = 1;	// esto es para hacer pruebas (eliminar)
+				// if (this.id === 2) this.position = 3;	// esto es para hacer pruebas (eliminar)
 
 			  this.height = this.spriteAnimations[this.personajeState].loc[this.position].height;
 			  this.y = LIMITE_ABAJO - this.height;
@@ -2356,6 +3197,16 @@ window.onload = function () {
 						this.hitbox.cabeza.y = this.y+3,
 						this.hitbox.cabeza.width = this.width/3.5,
 						this.hitbox.cabeza.height = this.height/6
+
+						this.hitbox.tronco.x = this.x+23,
+						this.hitbox.tronco.y = this.y+16,
+						this.hitbox.tronco.width = this.width/2.85,
+						this.hitbox.tronco.height = this.height/1.35
+	
+						this.hitbox.pies.x = this.x+28,
+						this.hitbox.pies.y = this.y+72,
+						this.hitbox.pies.width = this.width/4.8,
+						this.hitbox.pies.height = this.height/7.5
 						break;
 					case 1:
 						this.hitbox.cuerpo.x = this.x+28, 
@@ -2363,15 +3214,25 @@ window.onload = function () {
 						this.hitbox.cuerpo.width = this.width/2.8, 
 						this.hitbox.cuerpo.height = this.height/1.05 
 							
-						this.hitbox.patada.x = this.x+47, 
-						this.hitbox.patada.y = this.y+1, 
-						this.hitbox.patada.width = this.width/3.2, 
-						this.hitbox.patada.height = this.height/11
+						this.hitbox.patada.x = this.x+50, 
+						this.hitbox.patada.y = this.y+45, 
+						this.hitbox.patada.width = this.width/3.5, 
+						this.hitbox.patada.height = this.height/5.5
 							
 						this.hitbox.cabeza.x = this.x+22,
 						this.hitbox.cabeza.y = this.y+3,
 						this.hitbox.cabeza.width = this.width/3.5,
 						this.hitbox.cabeza.height = this.height/6
+
+						this.hitbox.tronco.x = this.x+28,
+						this.hitbox.tronco.y = this.y+16,
+						this.hitbox.tronco.width = this.width/4.8,
+						this.hitbox.tronco.height = this.height/1.3
+	
+						this.hitbox.pies.x = this.x+28,
+						this.hitbox.pies.y = this.y+72,
+						this.hitbox.pies.width = this.width/7,
+						this.hitbox.pies.height = this.height/9.5
 						break;
 					case 2:
 						this.hitbox.cuerpo.x = this.x+20, 
@@ -2388,6 +3249,16 @@ window.onload = function () {
 						this.hitbox.cabeza.y = this.y+3,
 						this.hitbox.cabeza.width = this.width/3.5,
 						this.hitbox.cabeza.height = this.height/6
+
+						this.hitbox.tronco.x = this.x+23,
+						this.hitbox.tronco.y = this.y+16,
+						this.hitbox.tronco.width = this.width/2.85,
+						this.hitbox.tronco.height = this.height/1.35
+	
+						this.hitbox.pies.x = this.x+28,
+						this.hitbox.pies.y = this.y+72,
+						this.hitbox.pies.width = this.width/4.8,
+						this.hitbox.pies.height = this.height/7.5
 						break;
 					default:
 						break;
@@ -2407,7 +3278,7 @@ window.onload = function () {
 					this.x = this.x+35;
 					this.tercerVez = false;
 				}
-				
+			
 				switch(this.position){
 				case 0:
 					this.hitbox.cuerpo.x = this.x+15, 
@@ -2415,10 +3286,20 @@ window.onload = function () {
 					this.hitbox.cuerpo.width = this.width/3, 
 					this.hitbox.cuerpo.height = this.height/1.1
 					
-					this.hitbox.cabeza.x = this.x+34,
-					this.hitbox.cabeza.y = this.y+4,
+					this.hitbox.cabeza.x = this.x+17,
+					this.hitbox.cabeza.y = this.y+5,
 					this.hitbox.cabeza.width = this.width/5,
 					this.hitbox.cabeza.height = this.height/7
+
+					this.hitbox.tronco.x = this.x+12,
+					this.hitbox.tronco.y = this.y+15,
+					this.hitbox.tronco.width = this.width/2.4,
+					this.hitbox.tronco.height = this.height/1.35
+	
+					this.hitbox.pies.x = this.x+1,
+					this.hitbox.pies.y = this.y+57,
+					this.hitbox.pies.width = this.width/4.8,
+					this.hitbox.pies.height = this.height/5
 					break;
 				case 1:
 					this.hitbox.cuerpo.x = this.x+15, 
@@ -2426,47 +3307,67 @@ window.onload = function () {
 					this.hitbox.cuerpo.width = this.width/3, 
 					this.hitbox.cuerpo.height = this.height/1.1
 					
-					this.hitbox.patada.x = this.x, 
-					this.hitbox.patada.y = this.y+10, 
-					this.hitbox.patada.width = this.width/3.2, 
-					this.hitbox.patada.height = this.height/14
-					
-					this.hitbox.cabeza.x = this.x+44,
-					this.hitbox.cabeza.y = this.y+3,
+					this.hitbox.cabeza.x = this.x+15,
+					this.hitbox.cabeza.y = this.y+30,
 					this.hitbox.cabeza.width = this.width/5,
 					this.hitbox.cabeza.height = this.height/7
+
+					this.hitbox.tronco.x = this.x+12,
+					this.hitbox.tronco.y = this.y+41,
+					this.hitbox.tronco.width = this.width/1.9,
+					this.hitbox.tronco.height = this.height/1.35
+	
+					this.hitbox.pies.x = this.x+5,
+					this.hitbox.pies.y = this.y+59,
+					this.hitbox.pies.width = this.width/4.8,
+					this.hitbox.pies.height = this.height/5
 					break;
 				case 2:
 					this.hitbox.cuerpo.x = this.x+22, 
 					this.hitbox.cuerpo.y = this.y+1, 
 					this.hitbox.cuerpo.width = this.width/3, 
 					this.hitbox.cuerpo.height = this.height/1.1
-
-					this.hitbox.patada.x = null, 
-					this.hitbox.patada.y = null, 
-					this.hitbox.patada.width = null, 
-					this.hitbox.patada.height = null
 					
-					this.hitbox.cabeza.x = this.x+34,
-					this.hitbox.cabeza.y = this.y+4,
+					this.hitbox.cabeza.x = this.x+37,
+					this.hitbox.cabeza.y = this.y+30,
 					this.hitbox.cabeza.width = this.width/5,
 					this.hitbox.cabeza.height = this.height/7
+
+					this.hitbox.tronco.x = this.x+20,
+					this.hitbox.tronco.y = this.y+15,
+					this.hitbox.tronco.width = this.width/4,
+					this.hitbox.tronco.height = this.height/1.35
+	
+					this.hitbox.pies.x = this.x+28,
+					this.hitbox.pies.y = this.y+56,
+					this.hitbox.pies.width = this.width/7,
+					this.hitbox.pies.height = this.height/5
 					break;
 				case 3:
 					this.hitbox.cuerpo.x = this.x+27, 
 					this.hitbox.cuerpo.y = this.y+1, 
 					this.hitbox.cuerpo.width = this.width/2.7, 
 					this.hitbox.cuerpo.height = this.height/1.1
-
-					this.hitbox.patada.x = null, 
-					this.hitbox.patada.y = null, 
-					this.hitbox.patada.width = null, 
-					this.hitbox.patada.height = null
+							
+					this.hitbox.patada.x = this.x, 
+					this.hitbox.patada.y = this.y+13, 
+					this.hitbox.patada.width = this.width/4, 
+					this.hitbox.patada.height = this.height/6.5
 					
-					this.hitbox.cabeza.x = this.x+34,
-					this.hitbox.cabeza.y = this.y+4,
+					this.hitbox.cabeza.x = this.x+52,
+					this.hitbox.cabeza.y = this.y+30,
 					this.hitbox.cabeza.width = this.width/5,
 					this.hitbox.cabeza.height = this.height/7
+
+					this.hitbox.tronco.x = this.x+32,
+					this.hitbox.tronco.y = this.y+28,
+					this.hitbox.tronco.width = this.width/3.8,
+					this.hitbox.tronco.height = this.height/2.5
+	
+					this.hitbox.pies.x = this.x+41,
+					this.hitbox.pies.y = this.y+58,
+					this.hitbox.pies.width = this.width/8,
+					this.hitbox.pies.height = this.height/5
 					break;
 				case 4:
 					this.hitbox.cuerpo.x = this.x+9, 
@@ -2479,10 +3380,20 @@ window.onload = function () {
 					this.hitbox.patada.width = null, 
 					this.hitbox.patada.height = null
 					
-					this.hitbox.cabeza.x = this.x+34,
-					this.hitbox.cabeza.y = this.y+4,
+					this.hitbox.cabeza.x = this.x+8,
+					this.hitbox.cabeza.y = this.y+30,
 					this.hitbox.cabeza.width = this.width/5,
 					this.hitbox.cabeza.height = this.height/7
+
+					this.hitbox.tronco.x = this.x+10,
+					this.hitbox.tronco.y = this.y+41,
+					this.hitbox.tronco.width = this.width/2,
+					this.hitbox.tronco.height = this.height/2.5
+	
+					this.hitbox.pies.x = null,
+					this.hitbox.pies.y = null,
+					this.hitbox.pies.width = null,
+					this.hitbox.pies.height = null
 					break;
 				default:
 					break;
@@ -2518,13 +3429,11 @@ window.onload = function () {
 			  this.personajeState = 'agachadoUpper';
 			  this.position = Math.floor(progreso * numAnimaciones);
 		
-			//   if (this.id === 1) this.position = 0;	// esto es para hacer pruebas (eliminar)
-			//   if (this.id === 2) this.position = 0;	// esto es para hacer pruebas (eliminar)
+			//   if (this.id === 1) this.position = 1;	// esto es para hacer pruebas (eliminar)
+			//   if (this.id === 2) this.position = 2;	// esto es para hacer pruebas (eliminar)
 
 			  this.height = this.spriteAnimations[this.personajeState].loc[this.position].height;
 			  this.y = LIMITE_ABAJO - this.height;
-
-			// this.x+23, this.y+25, this.width/3.1, this.height/1.25
 
 			  if (this.id === 1){
 
@@ -2553,77 +3462,122 @@ window.onload = function () {
 					case 0:
 						this.hitbox.cuerpo.x = this.x+10, 
 						this.hitbox.cuerpo.y = this.y+50, 
-						this.hitbox.cuerpo.width = this.width/1.7, 
+						this.hitbox.cuerpo.width = this.width/2.2, 
 						this.hitbox.cuerpo.height = this.height/1.85
 						
-						this.hitbox.cabeza.x = this.x+8,
-						this.hitbox.cabeza.y = this.y+3,
+						this.hitbox.cabeza.x = this.x+20,
+						this.hitbox.cabeza.y = this.y+47,
 						this.hitbox.cabeza.width = this.width/3.5,
-						this.hitbox.cabeza.height = this.height/6
+						this.hitbox.cabeza.height = this.height/9
+
+						this.hitbox.tronco.x = this.x+11,
+						this.hitbox.tronco.y = this.y+59,
+						this.hitbox.tronco.width = this.width/2.3,
+						this.hitbox.tronco.height = this.height/2.3
+	
+						this.hitbox.pies.x = null,
+						this.hitbox.pies.y = null,
+						this.hitbox.pies.width = null,
+						this.hitbox.pies.height = null
 						break;
 					case 1:
 						this.hitbox.cuerpo.x = this.x+15, 
 						this.hitbox.cuerpo.y = this.y+32, 
-						this.hitbox.cuerpo.width = this.width/2.3, 
+						this.hitbox.cuerpo.width = this.width/2.6, 
 						this.hitbox.cuerpo.height = this.height/1.5 
 
-						this.hitbox.patada.x = this.x+47, 
-						this.hitbox.patada.y = this.y+1, 
-						this.hitbox.patada.width = this.width/3.2, 
-						this.hitbox.patada.height = this.height/11
+						this.hitbox.punio.x = this.x+40, 
+						this.hitbox.punio.y = this.y+32, 
+						this.hitbox.punio.width = this.width/4.9, 
+						this.hitbox.punio.height = this.height/8
 
-						this.hitbox.cabeza.x = this.x-2,
-						this.hitbox.cabeza.y = this.y+3,
+						this.hitbox.cabeza.x = this.x+20,
+						this.hitbox.cabeza.y = this.y+32,
 						this.hitbox.cabeza.width = this.width/3.5,
-						this.hitbox.cabeza.height = this.height/6
+						this.hitbox.cabeza.height = this.height/9
+
+						this.hitbox.tronco.x = this.x+15,
+						this.hitbox.tronco.y = this.y+44,
+						this.hitbox.tronco.width = this.width/2.4,
+						this.hitbox.tronco.height = this.height/1.7
+	
+						this.hitbox.pies.x = this.x+25,
+						this.hitbox.pies.y = this.y+100,
+						this.hitbox.pies.width = this.width/4,
+						this.hitbox.pies.height = this.height/11	
 						break;
 					case 2:
 						this.hitbox.cuerpo.x = this.x+22, 
 						this.hitbox.cuerpo.y = this.y+25, 
-						this.hitbox.cuerpo.width = this.width/2.2, 
-						this.hitbox.cuerpo.height = this.height/1.35
+						this.hitbox.cuerpo.width = this.width/2.4, 
+						this.hitbox.cuerpo.height = this.height/1.35 
 
-						this.hitbox.patada.x = null, 
-						this.hitbox.patada.y = null, 
-						this.hitbox.patada.width = null, 
-						this.hitbox.patada.height = null
+						this.hitbox.punio.x = this.x+33, 
+						this.hitbox.punio.y = this.y, 
+						this.hitbox.punio.width = this.width/6, 
+						this.hitbox.punio.height = this.height/6
 						
-						this.hitbox.cabeza.x = this.x+8,
-						this.hitbox.cabeza.y = this.y+3,
-						this.hitbox.cabeza.width = this.width/3.5,
-						this.hitbox.cabeza.height = this.height/6
+						this.hitbox.cabeza.x = this.x+28,
+						this.hitbox.cabeza.y = this.y+25,
+						this.hitbox.cabeza.width = this.width/4.8,
+						this.hitbox.cabeza.height = this.height/9
+
+						this.hitbox.tronco.x = this.x+20,
+						this.hitbox.tronco.y = this.y+37,
+						this.hitbox.tronco.width = this.width/2.1,
+						this.hitbox.tronco.height = this.height/1.7
+	
+						this.hitbox.pies.x = this.x+25,
+						this.hitbox.pies.y = this.y+99,
+						this.hitbox.pies.width = this.width/4,
+						this.hitbox.pies.height = this.height/11
 						break;
 					case 3:
 						this.hitbox.cuerpo.x = this.x+15, 
 						this.hitbox.cuerpo.y = this.y+32, 
-						this.hitbox.cuerpo.width = this.width/2.3, 
-						this.hitbox.cuerpo.height = this.height/1.5
+						this.hitbox.cuerpo.width = this.width/2.6, 
+						this.hitbox.cuerpo.height = this.height/1.5 
 
-						this.hitbox.patada.x = null, 
-						this.hitbox.patada.y = null, 
-						this.hitbox.patada.width = null, 
-						this.hitbox.patada.height = null
+						this.hitbox.punio.x = this.x+40, 
+						this.hitbox.punio.y = this.y+32, 
+						this.hitbox.punio.width = this.width/4.9, 
+						this.hitbox.punio.height = this.height/8
 						
-						this.hitbox.cabeza.x = this.x+8,
-						this.hitbox.cabeza.y = this.y+3,
+						this.hitbox.cabeza.x = this.x+20,
+						this.hitbox.cabeza.y = this.y+32,
 						this.hitbox.cabeza.width = this.width/3.5,
-						this.hitbox.cabeza.height = this.height/6
+						this.hitbox.cabeza.height = this.height/9
+
+						this.hitbox.tronco.x = this.x+15,
+						this.hitbox.tronco.y = this.y+44,
+						this.hitbox.tronco.width = this.width/2.4,
+						this.hitbox.tronco.height = this.height/1.7
+	
+						this.hitbox.pies.x = this.x+25,
+						this.hitbox.pies.y = this.y+100,
+						this.hitbox.pies.width = this.width/4,
+						this.hitbox.pies.height = this.height/11
 						break;
 					case 4:
 						this.hitbox.cuerpo.x = this.x+10, 
 						this.hitbox.cuerpo.y = this.y+50, 
-						this.hitbox.cuerpo.width = this.width/1.7, 
+						this.hitbox.cuerpo.width = this.width/2.2, 
 						this.hitbox.cuerpo.height = this.height/1.85
 
-						this.hitbox.patada.x = null, 
-						this.hitbox.patada.y = null, 
-						this.hitbox.patada.width = null, 
-						this.hitbox.patada.height = null
+						this.hitbox.punio.x = null, 
+						this.hitbox.punio.y = null, 
+						this.hitbox.punio.width = null, 
+						this.hitbox.punio.height = null
 						
-						this.hitbox.cabeza.x = this.x+8,
-						this.hitbox.cabeza.y = this.y+3,
+						this.hitbox.cabeza.x = this.x+20,
+						this.hitbox.cabeza.y = this.y+47,
 						this.hitbox.cabeza.width = this.width/3.5,
-						this.hitbox.cabeza.height = this.height/6
+						this.hitbox.cabeza.height = this.height/9
+
+						this.hitbox.tronco.x = null,
+						this.hitbox.tronco.y = null,
+						this.hitbox.tronco.width = null,
+						this.hitbox.tronco.height = null
 						break;
 					default:
 						break;
@@ -2650,10 +3604,20 @@ window.onload = function () {
 					this.hitbox.cuerpo.width = this.width/2.5, 
 					this.hitbox.cuerpo.height = this.height/1.6
 					
-					this.hitbox.cabeza.x = this.x+34,
-					this.hitbox.cabeza.y = this.y+4,
-					this.hitbox.cabeza.width = this.width/5,
-					this.hitbox.cabeza.height = this.height/7
+					this.hitbox.cabeza.x = this.x+24,
+					this.hitbox.cabeza.y = this.y+22,
+					this.hitbox.cabeza.width = this.width/8,
+					this.hitbox.cabeza.height = this.height/6
+
+					this.hitbox.tronco.x = this.x+26,
+					this.hitbox.tronco.y = this.y+35,
+					this.hitbox.tronco.width = this.width/4,
+					this.hitbox.tronco.height = this.height/2
+	
+					this.hitbox.pies.x = null,
+					this.hitbox.pies.y = null,
+					this.hitbox.pies.width = null,
+					this.hitbox.pies.height = null
 					break;
 				case 1:
 					this.hitbox.cuerpo.x = this.x+18, 
@@ -2661,10 +3625,20 @@ window.onload = function () {
 					this.hitbox.cuerpo.width = this.width/2.5, 
 					this.hitbox.cuerpo.height = this.height/1.4
 					
-					this.hitbox.cabeza.x = this.x+34,
-					this.hitbox.cabeza.y = this.y+4,
-					this.hitbox.cabeza.width = this.width/5,
-					this.hitbox.cabeza.height = this.height/7
+					this.hitbox.cabeza.x = this.x+22,
+					this.hitbox.cabeza.y = this.y+18,
+					this.hitbox.cabeza.width = this.width/8,
+					this.hitbox.cabeza.height = this.height/6
+
+					this.hitbox.tronco.x = this.x+24,
+					this.hitbox.tronco.y = this.y+31,
+					this.hitbox.tronco.width = this.width/5,
+					this.hitbox.tronco.height = this.height/2
+	
+					this.hitbox.pies.x = this.x+4,
+					this.hitbox.pies.y = this.y+62,
+					this.hitbox.pies.width = this.width/5.5,
+					this.hitbox.pies.height = this.height/7
 					break;
 				case 2:
 					this.hitbox.cuerpo.x = this.x+20, 
@@ -2672,15 +3646,25 @@ window.onload = function () {
 					this.hitbox.cuerpo.width = this.width/3.1, 
 					this.hitbox.cuerpo.height = this.height/1.25
 
-					this.hitbox.patada.x = null, 
-					this.hitbox.patada.y = null, 
-					this.hitbox.patada.width = null, 
-					this.hitbox.patada.height = null
+					this.hitbox.punio.x = this.x+1, 
+					this.hitbox.punio.y = this.y, 
+					this.hitbox.punio.width = this.width/8, 
+					this.hitbox.punio.height = this.height/8
 					
-					this.hitbox.cabeza.x = this.x+34,
-					this.hitbox.cabeza.y = this.y+4,
-					this.hitbox.cabeza.width = this.width/5,
-					this.hitbox.cabeza.height = this.height/7
+					this.hitbox.cabeza.x = this.x+25,
+					this.hitbox.cabeza.y = this.y+12,
+					this.hitbox.cabeza.width = this.width/8,
+					this.hitbox.cabeza.height = this.height/8
+
+					this.hitbox.tronco.x = this.x+24,
+					this.hitbox.tronco.y = this.y+22,
+					this.hitbox.tronco.width = this.width/4,
+					this.hitbox.tronco.height = this.height/1.5
+	
+					this.hitbox.pies.x = this.x+10,
+					this.hitbox.pies.y = this.y+62,
+					this.hitbox.pies.width = this.width/5.5,
+					this.hitbox.pies.height = this.height/7
 					break;
 				case 3:
 					this.hitbox.cuerpo.x = this.x+23, 
@@ -2688,15 +3672,25 @@ window.onload = function () {
 					this.hitbox.cuerpo.width = this.width/3.1, 
 					this.hitbox.cuerpo.height = this.height/1.25
 
-					this.hitbox.patada.x = null, 
-					this.hitbox.patada.y = null, 
-					this.hitbox.patada.width = null, 
-					this.hitbox.patada.height = null
+					this.hitbox.punio.x = null, 
+					this.hitbox.punio.y = null, 
+					this.hitbox.punio.width = null, 
+					this.hitbox.punio.height = null
 					
-					this.hitbox.cabeza.x = this.x+34,
-					this.hitbox.cabeza.y = this.y+4,
-					this.hitbox.cabeza.width = this.width/5,
-					this.hitbox.cabeza.height = this.height/7
+					this.hitbox.cabeza.x = this.x+24,
+					this.hitbox.cabeza.y = this.y+25,
+					this.hitbox.cabeza.width = this.width/8,
+					this.hitbox.cabeza.height = this.height/8
+
+					this.hitbox.tronco.x = this.x+32,
+					this.hitbox.tronco.y = this.y+35,
+					this.hitbox.tronco.width = this.width/6,
+					this.hitbox.tronco.height = this.height/1.8
+	
+					this.hitbox.pies.x = this.x+5,
+					this.hitbox.pies.y = this.y+63,
+					this.hitbox.pies.width = this.width/5.5,
+					this.hitbox.pies.height = this.height/7
 					break;
 				default:
 					break;
@@ -2772,36 +3766,52 @@ window.onload = function () {
 			}
 			if (this.id === 2 && this.personajeState === 'agachadoHit') this.y += 2;
 
-			if (this.personajeState !== 'movingPunch'){
+			//cuando no se esté dando un puñetazo desaparece la hitbox del puño
+			if (this.personajeState !== 'movingPunch' && this.personajeState !== 'agachadoPunch' && this.personajeState !== 'agachadoUpper'){
 				this.hitbox.punio.x = null, 
 				this.hitbox.punio.y = null, 
 				this.hitbox.punio.width = null, 
 				this.hitbox.punio.height = null
 			}
-			if (this.personajeState !== 'kick'){
+			//cuando no se esté dando una patada desaparece la hitbox de la patada
+			if (this.personajeState !== 'kick' && this.personajeState !== 'lowKick' && this.personajeState !== 'agachadoBarrido'){
 				this.hitbox.patada.x = null, 
 				this.hitbox.patada.y = null, 
 				this.hitbox.patada.width = null, 
 				this.hitbox.patada.height = null
 			}
+			//cuando no se esté haciendo una animaicón que necesita equilibrio la hitbox de los pies desaparece para que no se pueda caer
+			if ( !animacionesNecesitaEquilibrio.some( (value) => this.personajeState === value )){
+				this.hitbox.pies.x = null,
+				this.hitbox.pies.y = null,
+				this.hitbox.pies.width = null,
+				this.hitbox.pies.height = null
+			}
 
 			if (this.id === 1){
+				Loc = 0;
 				// this.x = 260;
 				if(this.personajeState === 'reposo') {		
 					this.hitbox.cuerpo.x = this.x+10,
 					this.hitbox.cuerpo.y = this.y+4,
 					this.hitbox.cuerpo.width = this.width/2.5,
 					this.hitbox.cuerpo.height = this.height/1.1
-			
+					
 					this.hitbox.cabeza.x = this.x+18,
 					this.hitbox.cabeza.y = this.y+1,
 					this.hitbox.cabeza.width = this.width/3.5,
 					this.hitbox.cabeza.height = this.height/6
 
-					this.hitbox.tronco.x = null,
-					this.hitbox.tronco.y = null,
-					this.hitbox.tronco.width = null,
-					this.hitbox.tronco.height = null
+					this.hitbox.tronco.x = this.x+8,
+					this.hitbox.tronco.y = this.y+16,
+					this.hitbox.tronco.width = this.width/2,
+					this.hitbox.tronco.height = this.height/1.3
+	
+					this.hitbox.pies.x = null,
+					this.hitbox.pies.y = null,
+					this.hitbox.pies.width = null,
+					this.hitbox.pies.height = null
+
 				} else if (this.personajeState === 'caminando') {
 					this.hitbox.cuerpo.x = this.x+12,
 					this.hitbox.cuerpo.y = this.y+4,
@@ -2813,32 +3823,77 @@ window.onload = function () {
 						this.hitbox.cabeza.y = this.y+8,
 						this.hitbox.cabeza.width = this.width/3.5,
 						this.hitbox.cabeza.height = this.height/6
+						
+						this.hitbox.tronco.x = this.x+9,
+						this.hitbox.tronco.y = this.y+23,
+						this.hitbox.tronco.width = this.width/2.1,
+						this.hitbox.tronco.height = this.height/1.3
+	
+						this.hitbox.pies.x = this.x+26,
+						this.hitbox.pies.y = this.y+70,
+						this.hitbox.pies.width = this.width/4.8,
+						this.hitbox.pies.height = this.height/7.8
 					} else if (this.position === 1){
 						this.hitbox.cabeza.x = this.x+20,
 						this.hitbox.cabeza.y = this.y+3,
 						this.hitbox.cabeza.width = this.width/3.5,
 						this.hitbox.cabeza.height = this.height/6
+						
+						this.hitbox.tronco.x = this.x+9,
+						this.hitbox.tronco.y = this.y+18,
+						this.hitbox.tronco.width = this.width/2.1,
+						this.hitbox.tronco.height = this.height/1.3
+	
+						this.hitbox.pies.x = this.x+18,
+						this.hitbox.pies.y = this.y+68,
+						this.hitbox.pies.width = this.width/4.8,
+						this.hitbox.pies.height = this.height/7.8
 					} else if (this.position === 2){
 						this.hitbox.cabeza.x = this.x+21,
 						this.hitbox.cabeza.y = this.y+1,
 						this.hitbox.cabeza.width = this.width/3.5,
 						this.hitbox.cabeza.height = this.height/6
+						
+						this.hitbox.tronco.x = this.x+8,
+						this.hitbox.tronco.y = this.y+15,
+						this.hitbox.tronco.width = this.width/2.1,
+						this.hitbox.tronco.height = this.height/1.3
+	
+						this.hitbox.pies.x = this.x+17,
+						this.hitbox.pies.y = this.y+69,
+						this.hitbox.pies.width = this.width/4.8,
+						this.hitbox.pies.height = this.height/7.8
 					} else if (this.position === 3){
 						this.hitbox.cabeza.x = this.x+20,
 						this.hitbox.cabeza.y = this.y+3,
 						this.hitbox.cabeza.width = this.width/3.5,
 						this.hitbox.cabeza.height = this.height/6
+						
+						this.hitbox.tronco.x = this.x+8,
+						this.hitbox.tronco.y = this.y+17,
+						this.hitbox.tronco.width = this.width/2.1,
+						this.hitbox.tronco.height = this.height/1.3
+	
+						this.hitbox.pies.x = this.x+21,
+						this.hitbox.pies.y = this.y+69,
+						this.hitbox.pies.width = this.width/4.8,
+						this.hitbox.pies.height = this.height/7.8
 					} else if (this.position === 4){
 						this.hitbox.cabeza.x = this.x+19,
 						this.hitbox.cabeza.y = this.y+3,
 						this.hitbox.cabeza.width = this.width/3.5,
 						this.hitbox.cabeza.height = this.height/6
+						
+						this.hitbox.tronco.x = this.x+6,
+						this.hitbox.tronco.y = this.y+17,
+						this.hitbox.tronco.width = this.width/2.1,
+						this.hitbox.tronco.height = this.height/1.3
+	
+						this.hitbox.pies.x = this.x+26,
+						this.hitbox.pies.y = this.y+70,
+						this.hitbox.pies.width = this.width/4.8,
+						this.hitbox.pies.height = this.height/7.8
 					}
-
-					this.hitbox.tronco.x = null,
-					this.hitbox.tronco.y = null,
-					this.hitbox.tronco.width = null,
-					this.hitbox.tronco.height = null
 				} else if (this.personajeState === 'agacharse') {
 					this.hitbox.cuerpo.x = this.x+15,
 					this.hitbox.cuerpo.y = this.y+3,
@@ -2850,10 +3905,10 @@ window.onload = function () {
 					this.hitbox.cabeza.width = this.width/3.5,
 					this.hitbox.cabeza.height = this.height/6
 
-					this.hitbox.tronco.x = null,
-					this.hitbox.tronco.y = null,
-					this.hitbox.tronco.width = null,
-					this.hitbox.tronco.height = null
+					this.hitbox.tronco.x = this.x+13,
+					this.hitbox.tronco.y = this.y+13,
+					this.hitbox.tronco.width = this.width/2,
+					this.hitbox.tronco.height = this.height/1.1
 				} else if (this.personajeState === 'bloquearArriba') {
 					this.hitbox.cuerpo.x = this.x+8, 
 					this.hitbox.cuerpo.y = this.y+1, 
@@ -2864,11 +3919,11 @@ window.onload = function () {
 					this.hitbox.cabeza.y = this.y+1,
 					this.hitbox.cabeza.width = this.width/3.5,
 					this.hitbox.cabeza.height = this.height/6
-
-					this.hitbox.tronco.x = null,
-					this.hitbox.tronco.y = null,
-					this.hitbox.tronco.width = null,
-					this.hitbox.tronco.height = null
+						
+					this.hitbox.tronco.x = this.x+9,
+					this.hitbox.tronco.y = this.y+16,
+					this.hitbox.tronco.width = this.width/2.1,
+					this.hitbox.tronco.height = this.height/1.3
 				} else if (this.personajeState === 'bloquearAbajo') {
 					this.hitbox.cuerpo.x = this.x+9,
 					this.hitbox.cuerpo.y = this.y+2,
@@ -2880,12 +3935,14 @@ window.onload = function () {
 					this.hitbox.cabeza.width = this.width/3.5, 
 					this.hitbox.cabeza.height = this.height/6
 
-					this.hitbox.tronco.x = null,
-					this.hitbox.tronco.y = null,
-					this.hitbox.tronco.width = null,
-					this.hitbox.tronco.height = null
+					this.hitbox.tronco.x = this.x+10,
+					this.hitbox.tronco.y = this.y+15,
+					this.hitbox.tronco.width = this.width/2.3,
+					this.hitbox.tronco.height = this.height/1.1
 				}
 			} else {
+				// this.x = 300;
+				Loc = 0;
 				if(this.personajeState === 'reposo') {
 					this.hitbox.cuerpo.x = this.x+18,
 					this.hitbox.cuerpo.y = this.y+2,
@@ -2897,52 +3954,122 @@ window.onload = function () {
 					this.hitbox.cabeza.width = this.width/5,
 					this.hitbox.cabeza.height = this.height/7
 
-					this.hitbox.tronco.x = null,
-					this.hitbox.tronco.y = null,
-					this.hitbox.tronco.width = null,
-					this.hitbox.tronco.height = null
+					this.hitbox.tronco.x = this.x+14,
+					this.hitbox.tronco.y = this.y+18,
+					this.hitbox.tronco.width = this.width/2,
+					this.hitbox.tronco.height = this.height/1.3
+	
+					this.hitbox.pies.x = null,
+					this.hitbox.pies.y = null,
+					this.hitbox.pies.width = null,
+					this.hitbox.pies.height = null
+
 				} else if (this.personajeState === 'caminando') {
 					this.hitbox.cuerpo.x = this.x+16, 
 					this.hitbox.cuerpo.y = this.y+2, 
 					this.hitbox.cuerpo.width = this.width/2.7, 
 					this.hitbox.cuerpo.height = this.height/1.05
 
+
 					if (this.position === 0){
 						this.hitbox.cabeza.x = this.x+14,
 						this.hitbox.cabeza.y = this.y+7,
 						this.hitbox.cabeza.width = this.width/5,
 						this.hitbox.cabeza.height = this.height/7
+
+						this.hitbox.tronco.x = this.x+22,
+						this.hitbox.tronco.y = this.y+21,
+						this.hitbox.tronco.width = this.width/4.7,
+						this.hitbox.tronco.height = this.height/1.3
+
+						this.hitbox.pies.x = this.x+14,
+						this.hitbox.pies.y = this.y+68,
+						this.hitbox.pies.width = this.width/4.8,
+						this.hitbox.pies.height = this.height/5.5
+	
 					} else if (this.position === 1){
 						this.hitbox.cabeza.x = this.x+15,
 						this.hitbox.cabeza.y = this.y+7,
 						this.hitbox.cabeza.width = this.width/5,
 						this.hitbox.cabeza.height = this.height/7
+
+						this.hitbox.tronco.x = this.x+24,
+						this.hitbox.tronco.y = this.y+21,
+						this.hitbox.tronco.width = this.width/4.7,
+						this.hitbox.tronco.height = this.height/1.3
+
+						this.hitbox.pies.x = this.x+28,
+						this.hitbox.pies.y = this.y+68,
+						this.hitbox.pies.width = this.width/4.8,
+						this.hitbox.pies.height = this.height/5.5
+	
+						this.hitbox.pies.x = this.x+28,
+						this.hitbox.pies.y = this.y+68,
+						this.hitbox.pies.width = this.width/4.8,
+						this.hitbox.pies.height = this.height/5.5
 					} else if (this.position === 2){
 						this.hitbox.cabeza.x = this.x+15,
 						this.hitbox.cabeza.y = this.y+7,
 						this.hitbox.cabeza.width = this.width/5,
 						this.hitbox.cabeza.height = this.height/7
+
+						this.hitbox.tronco.x = this.x+20,
+						this.hitbox.tronco.y = this.y+21,
+						this.hitbox.tronco.width = this.width/2.7,
+						this.hitbox.tronco.height = this.height/1.3
+
+						this.hitbox.pies.x = this.x+20,
+						this.hitbox.pies.y = this.y+62,
+						this.hitbox.pies.width = this.width/4.8,
+						this.hitbox.pies.height = this.height/5.5
+	
 					} else if (this.position === 3){
 						this.hitbox.cabeza.x = this.x+15,
 						this.hitbox.cabeza.y = this.y+7,
 						this.hitbox.cabeza.width = this.width/5,
 						this.hitbox.cabeza.height = this.height/7
+
+						this.hitbox.tronco.x = this.x+20,
+						this.hitbox.tronco.y = this.y+21,
+						this.hitbox.tronco.width = this.width/2.4,
+						this.hitbox.tronco.height = this.height/1.3
+
+						this.hitbox.pies.x = this.x+17,
+						this.hitbox.pies.y = this.y+67,
+						this.hitbox.pies.width = this.width/4.8,
+						this.hitbox.pies.height = this.height/5.5
+	
 					} else if (this.position === 4){
 						this.hitbox.cabeza.x = this.x+16,
 						this.hitbox.cabeza.y = this.y+7,
 						this.hitbox.cabeza.width = this.width/5,
 						this.hitbox.cabeza.height = this.height/7
+
+						this.hitbox.tronco.x = this.x+23,
+						this.hitbox.tronco.y = this.y+21,
+						this.hitbox.tronco.width = this.width/3.3,
+						this.hitbox.tronco.height = this.height/1.3
+
+						this.hitbox.pies.x = this.x+25,
+						this.hitbox.pies.y = this.y+67,
+						this.hitbox.pies.width = this.width/4.8,
+						this.hitbox.pies.height = this.height/5.5
 					} else if (this.position === 5){
 						this.hitbox.cabeza.x = this.x+15,
 						this.hitbox.cabeza.y = this.y+7,
 						this.hitbox.cabeza.width = this.width/5,
 						this.hitbox.cabeza.height = this.height/7
-					}
 
-					this.hitbox.tronco.x = null,
-					this.hitbox.tronco.y = null,
-					this.hitbox.tronco.width = null,
-					this.hitbox.tronco.height = null
+						this.hitbox.tronco.x = this.x+23,
+						this.hitbox.tronco.y = this.y+21,
+						this.hitbox.tronco.width = this.width/3.3,
+						this.hitbox.tronco.height = this.height/1.3
+
+						this.hitbox.pies.x = this.x+28,
+						this.hitbox.pies.y = this.y+68,
+						this.hitbox.pies.width = this.width/4.8,
+						this.hitbox.pies.height = this.height/5.5
+					}
 				} else if (this.personajeState === 'agacharse') {
 					this.hitbox.cuerpo.x = this.x+10,
 					this.hitbox.cuerpo.y = this.y+3,
@@ -2954,10 +4081,10 @@ window.onload = function () {
 					this.hitbox.cabeza.width = this.width/5,
 					this.hitbox.cabeza.height = this.height/7
 
-					this.hitbox.tronco.x = null,
-					this.hitbox.tronco.y = null,
-					this.hitbox.tronco.width = null,
-					this.hitbox.tronco.height = null
+					this.hitbox.tronco.x = this.x+11,
+					this.hitbox.tronco.y = this.y+15,
+					this.hitbox.tronco.width = this.width/2.3,
+					this.hitbox.tronco.height = this.height/1.1
 				} else if (this.personajeState === 'bloquearArriba') {
 					this.hitbox.cuerpo.x = this.x+19,
 					this.hitbox.cuerpo.y = this.y+2,
@@ -2965,14 +4092,14 @@ window.onload = function () {
 					this.hitbox.cuerpo.height = this.height/1.05
 
 					this.hitbox.cabeza.x = this.x+24,
-					this.hitbox.cabeza.y = this.y+6,
+					this.hitbox.cabeza.y = this.y+3,
 					this.hitbox.cabeza.width = this.width/5,
 					this.hitbox.cabeza.height = this.height/7
 
-					this.hitbox.tronco.x = null,
-					this.hitbox.tronco.y = null,
-					this.hitbox.tronco.width = null,
-					this.hitbox.tronco.height = null
+					this.hitbox.tronco.x = this.x+17,
+					this.hitbox.tronco.y = this.y+18,
+					this.hitbox.tronco.width = this.width/2.2,
+					this.hitbox.tronco.height = this.height/1.3
 				} else if (this.personajeState === 'bloquearAbajo') {
 					this.hitbox.cuerpo.x = this.x+10,
 					this.hitbox.cuerpo.y = this.y+6,
@@ -2984,10 +4111,10 @@ window.onload = function () {
 					this.hitbox.cabeza.width = this.width/5,
 					this.hitbox.cabeza.height = this.height/7
 
-					this.hitbox.tronco.x = null,
-					this.hitbox.tronco.y = null,
-					this.hitbox.tronco.width = null,
-					this.hitbox.tronco.height = null
+					this.hitbox.tronco.x = this.x+21,
+					this.hitbox.tronco.y = this.y+19,
+					this.hitbox.tronco.width = this.width/3.4,
+					this.hitbox.tronco.height = this.height/1.8
 				} 
 			}
 		}
@@ -3007,48 +4134,101 @@ window.onload = function () {
 			this.comprobarHitBox();        //modifica 'height' e 'y' segun la animación
 			this.iniciarAnimacionBien();   //iniciar animacion desde el primer frame
 			
+			// if(this.id === 1) {
+			// 	if (this.personajeState === 'caminando') {
+			// 		this.position = Loc;
+			// 	} else {
+			// 		this.position = 0;
+			// 	}
+			// 	this.x = 260;
+			// }
+			// if(this.id === 2) {
+			// 	if (this.personajeState === 'caminando') {
+			// 		this.position = Loc;
+			// 	} else {
+			// 		this.position = 0;
+			// 	}
+			// 	this.x = 300;
+			// }
 			this.frameX = this.spriteAnimations[this.personajeState].loc[this.position].x;
 			this.frameY = this.spriteAnimations[this.personajeState].loc[this.position].y;
 			this.spriteWidth = this.spriteAnimations[this.personajeState].loc[this.position].width;
 			this.spriteHeight = this.spriteAnimations[this.personajeState].loc[this.position].height;
 			
-			// let Loc = 1;
-			// if(this.id === 1) Loc = 0;
-			// this.frameX = this.spriteAnimations['movingPunch'].loc[Loc].x;
-			// this.frameY = this.spriteAnimations['movingPunch'].loc[Loc].y;
-			// this.spriteWidth = this.spriteAnimations['movingPunch'].loc[Loc].width;
-			// this.spriteHeight = this.spriteAnimations['movingPunch'].loc[Loc].height;
+			// this.frameX = this.spriteAnimations[this.personajeState].loc[Loc].x;
+			// this.frameY = this.spriteAnimations[this.personajeState].loc[Loc].y;
+			// this.spriteWidth = this.spriteAnimations[this.personajeState].loc[Loc].width;
+			// this.spriteHeight = this.spriteAnimations[this.personajeState].loc[Loc].height;
 			
 			this.width = this.spriteWidth;
 			// this.height = this.spriteHeight;
 
+
 			ctx.drawImage(this.image, this.frameX, this.frameY, this.spriteWidth, this.spriteHeight,
 				this.x, this.y, this.spriteWidth, this.spriteHeight);
 
-			ctx.fillStyle = "#f008";
+			ctx.fillStyle = "#f00";
 			if(this.id === 1) {
 				// ctx.fillRect(this.x+8, this.y+3, this.width/3.5, this.height/6);
-				ctx.fillRect(this.hitbox.patada.x, this.hitbox.patada.y, this.hitbox.patada.width, this.hitbox.patada.height);
-				ctx.fillStyle = "#fff8";
-				// ctx.fillRect(this.x+3, this.y+27, this.width/1.2, this.height/2);
 				ctx.fillRect(this.hitbox.cabeza.x, this.hitbox.cabeza.y, this.hitbox.cabeza.width, this.hitbox.cabeza.height);
+				ctx.fillStyle = "#fff8";
+				// XXXposition1 = 3;
+				// ctx.fillRect(this.x-1,this.y+40,this.width/6,this.height/4.7);
+				ctx.fillRect(this.hitbox.punio.x, this.hitbox.punio.y, this.hitbox.punio.width, this.hitbox.punio.height);
+				ctx.fillRect(this.hitbox.patada.x, this.hitbox.patada.y, this.hitbox.patada.width, this.hitbox.patada.height);
 			}
-			ctx.fillStyle = "#f008";
+
+			ctx.fillStyle = "#000";
 			if(this.id === 2) {
 				// ctx.fillRect(this.x+20, this.y+5, this.width/5, this.height/7);
-				ctx.fillRect(this.hitbox.patada.x, this.hitbox.patada.y, this.hitbox.patada.width, this.hitbox.patada.height);
-				ctx.fillStyle = "#fff8";
-				// ctx.fillRect(this.x+12, this.y+45, this.width/1.2, this.height/3.8);
 				ctx.fillRect(this.hitbox.cabeza.x, this.hitbox.cabeza.y, this.hitbox.cabeza.width, this.hitbox.cabeza.height);
+				ctx.fillStyle = "#fff8";
+				// XXXposition2 = 0;
+				// ctx.fillRect(this.x+64,this.y+48,this.width/7,this.height/6);
+				ctx.fillRect(this.hitbox.punio.x, this.hitbox.punio.y, this.hitbox.punio.width, this.hitbox.punio.height);
+				ctx.fillRect(this.hitbox.patada.x, this.hitbox.patada.y, this.hitbox.patada.width, this.hitbox.patada.height);
 			}
 			
 		}
+	}
+	
+    function recuperarDatoSesion() {
+		// return sessionStorage.getItem("array");		
+		return JSON.parse(localStorage.getItem('record'));
+	}
+	function almacenarDatoSesion(valor) {
+		// sessionStorage.setItem("array", valor);
+		localStorage.setItem('record', JSON.stringify(valor));
+	}
+
+	function asignarNombresValues() {
+		nombreJugador1.innerHTML = document.getElementById('nombreJugador1').value;
+		nombreJugador2.innerHTML = document.getElementById('nombreJugador2').value;
+	}
+	function asignarRecord(){
+		record = recuperarDatoSesion()
+
+		const li = document.createElement("li");
+		listaRecord.appendChild(li);
+		li.innerHTML = record[0];
+
+		record[0] = 333;
+		almacenarDatoSesion(record);
+	}
+
+	document.getElementById('botonIniciaPartida').addEventListener('click', iniciarPartida);
+
+	function iniciarPartida(){
+		asignarNombresValues();
+		inicialiazarSonidos();
+
+		pantallaBienvenida.style.display = 'none';
+		pintarJuego(0);
 	}
 
 	const miPersonaje = new Personaje(personajeImage, spriteAnimationsKen, spriteHeightKen, 260, 1);
 	const miEnemigo = new Personaje(enemigoImage, spriteAnimationsCammy, spriteHeightCammy, 300, 2);
 
-	inicialiazarSonidos();
 
 	function pintarJuego(timeStamp) {
 		ctx.clearRect(0, 0, LIMITE_DERECHA, CANVAS_HEIGHT);
@@ -3081,9 +4261,9 @@ window.onload = function () {
 		requestAnimationFrame(pintarJuego);
 	}
 
-	pintarJuego(0);
-
-
+	//asignar el record justo al cargar la partida
+	// almacenarDatoSesion(record);
+	asignarRecord();
 
 
 
@@ -3095,14 +4275,13 @@ window.onload = function () {
 
 - TAREAS QUE REALIZAR:
 
-* Animacion LowKick cabeza miEnemigo
+* Retocar colisiones -> al dar golpe que sean precisas las colisiones
 
-* Ponerse con todas las hitbox
-
-* Poner todas las colisiones
+* Ajustar el daño y la stamina gastada al dar los golpes
 * Poner sonidos
 
-* Solucionar hitbox del cuerpo bara que cuando se agache y levante no empuje al otro
+
+* Solucionar hitbox del cuerpo para que cuando se agache y levante no empuje al otro
 * Hacer que al darle al botón de abajo se agache y para levantarse tenga que darle al de arriba
 
 */
