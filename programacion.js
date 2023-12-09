@@ -1,9 +1,9 @@
 window.onload = function () {
 	// CONSTANTES
 
-	let XXXposition1;  //VARIABLE DE PRUEBA BORRAR
-	let XXXposition2;  //VARIABLE DE PRUEBA BORRAR
-	let Loc;
+	let cajaAzul;  //VARIABLE DE PRUEBA BORRAR
+	let cajaBlanca;  //VARIABLE DE PRUEBA BORRAR
+	let cajaNegra;
 
 	let x;
 	let y;
@@ -31,7 +31,7 @@ window.onload = function () {
 	const LIMITE_IZQUIERDA = 0;
 	const LIMITE_ARRIBA = 0;
 	const CANVAS_HEIGHT = document.getElementById('miCanvas').height;
-	const LIMITE_ABAJO = CANVAS_HEIGHT;        //valor fijo por temas de que es el suelo
+	const LIMITE_ABAJO = CANVAS_HEIGHT - 75;        //valor fijo por temas de que es el suelo
 
 	// localizamos el canvas y el contexto del trabajo
 	const canvas = document.getElementById("miCanvas");
@@ -39,6 +39,8 @@ window.onload = function () {
 
 	const pantallaBienvenida = document.getElementById('pantallaBienvenida');
 	const listaRecord = document.getElementById('listaRecord');
+	const notificacionGanador = document.getElementById('notificacionGanador');
+	const botonRevancha = document.getElementById('botonRevancha');
 
 	const nombreJugador1 = document.getElementById('player1');
 	const nombreJugador2 = document.getElementById('player2');
@@ -49,9 +51,7 @@ window.onload = function () {
 	const energia1 = document.getElementById('energia1');
 	const energia2 = document.getElementById('energia2');
 
-	let record = [1, 2, 3, 4, 5];
-
-	//variables de sonidos
+	let record = [];
 
 	let audioStrongHit;
 	let audioJab;
@@ -66,30 +66,30 @@ window.onload = function () {
 	const ENERGIA_TOTAL = 100;
 
 	const danioGolpe = {
-		'movingPunch': 40,
-		'agachadoPunch': 40,
-		'agachadoUpper': 40,
-		'kick': 40,
-		'lowKick': 40,
-		'lowKickHead': 40,
-		'agachadoBarrido': 40
+		'movingPunch': 5,
+		'kick': 12,
+		'lowKick': 6,
+		'agachadoPunch': 4,
+		'agachadoUpper': 8,
+		'lowKickHead': 8,
+		'agachadoBarrido': 2
 	}
 	const danioGolpeBloqueado = {
-		'movingPunch': 5,
-		'agachadoPunch': 5,
+		'movingPunch': 2,
+		'kick': 4,
+		'lowKick': 3,
+		'agachadoPunch': 1,
 		'agachadoUpper': 5,
-		'kick': 5,
-		'lowKick': 5,
-		'lowKickHead': 5,
-		'agachadoBarrido': 5
+		'lowKickHead': 2,
+		'agachadoBarrido': 0
 	}
 	const energiaGolpe = {
-		'movingPunch': 40,
-		'agachadoPunch': 40,
-		'agachadoUpper': 40,
-		'kick': 40,
-		'lowKick': 40,
-		'agachadoBarrido': 40
+		'movingPunch': 15,
+		'agachadoPunch': 10,
+		'agachadoUpper': 20,
+		'kick': 30,
+		'lowKick': 20,
+		'agachadoBarrido': 15
 	}
 
 	const personajeImage = new Image();
@@ -232,11 +232,18 @@ window.onload = function () {
 			{ x: 1449, y: 802, width: 75, height: 58 }
 		]
 	}
-	// spriteAnimationsKen['knockdownRecovery'] = {
-	// 	loc: [
-	// 		{ x: 1259, y: 37, width: 45, height: 62 }  //de momento lo dejo sin hacer
-	// 	]
-	// }							
+	spriteAnimationsKen['caida'] = {
+		loc: [
+			{ x: 511, y: 758, width: 47, height: 102 },
+			{ x: 568, y: 758, width: 43, height: 102 },
+			{ x: 618, y: 758, width: 72, height: 102 },
+			{ x: 695, y: 758, width: 75, height: 102 },
+			{ x: 774, y: 758, width: 52, height: 102 },
+			{ x: 831, y: 758, width: 52, height: 102 },
+			{ x: 889, y: 758, width: 55, height: 102 },
+			{ x: 949, y: 758, width: 41, height: 102 }
+		]
+	}							
 
 	const spriteAnimationsCammy = [];
 
@@ -383,8 +390,23 @@ window.onload = function () {
 			{ x: 966, y: 1033, width: 75, height: 64 }
 		]
 	}
+	spriteAnimationsCammy['caida'] = {
+		loc: [
+			{ x: 4, y: 995, width: 51, height: 107 },
+			{ x: 59, y: 995, width: 63, height: 107 },
+			{ x: 129, y: 995, width: 64, height: 107 },
+			{ x: 198, y: 995, width: 65, height: 107 },
+			{ x: 269, y: 995, width: 73, height: 107 },
+			{ x: 345, y: 995, width: 54, height: 107 },
+			{ x: 403, y: 995, width: 43, height: 107 },
+			{ x: 450, y: 995, width: 41, height: 107 },
+			{ x: 495, y: 995, width: 41, height: 107 },
+			{ x: 541, y: 995, width: 41, height: 107 },
+			{ x: 584, y: 995, width: 47, height: 107 }
+		]
+	}
 
-	const animacionesLargas = ['saltar','movingPunch','agachadoPunch','agachadoUpper','agachadoBarrido','kick','lowKick','faceHit','hit','agachadoHit','stunned','KO'];
+	const animacionesLargas = ['saltar','movingPunch','agachadoPunch','agachadoUpper','agachadoBarrido','kick','lowKick','faceHit','hit','agachadoHit','stunned','KO','caida'];
 	//las animaciones largas son aquellas que tienen una propia funcion que las inicia como puñetazo, patada...
 	const animacionesNecesitaEquilibrio = ['caminando','movingPunch','agachadoUpper','kick','lowKick'];
 	//las animaciones largas son aquellas que tienen una propia funcion que las inicia como puñetazo, patada...
@@ -441,9 +463,9 @@ window.onload = function () {
 			case TECLA_ABAJO:
 				teclasPresionadas.abajo = true;
 				break;
-			// case TECLA_ARRIBA:
-			// 	// teclasPresionadas.arriba = true;
-			// 	break;
+			case TECLA_ARRIBA:
+				teclasPresionadas.abajo = false;
+				break;
 			case TECLA_ESPACIO:
 				teclasPresionadas.espacio = true;
 				break;
@@ -465,9 +487,9 @@ window.onload = function () {
 			case TECLA_S:
 				teclasPresionadas.letraS = true;
 				break;
-			// case TECLA_W:
-			// 	teclasPresionadas.letraW = true;
-			// 	break;
+			case TECLA_W:
+				teclasPresionadas.letraS = false;
+				break;
 			case TECLA_D:
 				teclasPresionadas.letraD = true;
 				break;
@@ -493,9 +515,9 @@ window.onload = function () {
 			case TECLA_IZQUIERDA:
 				teclasPresionadas.izquierda = false;
 				break;
-			case TECLA_ABAJO:
-				teclasPresionadas.abajo = false;
-				break;
+			// case TECLA_ABAJO:
+			// 	teclasPresionadas.abajo = false;
+			// 	break;
 			// case TECLA_ARRIBA:
 			// 	// teclasPresionadas.arriba = false;
 			// 	break;
@@ -516,9 +538,9 @@ window.onload = function () {
 			case TECLA_A:
 				teclasPresionadas.letraA = false;
 				break;
-			case TECLA_S:
-				teclasPresionadas.letraS = false;
-				break;
+			// case TECLA_S:
+			// 	teclasPresionadas.letraS = false;
+			// 	break;
 			// case TECLA_W:
 			// 	teclasPresionadas.letraW = false;
 			// 	break;
@@ -543,43 +565,39 @@ window.onload = function () {
 	document.addEventListener("keyup", desactivaMovimiento, false);
 
 	function detectarControlesPersonaje() {
-		if ( teclasPresionadas.letraW && miPersonaje.onGround() || teclasPresionadas.letraS && miPersonaje.onGround() || teclasPresionadas.letraD || teclasPresionadas.letraA || teclasPresionadas.letraE && !miPersonaje.seEstaEjecutandoAtaque() || teclasPresionadas.letraR && !miPersonaje.seEstaEjecutandoAtaque() || teclasPresionadas.letraT && !miPersonaje.seEstaEjecutandoAtaque() || teclasPresionadas.letraQ && miPersonaje.onGround() ){
+		if (miPersonaje.vivo && (teclasPresionadas.letraW && miPersonaje.onGround() || teclasPresionadas.letraS && miPersonaje.onGround() || teclasPresionadas.letraD || teclasPresionadas.letraA || teclasPresionadas.letraE && !miPersonaje.seEstaEjecutandoAtaque() || teclasPresionadas.letraR && !miPersonaje.seEstaEjecutandoAtaque() || teclasPresionadas.letraT && !miPersonaje.seEstaEjecutandoAtaque() || teclasPresionadas.letraQ && miPersonaje.onGround() )){
 			if ((teclasPresionadas.letraS && miPersonaje.onGround() || teclasPresionadas.letraQ && miPersonaje.onGround()) && (!miPersonaje.seEstaEjecutandoRecibirGolpe())) {
 				if (teclasPresionadas.letraQ && teclasPresionadas.letraS){ //
 					miPersonaje.generaBloquearAbajo();					
-				} else  												   //
-				if(teclasPresionadas.letraQ) {
+				} else if(teclasPresionadas.letraQ) {
 					miPersonaje.generaBloquearArriba();
-				} else if(teclasPresionadas.letraS && teclasPresionadas.letraE && !miPersonaje.seEstaEjecutandoAtaque()) {
+				} else if(teclasPresionadas.letraS && teclasPresionadas.letraE && !miPersonaje.seEstaEjecutandoAtaque() && (miPersonaje.energia >= energiaGolpe.agachadoPunch)) {
 					miPersonaje.iniciarAnimacionAgachadoPunch();
-				} else if(teclasPresionadas.letraS && teclasPresionadas.letraR && !miPersonaje.seEstaEjecutandoAtaque()) {
+				} else if(teclasPresionadas.letraS && teclasPresionadas.letraR && !miPersonaje.seEstaEjecutandoAtaque() && (miPersonaje.energia >= energiaGolpe.agachadoBarrido)) {
 					miPersonaje.iniciarAnimacionAgachadoBarrido();
-				} else if(teclasPresionadas.letraS && teclasPresionadas.letraT && !miPersonaje.seEstaEjecutandoAtaque()) {
+				} else if(teclasPresionadas.letraS && teclasPresionadas.letraT && !miPersonaje.seEstaEjecutandoAtaque() && (miPersonaje.energia >= energiaGolpe.agachadoPunch)) {
 					miPersonaje.iniciarAnimacionAgachadoUpper(4.999);
 				} else {
 					miPersonaje.generaAgacharse();
 				}
 			} else {
-				if (teclasPresionadas.letraD) {
+				if (teclasPresionadas.letraD && !miPersonaje.animacionEnProgresoCaida) {
 					miPersonaje.generaCaminarDerecha();
 				}
-				if (teclasPresionadas.letraA) {
+				if (teclasPresionadas.letraA && !miPersonaje.animacionEnProgresoCaida) {
 					miPersonaje.generaCaminarIzquierda();
 				}
 				if ((teclasPresionadas.letraW && miPersonaje.onGround()) && (!miPersonaje.seEstaEjecutandoRecibirGolpe())) {
 					miPersonaje.generaSaltar();
 				}
 				if (!miPersonaje.seEstaEjecutandoAtaque() && (!miPersonaje.seEstaEjecutandoRecibirGolpe())){
-					if (teclasPresionadas.letraE && miPersonaje.y <= 507) {
-						// console.log('Tecla "espacio" presionada. Iniciando animación puñetazo.');
+					if (teclasPresionadas.letraE && (miPersonaje.energia >= energiaGolpe.movingPunch)) {
 						miPersonaje.iniciarAnimacionMovingPunch(4.999);
 					}
-					if (teclasPresionadas.letraR && miPersonaje.y <= 507) {	
-						// console.log('Tecla "espacio" presionada. Iniciando animación puñetazo.');
+					if (teclasPresionadas.letraR && (miPersonaje.energia >= energiaGolpe.kick)) {	
 						miPersonaje.iniciarAnimacionKick();
 					}
-					if (teclasPresionadas.letraT && miPersonaje.y <= 507) {	
-						// console.log('Tecla "espacio" presionada. Iniciando animación puñetazo.');
+					if (teclasPresionadas.letraT && (miPersonaje.energia >= energiaGolpe.lowKick)) {	
 						miPersonaje.iniciarAnimacionLowKick(2.999, 600); //600
 					}
 				}
@@ -590,41 +608,39 @@ window.onload = function () {
 		}
 	}
 	function detectarControlesEnemigo() {
-		if (teclasPresionadas.arriba && miEnemigo.onGround() || teclasPresionadas.abajo && miEnemigo.onGround() || teclasPresionadas.derecha || teclasPresionadas.izquierda || teclasPresionadas.letraO && !miEnemigo.seEstaEjecutandoAtaque() || teclasPresionadas.letraP && !miEnemigo.seEstaEjecutandoAtaque() || teclasPresionadas.letraI && !miEnemigo.seEstaEjecutandoAtaque() || teclasPresionadas.cero && miEnemigo.onGround()){
+		if (miEnemigo.vivo && (teclasPresionadas.arriba && miEnemigo.onGround() || teclasPresionadas.abajo && miEnemigo.onGround() || teclasPresionadas.derecha || teclasPresionadas.izquierda || teclasPresionadas.letraO && !miEnemigo.seEstaEjecutandoAtaque() || teclasPresionadas.letraP && !miEnemigo.seEstaEjecutandoAtaque() || teclasPresionadas.letraI && !miEnemigo.seEstaEjecutandoAtaque() || teclasPresionadas.cero && miEnemigo.onGround())){
 			if ((teclasPresionadas.abajo && miEnemigo.onGround() || teclasPresionadas.cero && miEnemigo.onGround()) && (!miEnemigo.seEstaEjecutandoRecibirGolpe())) {
 				if (teclasPresionadas.cero && teclasPresionadas.abajo){   
 					miEnemigo.generaBloquearAbajo();					
 				} else if(teclasPresionadas.cero) {
 					miEnemigo.generaBloquearArriba();
-				} else if (teclasPresionadas.abajo && teclasPresionadas.letraO && !miEnemigo.seEstaEjecutandoAtaque()) {
+				} else if (teclasPresionadas.abajo && teclasPresionadas.letraO && !miEnemigo.seEstaEjecutandoAtaque() && (miEnemigo.energia >= energiaGolpe.agachadoPunch)) {
 					miEnemigo.iniciarAnimacionAgachadoPunch();
-				} else if (teclasPresionadas.abajo && teclasPresionadas.letraP && !miEnemigo.seEstaEjecutandoAtaque()) {
+				} else if (teclasPresionadas.abajo && teclasPresionadas.letraP && !miEnemigo.seEstaEjecutandoAtaque() && (miEnemigo.energia >= energiaGolpe.agachadoBarrido)) {
 					miEnemigo.iniciarAnimacionAgachadoBarrido();
-				} else if (teclasPresionadas.abajo && teclasPresionadas.letraI && !miEnemigo.seEstaEjecutandoAtaque()) {
+				} else if (teclasPresionadas.abajo && teclasPresionadas.letraI && !miEnemigo.seEstaEjecutandoAtaque() && (miEnemigo.energia >= energiaGolpe.agachadoPunch)) {
 					miEnemigo.iniciarAnimacionAgachadoUpper(3.999);
 				} else {
 					miEnemigo.generaAgacharse();
 				}
 			} else {
-				if (teclasPresionadas.derecha) {
+				if (teclasPresionadas.derecha && !miEnemigo.animacionEnProgresoCaida) {
 					miEnemigo.generaCaminarDerecha();
 				}
-				if (teclasPresionadas.izquierda) {
+				if (teclasPresionadas.izquierda && !miEnemigo.animacionEnProgresoCaida) {
 					miEnemigo.generaCaminarIzquierda();
 				}
 				if ((teclasPresionadas.arriba && miEnemigo.onGround()) && (!miEnemigo.seEstaEjecutandoRecibirGolpe())) {
 					miEnemigo.generaSaltar();
 				}
 				if (!miEnemigo.seEstaEjecutandoAtaque() && (!miEnemigo.seEstaEjecutandoRecibirGolpe())){
-					if (teclasPresionadas.letraO && miEnemigo.y <= 507) {
+					if (teclasPresionadas.letraO && (miEnemigo.energia >= energiaGolpe.movingPunch)) {
 						miEnemigo.iniciarAnimacionMovingPunch(2.999);
 					}
-					if (teclasPresionadas.letraP && miEnemigo.y <= 507) {	
-						// console.log('Tecla "espacio" presionada. Iniciando animación puñetazo.');
+					if (teclasPresionadas.letraP && (miEnemigo.energia >= energiaGolpe.kick)) {	
 						miEnemigo.iniciarAnimacionKick();
 					}
-					if (teclasPresionadas.letraI && miEnemigo.y <= 507) {	
-						// console.log('Tecla "espacio" presionada. Iniciando animación puñetazo.');
+					if (teclasPresionadas.letraI && (miEnemigo.energia >= energiaGolpe.lowKick)) {	
 						miEnemigo.iniciarAnimacionLowKick(4.999, 800); //800
 					}
 				}
@@ -649,6 +665,10 @@ window.onload = function () {
 		let colisionEnX = (miPersonaje.hitbox.cuerpo.x < miEnemigo.hitbox.cuerpo.x + miEnemigo.hitbox.cuerpo.width) && (miPersonaje.hitbox.cuerpo.x + miPersonaje.hitbox.cuerpo.width > miEnemigo.hitbox.cuerpo.x);
 		let colisionEnY = (miPersonaje.hitbox.cuerpo.y < miEnemigo.hitbox.cuerpo.y + miEnemigo.hitbox.cuerpo.height) && (miPersonaje.hitbox.cuerpo.y + miPersonaje.hitbox.cuerpo.height > miEnemigo.hitbox.cuerpo.y);
 		return colisionEnX && colisionEnY;
+	}
+	function comprobarLimitesBordes(){
+		miPersonaje.x = Math.max(miPersonaje.x, LIMITE_IZQUIERDA);
+		miEnemigo.x = Math.min(miEnemigo.x, (LIMITE_DERECHA - miEnemigo.width));
 	}
 
 	function personaje1PunchingHead() {
@@ -801,263 +821,272 @@ window.onload = function () {
 	}
 
 	
+	function acabarConRival(){
+		if (miPersonaje.vida < 0 || miEnemigo.vida < 0){
+			if (miPersonaje.vida < 0) {
+				miPersonaje.iniciarAnimacionKO();
+				miPersonaje.vivo = false;
+			}
+			if (miEnemigo.vida < 0) {
+				miEnemigo.iniciarAnimacionKO();
+				miEnemigo.vivo = false;
+			}
+
+			setTimeout(acabarPartida, 5000);
+			return true;
+		}
+		return false;
+	}
+	function realizarAnimacionRecibirGolpe(id, animacion, valorExtra){
+		//esta función comprueba si alguno de los personajes se ha quedado sin vida para acabar la partida
+		if (!acabarConRival()){
+			switch(animacion){
+				case 'retroceso': (id === 1) ? miPersonaje.iniciarAnimacionRetroceso(valorExtra): miEnemigo.iniciarAnimacionRetroceso(valorExtra);
+					break;
+				case 'faceHit': (id === 1) ? miPersonaje.iniciarAnimacionFaceHit() : miEnemigo.iniciarAnimacionFaceHit() ;
+					break;
+				case 'agachadoHit': (id === 1) ? miPersonaje.iniciarAnimacionAgachadoHit() : miEnemigo.iniciarAnimacionAgachadoHit() ;
+					break;
+				case 'stunned': (id === 1) ? miPersonaje.iniciarAnimacionStunned(2.999) : miEnemigo.iniciarAnimacionStunned(3.999) ;
+					break;
+				case 'hit': (id === 1) ? miPersonaje.iniciarAnimacionHit() : miEnemigo.iniciarAnimacionHit() ;
+					break;
+				case 'caida': (id === 1) ? miPersonaje.iniciarAnimacionCaida(7.999) : miEnemigo.iniciarAnimacionCaida(10.999) ;
+					break;
+				default:
+					break;
+			}
+		}
+	}
 
 	function comprobarColisiones() {
-		// console.log(miPersonaje.personajeState);
-		// console.log('POSICIÓN Y SUPERIOR DE PUÑO: ' + (miEnemigo.hitbox.punio.y));
-		// if(miPersonaje.personajeState === 'kick') {
-		// 	console.log('POSICIÓN Y INFERIOR DE CABEZA PERSONAJE: ' + (miPersonaje.hitbox.cabeza.y + miPersonaje.hitbox.cabeza.height));
-		// }
-			
-
-		// punto más bajo puño miPersonaje: 502 
-		// punto y más bajo puño miEnemigo: 499 
 
 		if(seTropiezan()){
 			console.log('SE TROPEZARON');
 			miEnemigo.x = (miPersonaje.hitbox.cuerpo.x + miPersonaje.hitbox.cuerpo.width) - (miEnemigo.hitbox.cuerpo.x - miEnemigo.x);
 			miPersonaje.x = miEnemigo.hitbox.cuerpo.x - (miPersonaje.hitbox.cuerpo.x + miPersonaje.hitbox.cuerpo.width - miPersonaje.x);
 		}
+		comprobarLimitesBordes();
 		
 		if(personaje1PunchingHead() && !miPersonaje.golpeConectado.punchHead){ //solo se produce el evento 1 vez, cada vez que el puño colisiona con la cabeza
 			miPersonaje.golpeConectado.punchHead = true;  //se pone a true y se espera a que cuando deje de haber la colisión se ponga a false
-			console.log('PERSONAJE 1 HA GOLPEADO A LA CABEZA');
-			miPersonaje.energia -= energiaGolpe.movingPunch;
 			
 			if (miEnemigo.cubierto) {
 				miEnemigo.vida -= danioGolpeBloqueado.movingPunch;
 				miEnemigo.cubierto = false;
-				miEnemigo.iniciarAnimacionRetroceso(2);
-
 				audioBloqueo.currentTime = 0;
 				audioBloqueo.play();
+				
+				realizarAnimacionRecibirGolpe(2,'retroceso',2);
 			} else {
 				miEnemigo.vida -= danioGolpe.movingPunch;
-				miEnemigo.iniciarAnimacionFaceHit();
-
 				audioJab.currentTime = 0;
 				audioJab.play();
+				
+				realizarAnimacionRecibirGolpe(2, 'faceHit');
 			}
 		}
 		if(personaje2PunchingHead() && !miEnemigo.golpeConectado.punchHead){
 			miEnemigo.golpeConectado.punchHead = true;
-			console.log('PERSONAJE 2 HA GOLPEADO A LA CABEZA');
-			miEnemigo.energia -= energiaGolpe.movingPunch;
 
 			if (miPersonaje.cubierto) {
 				miPersonaje.vida -= danioGolpeBloqueado.movingPunch;
 				miPersonaje.cubierto = false;
-				miPersonaje.iniciarAnimacionRetroceso(2);
-
+				
 				audioBloqueo.currentTime = 0;
 				audioBloqueo.play();
+
+				realizarAnimacionRecibirGolpe(1,'retroceso',2);
 			} else {
 				miPersonaje.vida -= danioGolpe.movingPunch;
-				miPersonaje.iniciarAnimacionFaceHit();
-
+				
 				audioJab.currentTime = 0;
 				audioJab.play();
+
+				realizarAnimacionRecibirGolpe(1,'faceHit');
 			}
 			
 		}
 		if(personaje1PunchingBody() && !miPersonaje.golpeConectado.punchBody){ 
 			miPersonaje.golpeConectado.punchBody = true;
-			console.log('PERSONAJE 1 HA GOLPEADO EN EL CUERPO');
-			miPersonaje.energia -= energiaGolpe.agachadoPunch;
 			miEnemigo.vida -= danioGolpe.agachadoPunch;
-
-			miEnemigo.iniciarAnimacionRetroceso(4);
 
 			audioShortHit.currentTime = 0;
 			audioShortHit.play();
+			
+			realizarAnimacionRecibirGolpe(2,'retroceso',4);
 
 		}
 		if(personaje2PunchingBody() && !miEnemigo.golpeConectado.punchBody){
 			miEnemigo.golpeConectado.punchBody = true;
-			console.log('PERSONAJE 2 HA GOLPEADO AL CUERPO');
-			miEnemigo.energia -= energiaGolpe.agachadoPunch;
 			
 			//dependiendo de si personaje1 está agachado o de pie:
 			if (miPersonaje.personajeState === 'agacharse' || miPersonaje.personajeState === 'bloquearAbajo'){
 				if (miPersonaje.cubierto) {
 					miPersonaje.vida -= danioGolpeBloqueado.agachadoPunch;
 					miPersonaje.cubierto = false;
-					miPersonaje.iniciarAnimacionRetroceso(4);
 
 					audioBloqueo.currentTime = 0;
 					audioBloqueo.play();
+					
+					realizarAnimacionRecibirGolpe(1,'retroceso',4);
 				} else {
 					miPersonaje.vida -= danioGolpe.agachadoPunch;
-					miPersonaje.iniciarAnimacionAgachadoHit();
-
 					audioJab.currentTime = 0;
 					audioJab.play();
+					
+					realizarAnimacionRecibirGolpe(1,'agachadoHit');
 				}
 			} else {
 				miPersonaje.vida -= danioGolpe.agachadoPunch;
-				miPersonaje.iniciarAnimacionRetroceso(4);
-
 				audioShortHit.currentTime = 0;
 				audioShortHit.play();
+				
+				realizarAnimacionRecibirGolpe(1,'retroceso',4);
 			}
 
 		}
 		if(personaje1UpperPunch() && !miPersonaje.golpeConectado.upperPunch){
 			miPersonaje.golpeConectado.upperPunch = true;
-			console.log('PERSONAJE 1 HA GOLPEADO con un UPPER');
 			miEnemigo.vida -= danioGolpe.agachadoUpper;
-			miPersonaje.energia -= energiaGolpe.agachadoUpper;
-
-			miEnemigo.iniciarAnimacionStunned(3.999);
-
+			
 			audioStrongHit.currentTime = 0;
 			audioStrongHit.play();
+			
+			realizarAnimacionRecibirGolpe(2,'stunned');
 		}
 		if(personaje2UpperPunch() && !miEnemigo.golpeConectado.upperPunch){
 			miEnemigo.golpeConectado.upperPunch = true;
-			console.log('PERSONAJE 2 HA GOLPEADO con un UPPER');
 			miPersonaje.vida -= danioGolpe.agachadoUpper;
-			miEnemigo.energia -= energiaGolpe.agachadoUpper;
 			
-			miPersonaje.iniciarAnimacionStunned(2.999);
-
 			audioStrongHit.currentTime = 0;
 			audioStrongHit.play();
+			
+			realizarAnimacionRecibirGolpe(1,'stunned');
 		}
 
 
 		if(personaje1KickingHead() && !miPersonaje.golpeConectado.kickHead){
 			miPersonaje.golpeConectado.kickHead = true;
-			console.log('PERSONAJE 1 HA PATEADO A LA CABEZA');
-			miPersonaje.energia -= energiaGolpe.kick;
 
 			if (miEnemigo.cubierto) {
 				miEnemigo.vida -= danioGolpeBloqueado.kick;
 				miEnemigo.cubierto = false;
-				miEnemigo.iniciarAnimacionRetroceso(7);
-
 				audioBloqueo.currentTime = 0;
 				audioBloqueo.play();
+				
+				realizarAnimacionRecibirGolpe(2,'retroceso',7);
 			} else {
 				miEnemigo.vida -= danioGolpe.kick;
-				miEnemigo.iniciarAnimacionStunned(3.999);
-
 				audioStrongHit.currentTime = 0;
 				audioStrongHit.play();
+				
+				realizarAnimacionRecibirGolpe(2,'stunned');
 			}
 			
 		}
 		if(personaje2KickingHead() && !miEnemigo.golpeConectado.kickHead){
 			miEnemigo.golpeConectado.kickHead = true;
-			console.log('PERSONAJE 2 HA PATEADO A LA CABEZA');
-			miEnemigo.energia -= energiaGolpe.kick;
 
 			if (miPersonaje.cubierto) {
 				miPersonaje.vida -= danioGolpeBloqueado.kick;
 				miPersonaje.cubierto = false;
-				miPersonaje.iniciarAnimacionRetroceso(7);
-
 				audioBloqueo.currentTime = 0;
 				audioBloqueo.play();
+				
+				realizarAnimacionRecibirGolpe(1,'retroceso',7);
 			} else {
 				miPersonaje.vida -= danioGolpe.kick;
-				miPersonaje.iniciarAnimacionStunned(2.999);
-
 				audioStrongHit.currentTime = 0;
 				audioStrongHit.play();
+				
+				realizarAnimacionRecibirGolpe(1,'stunned');
 			}
 			
 		}
 		if(personaje1KickingBody() && !miPersonaje.golpeConectado.kickBody){
 			miPersonaje.golpeConectado.kickBody = true;
-			console.log('PERSONAJE 1 HA PATEADO AL BODY');
-			miPersonaje.energia -= energiaGolpe.lowKick;
 
 			if (miEnemigo.cubierto) {
 				miEnemigo.vida -= danioGolpeBloqueado.lowKick;
 				miEnemigo.cubierto = false;
-				miEnemigo.iniciarAnimacionRetroceso(6);
-
 				audioBloqueo.currentTime = 0;
 				audioBloqueo.play();
+				
+				realizarAnimacionRecibirGolpe(2,'retroceso',6);
 			} else {
 				miEnemigo.vida -= danioGolpe.lowKick;
-				miEnemigo.iniciarAnimacionHit();
-
 				audioFierceHit.currentTime = 0;
 				audioFierceHit.play();
+				
+				miEnemigo.iniciarAnimacionHit();
+				realizarAnimacionRecibirGolpe(2,'retroceso',2);
 			}
 			
 		}
 		if(personaje2KickingBody() && !miEnemigo.golpeConectado.kickBody){
 			miEnemigo.golpeConectado.kickBody = true;
-			console.log('PERSONAJE 2 HA PATEADO AL BODY');
-			miEnemigo.energia -= energiaGolpe.lowKick;
 
 			if (miPersonaje.cubierto) {
 				miPersonaje.vida -= danioGolpeBloqueado.lowKick;
 				miPersonaje.cubierto = false;
-				miPersonaje.iniciarAnimacionRetroceso(6);
-
 				audioBloqueo.currentTime = 0;
 				audioBloqueo.play();
+				
+				realizarAnimacionRecibirGolpe(1,'retroceso',6);
 			} else {
 				miPersonaje.vida -= danioGolpe.lowKick;
-				miPersonaje.iniciarAnimacionHit();
-
 				audioFierceHit.currentTime = 0;
 				audioFierceHit.play();
+				
+				realizarAnimacionRecibirGolpe(1,'hit');
 			}
 			
 		}
 		if(personaje1BarridoPies() && !miPersonaje.golpeConectado.barridoBody){
 			miPersonaje.golpeConectado.barridoBody = true;
-			console.log('PERSONAJE 1 HA BARRIDO');
 			miEnemigo.vida -= danioGolpe.agachadoBarrido;
-			miPersonaje.energia -= energiaGolpe.agachadoBarrido;
 
 			audioBarrido.currentTime = 0;
 			audioBarrido.play();
+			
+			realizarAnimacionRecibirGolpe(2,'caida');
 		}
 		if(personaje2BarridoPies() && !miEnemigo.golpeConectado.barridoBody){
 			miEnemigo.golpeConectado.barridoBody = true;
-			console.log('PERSONAJE 2 HA BARRIDO');
 			miPersonaje.vida -= danioGolpe.agachadoBarrido;
-			miEnemigo.energia -= energiaGolpe.agachadoBarrido;
 
 			audioBarrido.currentTime = 0;
 			audioBarrido.play();
+			
+			realizarAnimacionRecibirGolpe(1,'caida');
 		}
 
 		if(personaje2LowKickHead() && !miEnemigo.golpeConectado.lowKickHead){
 			miEnemigo.golpeConectado.lowKickHead = true;
-			console.log('PERSONAJE 2 HA PATEADO AL LA CABEZA');
 			miPersonaje.vida -= danioGolpe.lowKickHead;
-			miEnemigo.energia -= energiaGolpe.lowKick;
-
-			miPersonaje.iniciarAnimacionAgachadoHit();
 
 			audioFierceHit.currentTime = 0;
 			audioFierceHit.play();
+			
+			realizarAnimacionRecibirGolpe(1,'agachadoHit');
 		}
 
 		if(personaje1PunchingHeadAgachado() && !miPersonaje.golpeConectado.punchHeadAgachado){
 			miPersonaje.golpeConectado.punchHeadAgachado = true; 
-			console.log('PERSONAJE 1 HA GOLPEADO A LA CABEZA');
-			miPersonaje.energia -= energiaGolpe.agachadoPunch;
 			if (miEnemigo.cubierto) {
 				miEnemigo.vida -= danioGolpeBloqueado.movingPunch;
 			   miEnemigo.cubierto = false;
-			   miEnemigo.iniciarAnimacionRetroceso(4);
-
 			   audioBloqueo.currentTime = 0;
 			   audioBloqueo.play();
+			   
+			   realizarAnimacionRecibirGolpe(2,'retroceso',4);
 		   } else {
 			   miEnemigo.vida -= danioGolpe.movingPunch;
-			   miEnemigo.iniciarAnimacionAgachadoHit();
-
 			   audioJab.currentTime = 0;
 			   audioJab.play();
+			   
+			   realizarAnimacionRecibirGolpe(2,'agachadoHit');
 		   }
 		}
 	}
@@ -1066,9 +1095,9 @@ window.onload = function () {
 
 	function asignarVidaParaMostrarPorPantalla(){
 		//evito problemas en la barra de vida
-		if (miPersonaje.vida < 0) miPersonaje.vida = 0;
+		if(miPersonaje.vida < 0) miPersonaje.vida = 0;
+		if(miEnemigo.vida < 0) miEnemigo.vida = 0;
 		if (miPersonaje.vida > VIDA_TOTAL) miPersonaje.vida = VIDA_TOTAL;
-		if (miEnemigo.vida < 0) miEnemigo.vida = 0;
 		if (miEnemigo.vida > VIDA_TOTAL) miEnemigo.vida = VIDA_TOTAL;
 		//modifico la barra de vida verde
 		vida1.style.width = miPersonaje.vida + '%';
@@ -1085,55 +1114,58 @@ window.onload = function () {
 	}
 
 	function recuperarEnergia(){
-		let energiaRecuperacion = 0;
-		switch (miPersonaje.personajeState) {
-			case 'reposo':
-				energiaRecuperacion = 75;
-				break;
-			case 'caminando':
-				energiaRecuperacion = 50;
-				break;
-			case 'agacharse':
-				energiaRecuperacion = 100;
-				break;
-			case 'bloquearArriba':
-				energiaRecuperacion = 30;
-				break;
-			case 'bloquearAbajo':
-				energiaRecuperacion = 50;
-				break;
-			default:
-				energiaRecuperacion = 0;
-				break;
+		if (miPersonaje.vivo){
+			let energiaRecuperacion = 0;
+			switch (miPersonaje.personajeState) {
+				case 'reposo':
+					energiaRecuperacion = 75;
+					break;
+				case 'caminando':
+					energiaRecuperacion = 50;
+					break;
+				case 'agacharse':
+					energiaRecuperacion = 100;
+					break;
+				case 'bloquearArriba':
+					energiaRecuperacion = 30;
+					break;
+				case 'bloquearAbajo':
+					energiaRecuperacion = 50;
+					break;
+				default:
+					energiaRecuperacion = 0;
+					break;
+			}
+			miPersonaje.energia += energiaRecuperacion * 0.0005;
 		}
-		miPersonaje.energia += energiaRecuperacion * 0.001;
-		
-		switch (miEnemigo.personajeState) {
-			case 'reposo':
-				energiaRecuperacion = 75;
-				break;
-			case 'caminando':
-				energiaRecuperacion = 50;
-				break;
-			case 'agacharse':
-				energiaRecuperacion = 100;
-				break;
-			case 'bloquearArriba':
-				energiaRecuperacion = 30;
-				break;
-			case 'bloquearAbajo':
-				energiaRecuperacion = 50;
-				break;
-			default:
-				energiaRecuperacion = 0;
-				break;
+		if (miEnemigo.vivo){
+			switch (miEnemigo.personajeState) {
+				case 'reposo':
+					energiaRecuperacion = 75;
+					break;
+				case 'caminando':
+					energiaRecuperacion = 50;
+					break;
+				case 'agacharse':
+					energiaRecuperacion = 100;
+					break;
+				case 'bloquearArriba':
+					energiaRecuperacion = 30;
+					break;
+				case 'bloquearAbajo':
+					energiaRecuperacion = 50;
+					break;
+				default:
+					energiaRecuperacion = 0;
+					break;
+			}
+			miEnemigo.energia += energiaRecuperacion * 0.001;
 		}
-		miEnemigo.energia += energiaRecuperacion * 0.001;
 	}
 
 	function recuperarVida(){
-		miPersonaje.vida += 0.005;
-		miEnemigo.vida += 0.005;
+		if(miPersonaje.vivo) miPersonaje.vida += 0.005;
+		if(miEnemigo.vivo) miEnemigo.vida += 0.005;
 	}
 
 	function controlarEventosPrincipales() {
@@ -1207,6 +1239,7 @@ window.onload = function () {
 			this.spriteHeight;
 
 			//atributos variados
+			this.vivo = true;
 			this.vida = VIDA_TOTAL;
 			this.energia = ENERGIA_TOTAL;
 			this.personajeState = 'reposo';
@@ -1269,7 +1302,7 @@ window.onload = function () {
 			this.animacionEnProgresoFaceHit = false;
 			//animaciones recibir golpe (hit)
 			this.inicioAnimacionHit = null;
-			this.duracionAnimacionHit = 600; //900
+			this.duracionAnimacionHit = 600;
 			this.animacionEnProgresoHit = false;
 			//animaciones recibir golpe en la cara agachado (agachadoHit)
 			this.inicioAnimacionAgachadoHit = null;
@@ -1277,15 +1310,19 @@ window.onload = function () {
 			this.animacionEnProgresoAgachadoHit = false;
 			//animaciones quedarse insconcinete de pie (stunned)
 			this.inicioAnimacionStunned = null;
-			this.duracionAnimacionStunned = 800; //2000
+			this.duracionAnimacionStunned = 1500;
 			this.animacionEnProgresoStunned = false;
 			//animaciones quedarse KO (ko)
 			this.inicioAnimacionKO = null;
 			this.duracionAnimacionKO = 60000; //60000
 			this.animacionEnProgresoKO = false;
+			//animaciones caida
+			this.inicioAnimacionCaida = null;
+			this.duracionAnimacionCaida = 1500; //1500
+			this.animacionEnProgresoCaida = false;
 			//animacion de hacer retroceder
 			this.inicioAnimacionRetroceso = null;
-			this.duracionAnimacionRetroceso = 100; //60000
+			this.duracionAnimacionRetroceso = 100;
 			this.animacionEnProgresoRetroceso = false;
 
 			//variables creadas para solucionar error del sprite que se carga en una mala posición debido a sus dimensiones.
@@ -1302,7 +1339,7 @@ window.onload = function () {
 			return ataques;
 		}
 		seEstaEjecutandoRecibirGolpe(){
-			let golpeRecibidio = (this.animacionEnProgresoFaceHit) || (this.animacionEnProgresoHit) || (this.animacionEnProgresoAgachadoHit) || (this.animacionEnProgresoStunned) || (this.animacionEnProgresoKO);
+			let golpeRecibidio = (this.animacionEnProgresoFaceHit) || (this.animacionEnProgresoHit) || (this.animacionEnProgresoAgachadoHit) || (this.animacionEnProgresoStunned) || (this.animacionEnProgresoKO) || (this.animacionEnProgresoCaida);
 			return golpeRecibidio;
 		}
 
@@ -1327,6 +1364,8 @@ window.onload = function () {
 		iniciarAnimacionMovingPunch(numAnimaciones) {
 			this.animacionEnProgresoMovingPunch = true;
 			this.inicioAnimacionMovingPunch = performance.now();
+
+			(this.id === 1) ? miPersonaje.energia -= energiaGolpe.movingPunch : miEnemigo.energia -= energiaGolpe.movingPunch;
 			this.animarMovingPunch(numAnimaciones);
 		}
 
@@ -1570,6 +1609,8 @@ window.onload = function () {
 		iniciarAnimacionAgachadoPunch() {
 			this.animacionEnProgresoAgachadoPunch = true;
 			this.inicioAnimacionAgachadoPunch = performance.now();
+
+			(this.id === 1) ? miPersonaje.energia -= energiaGolpe.agachadoPunch : miEnemigo.energia -= energiaGolpe.agachadoPunch;
 			this.animarAgachadoPunch();
 		}
 
@@ -1748,6 +1789,8 @@ window.onload = function () {
 		iniciarAnimacionAgachadoBarrido() {
 			this.animacionEnProgresoAgachadoBarrido = true;
 			this.inicioAnimacionAgachadoBarrido = performance.now();
+
+			(this.id === 1) ? miPersonaje.energia -= energiaGolpe.agachadoBarrido : miEnemigo.energia -= energiaGolpe.agachadoBarrido;
 			this.animarAgachadoBarrido();
 		}
 
@@ -1928,6 +1971,8 @@ window.onload = function () {
 		iniciarAnimacionKick() {
 			this.animacionEnProgresoKick = true;
 			this.inicioAnimacionFaceHit = performance.now();
+
+			// (this.id === 1) ? miPersonaje.energia -= energiaGolpe.kick : miEnemigo.energia -= energiaGolpe.kick;
 			this.animarKick();
 		}
 
@@ -2353,6 +2398,395 @@ window.onload = function () {
 			}
 		}
 
+
+		iniciarAnimacionCaida(numAnimaciones) {
+			this.animacionEnProgresoCaida = true;
+			this.inicioAnimacionCaida = performance.now();
+			this.velocidadX = 0;
+			this.animarCaida(numAnimaciones);
+		}
+  
+		animarCaida(numAnimaciones) {
+			if (this.animacionEnProgresoCaida) {
+			const tiempoActual = performance.now();
+			const tiempoTranscurrido = tiempoActual - this.inicioAnimacionCaida;
+			const progreso = Math.min(tiempoTranscurrido / this.duracionAnimacionCaida, 1);
+		
+			// Actualizar la animación (código específico de animación aquí)
+			this.personajeState = 'caida';
+			this.position = Math.floor(progreso * numAnimaciones);
+		
+			// if (this.id === 1) this.position = 0;	// esto es para hacer pruebas (eliminar)
+			// if (this.id === 2) this.position = 0;	// esto es para hacer pruebas (eliminar)
+		
+			this.height = this.spriteAnimations[this.personajeState].loc[this.position].height;
+			this.y = LIMITE_ABAJO - this.height;
+
+			if (this.id === 1){
+
+				if(this.primeraVez && this.position === 0) {
+					this.x = this.x-10;
+					this.primeraVez = false;
+				}
+				if(this.segundaVez && this.position === 1) {
+					this.x = this.x-10;
+					this.segundaVez = false;
+				}
+				if(this.tercerVez && this.position === 2) {
+					this.x = this.x-10;
+					this.tercerVez = false;
+				}
+				if(this.cuartaVez && this.position === 3) {
+					this.x = this.x-10;
+					this.cuartaVez = false;
+				}
+				 
+				switch(this.position){
+					case 0:
+						this.hitbox.cuerpo.x = this.x+2,
+						this.hitbox.cuerpo.y = this.y+38,
+						this.hitbox.cuerpo.width = this.width/1.15,
+						this.hitbox.cuerpo.height = this.height/2
+						
+						this.hitbox.cabeza.x = this.x+17,
+						this.hitbox.cabeza.y = this.y+38,
+						this.hitbox.cabeza.width = this.width/4.4,
+						this.hitbox.cabeza.height = this.height/8
+	
+						this.hitbox.tronco.x = this.x+2,
+						this.hitbox.tronco.y = this.y+50,
+						this.hitbox.tronco.width = this.width/1.15,
+						this.hitbox.tronco.height = this.height/2.8
+						break;
+					case 1:
+						this.hitbox.cuerpo.x = this.x+8,
+						this.hitbox.cuerpo.y = this.y+40,
+						this.hitbox.cuerpo.width = this.width/1.3,
+						this.hitbox.cuerpo.height = this.height/1.8
+						
+						this.hitbox.cabeza.x = this.x+8,
+						this.hitbox.cabeza.y = this.y+75,
+						this.hitbox.cabeza.width = this.width/4.4,
+						this.hitbox.cabeza.height = this.height/8
+	
+						this.hitbox.tronco.x = this.x+18,
+						this.hitbox.tronco.y = this.y+40,
+						this.hitbox.tronco.width = this.width/1.9,
+						this.hitbox.tronco.height = this.height/1.8
+						break;
+					case 2:
+						this.hitbox.cuerpo.x = this.x+2,
+						this.hitbox.cuerpo.y = this.y+55,
+						this.hitbox.cuerpo.width = this.width/1.25,
+						this.hitbox.cuerpo.height = this.height/2.8
+						
+						this.hitbox.cabeza.x = this.x+2,
+						this.hitbox.cabeza.y = this.y+70,
+						this.hitbox.cabeza.width = this.width/6.3,
+						this.hitbox.cabeza.height = this.height/8
+	
+						this.hitbox.tronco.x = this.x+13,
+						this.hitbox.tronco.y = this.y+55,
+						this.hitbox.tronco.width = this.width/1.5,
+						this.hitbox.tronco.height = this.height/2.8
+						break;
+					case 3:
+						this.hitbox.cuerpo.x = this.x+2,
+						this.hitbox.cuerpo.y = this.y+75,
+						this.hitbox.cuerpo.width = this.width/1.15,
+						this.hitbox.cuerpo.height = this.height/4.4
+						
+						this.hitbox.cabeza.x = this.x+1,
+						this.hitbox.cabeza.y = this.y+83,
+						this.hitbox.cabeza.width = this.width/7.5,
+						this.hitbox.cabeza.height = this.height/8
+	
+						this.hitbox.tronco.x = this.x+10,
+						this.hitbox.tronco.y = this.y+75,
+						this.hitbox.tronco.width = this.width/1.3,
+						this.hitbox.tronco.height = this.height/4.4
+						break;
+					case 4:
+						this.hitbox.cuerpo.x = this.x+7,
+						this.hitbox.cuerpo.y = this.y+55,
+						this.hitbox.cuerpo.width = this.width/2.2,
+						this.hitbox.cuerpo.height = this.height/2.4
+						
+						this.hitbox.cabeza.x = null,
+						this.hitbox.cabeza.y = null,
+						this.hitbox.cabeza.width = null,
+						this.hitbox.cabeza.height = null
+	
+						this.hitbox.tronco.x = this.x+7,
+						this.hitbox.tronco.y = this.y+55,
+						this.hitbox.tronco.width = this.width/2.2,
+						this.hitbox.tronco.height = this.height/2.4
+						break;
+					case 5:
+						this.hitbox.cuerpo.x = this.x+4
+						this.hitbox.cuerpo.y = this.y+25,
+						this.hitbox.cuerpo.width = this.width/2.5,
+						this.hitbox.cuerpo.height = this.height/1.35
+						
+						this.hitbox.cabeza.x = this.x+12,
+						this.hitbox.cabeza.y = this.y+88,
+						this.hitbox.cabeza.width = this.width/4.4,
+						this.hitbox.cabeza.height = this.height/8
+	
+						this.hitbox.tronco.x = this.x+4,
+						this.hitbox.tronco.y = this.y+25,
+						this.hitbox.tronco.width = this.width/2.5,
+						this.hitbox.tronco.height = this.height/1.6
+						break;
+					case 6:
+						this.hitbox.cuerpo.x = this.x+7,
+						this.hitbox.cuerpo.y = this.y+33,
+						this.hitbox.cuerpo.width = this.width/1.4,
+						this.hitbox.cuerpo.height = this.height/3
+						
+						this.hitbox.cabeza.x = this.x+37,
+						this.hitbox.cabeza.y = this.y+56,
+						this.hitbox.cabeza.width = this.width/6,
+						this.hitbox.cabeza.height = this.height/9
+	
+						this.hitbox.tronco.x = this.x+7,
+						this.hitbox.tronco.y = this.y+33,
+						this.hitbox.tronco.width = this.width/1.6,
+						this.hitbox.tronco.height = this.height/4.3
+						break;
+					case 7:
+						this.hitbox.cuerpo.x = this.x+8,
+						this.hitbox.cuerpo.y = this.y+9,
+						this.hitbox.cuerpo.width = this.width/1.8,
+						this.hitbox.cuerpo.height = this.height/1.6
+						
+						this.hitbox.cabeza.x = this.x+21,
+						this.hitbox.cabeza.y = this.y+9,
+						this.hitbox.cabeza.width = this.width/4.4,
+						this.hitbox.cabeza.height = this.height/8
+	
+						this.hitbox.tronco.x = this.x+8,
+						this.hitbox.tronco.y = this.y+20,
+						this.hitbox.tronco.width = this.width/1.8,
+						this.hitbox.tronco.height = this.height/2
+						break;
+					default:
+						break;
+				}
+			} else {
+				
+				if(this.primeraVez && this.position === 0) {
+					this.x = this.x+10;
+					this.primeraVez = false;
+				}
+				if(this.segundaVez && this.position === 1) {
+					this.x = this.x+10;
+					this.segundaVez = false;
+				}
+				if(this.tercerVez && this.position === 2) {
+					this.x = this.x+10;
+					this.tercerVez = false;
+				}
+				if(this.cuartaVez && this.position === 3) {
+					this.x = this.x+10;
+					this.cuartaVez = false;
+				}
+				switch(this.position){
+				case 0:
+					this.hitbox.cuerpo.x = this.x+18,
+					this.hitbox.cuerpo.y = this.y+66,
+					this.hitbox.cuerpo.width = this.width/2,
+					this.hitbox.cuerpo.height = this.height/2.8
+					
+					this.hitbox.cabeza.x = this.x+28,
+					this.hitbox.cabeza.y = this.y+66,
+					this.hitbox.cabeza.width = this.width/6.5,
+					this.hitbox.cabeza.height = this.height/9
+
+					this.hitbox.tronco.x = this.x+18,
+					this.hitbox.tronco.y = this.y+77,
+					this.hitbox.tronco.width = this.width/2,
+					this.hitbox.tronco.height = this.height/3.8
+					break;
+				case 1:
+					this.hitbox.cuerpo.x = this.x+10,
+					this.hitbox.cuerpo.y = this.y+65,
+					this.hitbox.cuerpo.width = this.width/2,
+					this.hitbox.cuerpo.height = this.height/3.5
+					
+					this.hitbox.cabeza.x = this.x+33,
+					this.hitbox.cabeza.y = this.y+83,
+					this.hitbox.cabeza.width = this.width/6.5,
+					this.hitbox.cabeza.height = this.height/9
+
+					this.hitbox.tronco.x = this.x+10,
+					this.hitbox.tronco.y = this.y+65,
+					this.hitbox.tronco.width = this.width/2,
+					this.hitbox.tronco.height = this.height/5
+					break;
+				case 2:
+					this.hitbox.cuerpo.x = this.x+22,
+					this.hitbox.cuerpo.y = this.y+65,
+					this.hitbox.cuerpo.width = this.width/3,
+					this.hitbox.cuerpo.height = this.height/2.8
+					
+					this.hitbox.cabeza.x = null,
+					this.hitbox.cabeza.y = null,
+					this.hitbox.cabeza.width = null,
+					this.hitbox.cabeza.height = null
+
+					this.hitbox.tronco.x = this.x+22,
+					this.hitbox.tronco.y = this.y+65,
+					this.hitbox.tronco.width = this.width/3,
+					this.hitbox.tronco.height = this.height/2.8
+					break;
+				case 3:
+					this.hitbox.cuerpo.x = this.x+13,
+					this.hitbox.cuerpo.y = this.y+85,
+					this.hitbox.cuerpo.width = this.width/2,
+					this.hitbox.cuerpo.height = this.height/5
+					
+					this.hitbox.cabeza.x = null,
+					this.hitbox.cabeza.y = null,
+					this.hitbox.cabeza.width = null,
+					this.hitbox.cabeza.height = null
+
+					this.hitbox.tronco.x = this.x+13,
+					this.hitbox.tronco.y = this.y+85,
+					this.hitbox.tronco.width = this.width/2,
+					this.hitbox.tronco.height = this.height/5
+					break;
+				case 4:
+					this.hitbox.cuerpo.x = this.x+25,
+					this.hitbox.cuerpo.y = this.y+85,
+					this.hitbox.cuerpo.width = this.width/1.5,
+					this.hitbox.cuerpo.height = this.height/5.1
+					
+					this.hitbox.cabeza.x = this.x+61,
+					this.hitbox.cabeza.y = this.y+89,
+					this.hitbox.cabeza.width = this.width/6.5,
+					this.hitbox.cabeza.height = this.height/9
+
+					this.hitbox.tronco.x = this.x+25,
+					this.hitbox.tronco.y = this.y+85,
+					this.hitbox.tronco.width = this.width/2,
+					this.hitbox.tronco.height = this.height/5.1
+					break;
+				case 5:
+					this.hitbox.cuerpo.x = this.x+16,
+					this.hitbox.cuerpo.y = this.y+75,
+					this.hitbox.cuerpo.width = this.width/2,
+					this.hitbox.cuerpo.height = this.height/3.5
+					
+					this.hitbox.cabeza.x = this.x+33,
+					this.hitbox.cabeza.y = this.y+89,
+					this.hitbox.cabeza.width = this.width/5.5,
+					this.hitbox.cabeza.height = this.height/9
+
+					this.hitbox.tronco.x = this.x+16,
+					this.hitbox.tronco.y = this.y+75,
+					this.hitbox.tronco.width = this.width/3.2,
+					this.hitbox.tronco.height = this.height/3.5
+					break;
+				case 6:
+					this.hitbox.cuerpo.x = this.x+13,
+					this.hitbox.cuerpo.y = this.y+60,
+					this.hitbox.cuerpo.width = this.width/2,
+					this.hitbox.cuerpo.height = this.height/2.3
+					
+					this.hitbox.cabeza.x = this.x+20,
+					this.hitbox.cabeza.y = this.y+91,
+					this.hitbox.cabeza.width = this.width/5.5,
+					this.hitbox.cabeza.height = this.height/9
+
+					this.hitbox.tronco.x = this.x+13,
+					this.hitbox.tronco.y = this.y+60,
+					this.hitbox.tronco.width = this.width/2,
+					this.hitbox.tronco.height = this.height/3
+					break;
+				case 7:
+					this.hitbox.cuerpo.x = this.x+14,
+					this.hitbox.cuerpo.y = this.y+40,
+					this.hitbox.cuerpo.width = this.width/3,
+					this.hitbox.cuerpo.height = this.height/2
+					
+					this.hitbox.cabeza.x = this.x+18,
+					this.hitbox.cabeza.y = this.y+80,
+					this.hitbox.cabeza.width = this.width/5.5,
+					this.hitbox.cabeza.height = this.height/9
+
+					this.hitbox.tronco.x = this.x+14,
+					this.hitbox.tronco.y = this.y+40,
+					this.hitbox.tronco.width = this.width/3,
+					this.hitbox.tronco.height = this.height/2.5
+					break;
+				case 8:
+					this.hitbox.cuerpo.x = this.x+13,
+					this.hitbox.cuerpo.y = this.y+40,
+					this.hitbox.cuerpo.width = this.width/2.9,
+					this.hitbox.cuerpo.height = this.height/3
+					
+					this.hitbox.cabeza.x = this.x+16,
+					this.hitbox.cabeza.y = this.y+55,
+					this.hitbox.cabeza.width = this.width/4.6,
+					this.hitbox.cabeza.height = this.height/9
+
+					this.hitbox.tronco.x = this.x+13,
+					this.hitbox.tronco.y = this.y+40,
+					this.hitbox.tronco.width = this.width/2.9,
+					this.hitbox.tronco.height = this.height/3
+					break;
+				case 9:
+					this.hitbox.cuerpo.x = this.x+13,
+					this.hitbox.cuerpo.y = this.y+20,
+					this.hitbox.cuerpo.width = this.width/1.8,
+					this.hitbox.cuerpo.height = this.height/2.4
+					
+					this.hitbox.cabeza.x = this.x+18,
+					this.hitbox.cabeza.y = this.y+20,
+					this.hitbox.cabeza.width = this.width/5.5,
+					this.hitbox.cabeza.height = this.height/9
+
+					this.hitbox.tronco.x = this.x+13,
+					this.hitbox.tronco.y = this.y+31,
+					this.hitbox.tronco.width = this.width/1.8,
+					this.hitbox.tronco.height = this.height/4
+					break;
+				case 10:
+					this.hitbox.cuerpo.x = this.x+13,
+					this.hitbox.cuerpo.y = this.y+33,
+					this.hitbox.cuerpo.width = this.width/2.5,
+					this.hitbox.cuerpo.height = this.height/1.4
+					
+					this.hitbox.cabeza.x = this.x+16,
+					this.hitbox.cabeza.y = this.y+33,
+					this.hitbox.cabeza.width = this.width/5.5,
+					this.hitbox.cabeza.height = this.height/9
+
+					this.hitbox.tronco.x = this.x+13,
+					this.hitbox.tronco.y = this.y+45,
+					this.hitbox.tronco.width = this.width/2.5,
+					this.hitbox.tronco.height = this.height/1.8
+					break;
+				default:
+					break;
+				}
+			}
+
+			if (tiempoTranscurrido < this.duracionAnimacionCaida) {
+				// Continuar animación si no ha alcanzado la duración máxima
+				requestAnimationFrame(() => this.animarCaida(numAnimaciones));
+			} else {
+				this.animacionEnProgresoCaida = false;
+				this.primeraVez = true;
+				this.segundaVez = true;
+				this.tercerVez = true;
+				this.cuartaVez = true;
+			}
+			}
+		}
+
+
 		iniciarAnimacionHit() {
 			this.animacionEnProgresoHit = true;
 			this.inicioAnimacionHit = performance.now();
@@ -2763,15 +3197,19 @@ window.onload = function () {
 			const tiempoTranscurrido = tiempoActual - this.inicioAnimacionStunned;
 
 			let progreso;
-			if (tiempoTranscurrido < this.duracionAnimacionStunned/3){
-				progreso = Math.min(tiempoTranscurrido / (this.duracionAnimacionStunned/3), 1);
-			} else if (tiempoTranscurrido < this.duracionAnimacionStunned*2/3){
-				progreso = Math.min((tiempoTranscurrido - (this.duracionAnimacionStunned/3)) / (this.duracionAnimacionStunned/3), 1);
-			} else {
-				progreso = Math.min((tiempoTranscurrido - (this.duracionAnimacionStunned*2/3)) / (this.duracionAnimacionStunned/3), 1);
+			// if (tiempoTranscurrido < this.duracionAnimacionStunned/3){
+			// 	progreso = Math.min(tiempoTranscurrido / (this.duracionAnimacionStunned/3), 1);
+			// } else if (tiempoTranscurrido < this.duracionAnimacionStunned*2/3){
+			// 	progreso = Math.min((tiempoTranscurrido - (this.duracionAnimacionStunned/3)) / (this.duracionAnimacionStunned/3), 1);
+			// } else {
+			// 	progreso = Math.min((tiempoTranscurrido - (this.duracionAnimacionStunned*2/3)) / (this.duracionAnimacionStunned/3), 1);
+			// }
+			if (tiempoTranscurrido < this.duracionAnimacionStunned/2){
+				progreso = Math.min(tiempoTranscurrido / (this.duracionAnimacionStunned/2), 1);
+			}  else {
+				progreso = Math.min((tiempoTranscurrido - (this.duracionAnimacionStunned/2)) / (this.duracionAnimacionStunned/2), 1);
 			}
 		
-			// Actualizar la animación (código específico de animación aquí)
 			this.personajeState = 'stunned';
 			this.position = Math.floor(progreso * numAnimaciones);
 	
@@ -2951,13 +3389,14 @@ window.onload = function () {
 			const tiempoActual = performance.now();
 			const tiempoTranscurrido = tiempoActual - this.inicioAnimacionKO;
 			const progreso = Math.min(tiempoTranscurrido / (this.duracionAnimacionKO/60), 1);
+			// const progreso = Math.min(tiempoTranscurrido / this.duracionAnimacionKO, 1);
 		
 			// Actualizar la animación (código específico de animación aquí)
 			this.personajeState = 'KO';
-			// this.position = Math.floor(progreso * 4.999);
+			this.position = Math.floor(progreso * 4.999);
 	
-			if (this.id === 1) this.position = 0;	// esto es para hacer pruebas (eliminar)
-			if (this.id === 2) this.position = 0;	// esto es para hacer pruebas (eliminar)
+			// if (this.id === 1) this.position = 0;	// esto es para hacer pruebas (eliminar)
+			// if (this.id === 2) this.position = 0;	// esto es para hacer pruebas (eliminar)
 		
 			this.height = this.spriteAnimations[this.personajeState].loc[this.position].height;
 			this.y = LIMITE_ABAJO - this.height;
@@ -3165,6 +3604,8 @@ window.onload = function () {
 		iniciarAnimacionLowKick(numAnimaciones, duracionAnimacionLowKick) {
 			this.animacionEnProgresoLowKick = true;
 			this.inicioAnimacionLowKick = performance.now();
+
+			(this.id === 1) ? miPersonaje.energia -= energiaGolpe.lowKick : miEnemigo.energia -= energiaGolpe.lowKick;
 			this.animarLowKick(numAnimaciones, duracionAnimacionLowKick);
 		}
 
@@ -3416,6 +3857,8 @@ window.onload = function () {
 		iniciarAnimacionAgachadoUpper(numAnimaciones) {
 			this.animacionEnProgresoAgachadoUpper = true;
 			this.inicioAnimacionAgachadoUpper = performance.now();
+
+			(this.id === 1) ? miPersonaje.energia -= energiaGolpe.agachadoUpper : miEnemigo.energia -= energiaGolpe.agachadoUpper;
 			this.animarAgachadoUpper(numAnimaciones);
 		}
 
@@ -3765,6 +4208,7 @@ window.onload = function () {
 				if (this.id === 2 && this.personajeState === 'bloquearAbajo') this.y += 2;
 			}
 			if (this.id === 2 && this.personajeState === 'agachadoHit') this.y += 2;
+			if (this.id === 2 && this.personajeState === 'caida') this.y += 8;
 
 			//cuando no se esté dando un puñetazo desaparece la hitbox del puño
 			if (this.personajeState !== 'movingPunch' && this.personajeState !== 'agachadoPunch' && this.personajeState !== 'agachadoUpper'){
@@ -3789,7 +4233,6 @@ window.onload = function () {
 			}
 
 			if (this.id === 1){
-				Loc = 0;
 				// this.x = 260;
 				if(this.personajeState === 'reposo') {		
 					this.hitbox.cuerpo.x = this.x+10,
@@ -3942,7 +4385,6 @@ window.onload = function () {
 				}
 			} else {
 				// this.x = 300;
-				Loc = 0;
 				if(this.personajeState === 'reposo') {
 					this.hitbox.cuerpo.x = this.x+18,
 					this.hitbox.cuerpo.y = this.y+2,
@@ -4167,31 +4609,63 @@ window.onload = function () {
 			ctx.drawImage(this.image, this.frameX, this.frameY, this.spriteWidth, this.spriteHeight,
 				this.x, this.y, this.spriteWidth, this.spriteHeight);
 
-			ctx.fillStyle = "#f00";
-			if(this.id === 1) {
-				// ctx.fillRect(this.x+8, this.y+3, this.width/3.5, this.height/6);
-				ctx.fillRect(this.hitbox.cabeza.x, this.hitbox.cabeza.y, this.hitbox.cabeza.width, this.hitbox.cabeza.height);
-				ctx.fillStyle = "#fff8";
-				// XXXposition1 = 3;
-				// ctx.fillRect(this.x-1,this.y+40,this.width/6,this.height/4.7);
-				ctx.fillRect(this.hitbox.punio.x, this.hitbox.punio.y, this.hitbox.punio.width, this.hitbox.punio.height);
-				ctx.fillRect(this.hitbox.patada.x, this.hitbox.patada.y, this.hitbox.patada.width, this.hitbox.patada.height);
-			}
+				
+			// 	cajaAzul = '#00f8';
+			// 	cajaBlanca = "#fff8";
+			// 	cajaNegra = "#000";
+			// ctx.fillStyle = cajaNegra;
+			// if(this.id === 1) {
+			// 	// ctx.fillRect(this.x+8, this.y+3, this.width/3.5, this.height/6);
+			// 	ctx.fillRect(this.hitbox.cabeza.x, this.hitbox.cabeza.y, this.hitbox.cabeza.width, this.hitbox.cabeza.height);
+			// 	ctx.fillStyle = cajaBlanca;
+			// 	// XXXposition1 = 3;
+			// 	// ctx.fillRect(this.x-1,this.y+40,this.width/6,this.height/4.7);
+			// 	ctx.fillRect(this.hitbox.tronco.x, this.hitbox.tronco.y, this.hitbox.tronco.width, this.hitbox.tronco.height);
+			// 	ctx.fillStyle = cajaAzul;
+			// 	ctx.fillRect(this.hitbox.cuerpo.x, this.hitbox.cuerpo.y, this.hitbox.cuerpo.width, this.hitbox.cuerpo.height);
+			// }
 
-			ctx.fillStyle = "#000";
-			if(this.id === 2) {
-				// ctx.fillRect(this.x+20, this.y+5, this.width/5, this.height/7);
-				ctx.fillRect(this.hitbox.cabeza.x, this.hitbox.cabeza.y, this.hitbox.cabeza.width, this.hitbox.cabeza.height);
-				ctx.fillStyle = "#fff8";
-				// XXXposition2 = 0;
-				// ctx.fillRect(this.x+64,this.y+48,this.width/7,this.height/6);
-				ctx.fillRect(this.hitbox.punio.x, this.hitbox.punio.y, this.hitbox.punio.width, this.hitbox.punio.height);
-				ctx.fillRect(this.hitbox.patada.x, this.hitbox.patada.y, this.hitbox.patada.width, this.hitbox.patada.height);
-			}
+			// ctx.fillStyle = '#0008';
+			// if(this.id === 2) {
+			// 	// ctx.fillRect(this.x+20, this.y+5, this.width/5, this.height/7);
+			// 	ctx.fillRect(this.hitbox.cabeza.x, this.hitbox.cabeza.y, this.hitbox.cabeza.width, this.hitbox.cabeza.height);
+			// 	ctx.fillStyle = '#fff8';
+			// 	// XXXposition2 = 0;
+			// 	// ctx.fillRect(this.x+64,this.y+48,this.width/7,this.height/6);
+			// 	ctx.fillRect(this.hitbox.tronco.x, this.hitbox.tronco.y, this.hitbox.tronco.width, this.hitbox.tronco.height);
+			// 	ctx.fillStyle = '#00f8';
+			// 	ctx.fillRect(this.hitbox.cuerpo.x, this.hitbox.cuerpo.y, this.hitbox.cuerpo.width, this.hitbox.cuerpo.height);
+			// }
 			
 		}
 	}
 	
+	function ordenarPorPuntuacion(jugador1, jugador2){
+		let j1 = jugador1.puntuacion;
+		let j2 = jugador2.puntuacion;
+
+		if (j1>j2) return -1;
+		else if (j2>j1) return 1;
+		else return 0;
+	}
+	function mostrarRecordPantalla(value){
+		const li = document.createElement("li");
+		listaRecord.appendChild(li);
+		li.innerHTML = value.nombre + ' - ' + value.puntuacion + ' pts';
+	}
+	function borrarPeoresPuntuaciones(){
+		if(record.length > 10){
+			let cantidadBorrar = record.length - 10;
+			record.splice(10, cantidadBorrar);
+		}
+	}
+	function dibujarGanadorPantalla(){ 
+		let ganador = (miPersonaje.vivo) ? document.getElementById('nombreJugador1').value : document.getElementById('nombreJugador2').value;
+
+		notificacionGanador.innerHTML = 'GANADOR ' + ganador.toUpperCase();
+		notificacionGanador.style.display = 'block';
+	}
+
     function recuperarDatoSesion() {
 		// return sessionStorage.getItem("array");		
 		return JSON.parse(localStorage.getItem('record'));
@@ -4201,33 +4675,88 @@ window.onload = function () {
 		localStorage.setItem('record', JSON.stringify(valor));
 	}
 
+	function restablecerValores(){
+		miPersonaje.vivo = true;
+		miPersonaje.vida = VIDA_TOTAL;
+		miPersonaje.energia = ENERGIA_TOTAL;
+		miPersonaje.personajeState = 'reposo';
+		miPersonaje.position = 0;
+		miPersonaje.position2 = 0;
+		miPersonaje.animacionEnProgresoKO = false;
+		miPersonaje.x = 20;
+		
+		miEnemigo.vivo = true;
+		miEnemigo.vida = VIDA_TOTAL;
+		miEnemigo.energia = ENERGIA_TOTAL;
+		miEnemigo.personajeState = 'reposo';
+		miEnemigo.position = 0;
+		miEnemigo.position2 = 0;
+		miEnemigo.animacionEnProgresoKO = false;
+		miEnemigo.x = 630;
+	}
 	function asignarNombresValues() {
 		nombreJugador1.innerHTML = document.getElementById('nombreJugador1').value;
 		nombreJugador2.innerHTML = document.getElementById('nombreJugador2').value;
 	}
+	function hacerRecuentoDePuntos(id){
+		let puntuacion = 0;
+
+		if (id === 1){
+			puntuacion = miPersonaje.vida;
+		} else {
+			puntuacion = miEnemigo.vida;
+		}
+		return Math.round(puntuacion);
+	}
+	function sacarMenorPuntuacion(total, value){
+		if (total > value.puntuacion) return value.puntuacion;
+		else return total;
+	}
+	function meterNuevasPuntuaciones(){
+		let puntuacion1 = hacerRecuentoDePuntos(1);
+		let puntuacion2 = hacerRecuentoDePuntos(2);
+
+		record.push({
+			nombre: document.getElementById('nombreJugador1').value,
+			puntuacion: puntuacion1
+		});
+		record.push({
+			nombre: document.getElementById('nombreJugador2').value,
+			puntuacion: puntuacion2
+		});
+	}
+
 	function asignarRecord(){
 		record = recuperarDatoSesion()
-
-		const li = document.createElement("li");
-		listaRecord.appendChild(li);
-		li.innerHTML = record[0];
-
-		record[0] = 333;
-		almacenarDatoSesion(record);
+		record.sort(ordenarPorPuntuacion);
+		borrarPeoresPuntuaciones();
+		record.forEach(mostrarRecordPantalla);
 	}
 
 	document.getElementById('botonIniciaPartida').addEventListener('click', iniciarPartida);
+	document.getElementById('botonRevancha').addEventListener('click', iniciarPartida);
 
 	function iniciarPartida(){
 		asignarNombresValues();
 		inicialiazarSonidos();
+		restablecerValores();
 
 		pantallaBienvenida.style.display = 'none';
+		notificacionGanador.style.display = 'none';
+		botonRevancha.style.display = 'none';
 		pintarJuego(0);
 	}
 
-	const miPersonaje = new Personaje(personajeImage, spriteAnimationsKen, spriteHeightKen, 260, 1);
-	const miEnemigo = new Personaje(enemigoImage, spriteAnimationsCammy, spriteHeightCammy, 300, 2);
+	function acabarPartida(){
+		cancelAnimationFrame(animacionId);
+		dibujarGanadorPantalla();
+		meterNuevasPuntuaciones();
+		almacenarDatoSesion(record);
+		botonRevancha.style.display = 'block';
+	}
+
+	const miPersonaje = new Personaje(personajeImage, spriteAnimationsKen, spriteHeightKen, 20, 1);
+	const miEnemigo = new Personaje(enemigoImage, spriteAnimationsCammy, spriteHeightCammy, 630, 2);
 
 
 	function pintarJuego(timeStamp) {
@@ -4246,7 +4775,6 @@ window.onload = function () {
 		// console.log('Y:' + miEnemigo.y);
 		// console.log('LIMITE_ABAJO - ALTURA:' + (LIMITE_ABAJO - miEnemigo.height));
 		// console.log('Y:' + miEnemigo.y);
-		// console.log('posicion x: ' + (miEnemigo.x));
 
 		detectarControlesPersonaje();
 		detectarControlesEnemigo();
@@ -4258,13 +4786,16 @@ window.onload = function () {
 		miEnemigo.AnimationFrame++;
 
 		gameFrame++;				  //maneja la tasa de refresco de las animaciones normales
-		requestAnimationFrame(pintarJuego);
+		animacionId = requestAnimationFrame(pintarJuego);
 	}
 
 	//asignar el record justo al cargar la partida
-	// almacenarDatoSesion(record);
 	asignarRecord();
-
+	pantallaBienvenida.style.display = 'none';
+	notificacionGanador.style.display = 'none';
+	botonRevancha.style.display = 'none';
+	pintarJuego(0);
+	inicialiazarSonidos();
 
 
 }
@@ -4275,13 +4806,8 @@ window.onload = function () {
 
 - TAREAS QUE REALIZAR:
 
-* Retocar colisiones -> al dar golpe que sean precisas las colisiones
+* Optimizar código
 
-* Ajustar el daño y la stamina gastada al dar los golpes
-* Poner sonidos
-
-
-* Solucionar hitbox del cuerpo para que cuando se agache y levante no empuje al otro
-* Hacer que al darle al botón de abajo se agache y para levantarse tenga que darle al de arriba
+* Hacer que el retroceso de cada animación de recibir golpe sea mayor
 
 */

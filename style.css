@@ -8,8 +8,8 @@
   border-top: none;
   margin-left: 20px; 
   background-color: #999;
-  /* background-image: url(./img/background/Paisaje1.png); */
-  background-size: contain;
+  background-image: url(./img/background/Paisaje1.png);
+  background-size: cover;
 }
 
 #marcador {
@@ -126,7 +126,7 @@
 
   height: 100px;
 
-  background-color: blue;
+  background-color: #000;
 }
 
 .contenedorNombres .nombres {
@@ -150,7 +150,7 @@
 
   height: 500px;
 
-  background-color: red;
+  background-color: #000;
 }
 
 .record h2 {
@@ -159,7 +159,8 @@
 }
 
 .record ol li {
-  padding-bottom: 8px;
+  padding-bottom: 20px;
+  text-align: center;
 }
 
 #pantallaBienvenida #botonIniciaPartida {
@@ -173,4 +174,52 @@
   background-color: #0d0;
   color: #000;
   cursor: pointer;
+}
+
+
+
+
+#notificacionGanador {
+  position: absolute;
+
+  height: fit-content;
+  width: fit-content;
+  padding: 20px;
+  margin-left: 220px;
+  margin-top: 300px;
+
+  background-color: #000;
+  font-size: 25px;
+  color: #fff;
+
+  text-align: center;
+}
+
+#botonRevancha {
+  position: absolute;
+
+  height: fit-content;
+  width: fit-content;
+  padding: 8px;
+  margin-left: 305px;
+  margin-top: 90px;
+
+  background-color: #000;
+  font-size: 25px;
+  color: #fff;
+
+  text-align: center;
+  cursor: pointer;
+}
+
+
+
+
+#controles {
+  margin: 20px;
+
+  width: 710px;
+  height: 150px;
+
+  background-image: url(./img/background/controles.svg);
 }
