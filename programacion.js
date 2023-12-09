@@ -1,4 +1,59 @@
 window.onload = function () {
+	//EXPLICACIÓN
+	/**
+	 *  Es un juego de lucha marcial entre dos jugadores.
+	 * 
+	 * He creado una única clase llamada 'Personaje', de donde instancio los dos objetos principales que son miPersonaje y miEnemigo (que son los dos peleadores)
+	 * Obviamente, cada uno controlado por un jugador distinto.
+	 * 
+	 * El código se ve tan largo debido a que he tenido que asignarles hitbox a cada posición de cada animación que hacen (estar quitos, camninar, dar un golpe, al recibirlo)
+	 * A demás, cada animación que hacen se tiene que ejecutar de forma asíncrona ya que quiero que el personaje haga algo mientras el resto del código siga funcionando.
+	 * Y se ve con tanto código, ya que hay muchas funciones largas.
+	 * 
+	 * Las coordenadas de los sprites las guardo en un array para cada personaje. (spriteAnimationsKen y spriteAnimationsCammy)
+	 * Capturo las pulsaciones de tecla con los eventos: activaMovimiento y desactivaMovimiento
+	 * Y la animación que tienen que hacer según las teclas con detectarControlesPersonaje y detectarControlesEnemigo 
+	 * 
+	 * 				Colisiones:   
+	 * Con las funciones tipo: personaje1PunchingHead -> compruebo solo que el puño de 'Personaje1' haya impactado con la cabeza de 'Personaje2'
+	 * 		(aclarar que utilizo a 'Personaje1' que es 'miPersonaje' y 'Personaje2' que es 'miEnemigo'.  Es debido a que uno es el objeto y el otro no (pero debí llamarlos igual)) 
+	 * Luego está la función comprobarColisiones (de las funcione más largas) que se encarga dependiendo de la colisión que se haya producido de controlarlo.
+	 * 
+	 * También está la funcion acabarConRival, que controla si uno de los personajes se queda sin vida que hacer.
+	 * 
+	 * 
+	 * 			Funciones de Animaciones:
+	 * Las animaciones largas (que son las que se tienen que ejecutar durante un tiempo específico) están formadas por:
+	 *  - una función que prepara algunas variables y luego lanza la función concreta, llamados 'iniciarAnimacion + nombre' por ejemplo: 'iniciarAnimacionMovingPunch'.
+	 *  - y la función que realiza toda la animación y más cosas: pj ejemplo: 'animarMovingPunch'.
+	 * 
+	 * Lo más básico de como hago las animaciones es con requestAnimationFrame (debido a que setInterval me daba problemas de sincronicidad)
+	 * tengo una variable para cada animacion que es 'duracion' y lo compruebo con el tiempoTranscurrido y si no ha acabado vuelvo a llamar a la función.
+	 * 						if (tiempoTranscurrido < this.duracionAnimacionMovingPunch) {
+	 * 							requestAnimationFrame(() => this.animarMovingPunch(numAnimaciones));
+	 * 						}
+	 * 
+	 * Tengo otras propiedades para cada animacion 'animacionEnProgresoMovingPunch' que son importantes a la hora de saber si se está o no realizando la animación
+	 * 
+	 * 			Pintar Canvas
+	 * la única función que pinta el canvas es: 'dibujarNormal'
+	 * 
+	 * 
+	 * 			Otras cosas:
+	 * 
+	 * Hay otra función llamada controlarEventosPrincipales, que llama a las funciones de recuperar vida y energia; y las de mostrar la barra de vida y energia
+	 * 
+	 * Al final hay más funciones relacionadas con el inicio y fin departida y el almacenamiento del record en localStorage.
+	 * 
+	 * 			Errores
+	 * Uno de ellos es que debería haber creado la clase Personaje y haber creado dos más heredadas para cada uno de los peledores.
+	 * 
+	 * Debería haber creado más archivos javascript y haber importado funciones desde ahí.
+	 * 
+	 */
+
+
+
 	// CONSTANTES
 	//sirve para que las animaciones se vean a una velocidad adecuada dependiendo de los Hz del monitor
 	const TASA_REFRESCO_60Hz = {
@@ -1959,7 +2014,7 @@ window.onload = function () {
 			this.animacionEnProgresoKick = true;
 			this.inicioAnimacionFaceHit = performance.now();
 
-			// (this.id === 1) ? miPersonaje.energia -= energiaGolpe.kick : miEnemigo.energia -= energiaGolpe.kick;
+			(this.id === 1) ? miPersonaje.energia -= energiaGolpe.kick : miEnemigo.energia -= energiaGolpe.kick;
 			this.animarKick();
 		}
 
@@ -4714,7 +4769,11 @@ window.onload = function () {
 	}
 
 	function asignarRecord(){
-		record = recuperarDatoSesion()
+		if (recuperarDatoSesion() !== null){
+			record = recuperarDatoSesion();
+		} else {
+			record = [];
+		}
 		record.sort(ordenarPorPuntuacion);
 		borrarPeoresPuntuaciones();
 		record.forEach(mostrarRecordPantalla);
@@ -4778,13 +4837,9 @@ window.onload = function () {
 
 	//asignar el record justo al cargar la partida
 	asignarRecord();
-	pantallaBienvenida.style.display = 'none';
-	notificacionGanador.style.display = 'none';
-	botonRevancha.style.display = 'none';
-	pintarJuego(0);
-	inicialiazarSonidos();
 
-
+	//BORRAR DATOS localStorage
+	// localStorage.removeItem("record");
 }
 
 
