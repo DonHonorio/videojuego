@@ -1,14 +1,5 @@
 window.onload = function () {
 	// CONSTANTES
-
-	let cajaAzul;  //VARIABLE DE PRUEBA BORRAR
-	let cajaBlanca;  //VARIABLE DE PRUEBA BORRAR
-	let cajaNegra;
-
-	let x;
-	let y;
-	let width;
-	let height;
 	//sirve para que las animaciones se vean a una velocidad adecuada dependiendo de los Hz del monitor
 	const TASA_REFRESCO_60Hz = {
 		velocidadAnimacion: 8.3,
@@ -50,7 +41,13 @@ window.onload = function () {
 	const vida2 = document.getElementById('vida2');
 	const energia1 = document.getElementById('energia1');
 	const energia2 = document.getElementById('energia2');
+	
+	const personajeImage = new Image();
+	personajeImage.src = './img/KenStreetFighter.png';
+	const enemigoImage = new Image();
+	enemigoImage.src = './img/CammyStreetFighterIZQ.png';
 
+	// inicializamos variables
 	let record = [];
 
 	let audioStrongHit;
@@ -61,10 +58,10 @@ window.onload = function () {
 	let audioAterrizaje;
 	let audioShortHit;
 
-	// inicializamos variables
 	const VIDA_TOTAL = 100;
 	const ENERGIA_TOTAL = 100;
 
+	//daño y energia que pueden quitar los personajes
 	const danioGolpe = {
 		'movingPunch': 5,
 		'kick': 12,
@@ -91,16 +88,6 @@ window.onload = function () {
 		'lowKick': 20,
 		'agachadoBarrido': 15
 	}
-
-	const personajeImage = new Image();
-	personajeImage.src = './img/KenStreetFighter.png';
-	const enemigoImage = new Image();
-	enemigoImage.src = './img/CammyStreetFighterIZQ.png';
-
-	let spriteWidthKen = 48;       //son valores iniciales del prota
-	let spriteHeightKen = 83;
-	let spriteWidthCammy = 48;       //son valores iniciales del enemigo
-	let spriteHeightCammy = 83;  
 
 	let gameFrame = 0;
 
@@ -409,7 +396,7 @@ window.onload = function () {
 	const animacionesLargas = ['saltar','movingPunch','agachadoPunch','agachadoUpper','agachadoBarrido','kick','lowKick','faceHit','hit','agachadoHit','stunned','KO','caida'];
 	//las animaciones largas son aquellas que tienen una propia funcion que las inicia como puñetazo, patada...
 	const animacionesNecesitaEquilibrio = ['caminando','movingPunch','agachadoUpper','kick','lowKick'];
-	//las animaciones largas son aquellas que tienen una propia funcion que las inicia como puñetazo, patada...
+	//las animaciones que necesitan equilibrio, se necesitan para saber cuando se pueden hacer barridos
 
 
 	const TECLA_ARRIBA = 38;
@@ -418,7 +405,7 @@ window.onload = function () {
 	const TECLA_DERECHA = 39;
 	const TECLA_ESPACIO = 32;
 	const TECLA_LEFT_SHIFT = 16;
-	const TECLA_0 = 45;  //45 o 96
+	const TECLA_0 = 45;
 	const TECLA_T = 84;
 	const TECLA_I = 73;
 	const TECLA_A = 65;
@@ -1178,7 +1165,7 @@ window.onload = function () {
 	/*********************************************************************************************** */
 
 	class Personaje {
-		constructor(image, spriteAnimations, heightInicial, x, id) {
+		constructor(image, spriteAnimations, x, id) {
 			this.image = image;
 			this.spriteAnimations = spriteAnimations;
 			
@@ -1187,9 +1174,9 @@ window.onload = function () {
 
 			//dimensiones personaje
 			this.x = x;
-			this.y = LIMITE_ABAJO - heightInicial;
+			this.y = LIMITE_ABAJO - 83;
 			this.width;
-			this.height = heightInicial;
+			this.height = 83;
 
 			//miPersonaje hitbox (se asignan los valores en el metodo asociado)
 			this.hitbox = {
@@ -4755,8 +4742,8 @@ window.onload = function () {
 		botonRevancha.style.display = 'block';
 	}
 
-	const miPersonaje = new Personaje(personajeImage, spriteAnimationsKen, spriteHeightKen, 20, 1);
-	const miEnemigo = new Personaje(enemigoImage, spriteAnimationsCammy, spriteHeightCammy, 630, 2);
+	const miPersonaje = new Personaje(personajeImage, spriteAnimationsKen, 20, 1);
+	const miEnemigo = new Personaje(enemigoImage, spriteAnimationsCammy, 630, 2);
 
 
 	function pintarJuego(timeStamp) {
