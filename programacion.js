@@ -51,7 +51,7 @@ window.onload = function () {
 	 * Debería haber creado más archivos javascript y haber importado funciones desde ahí.
 	 * 
 	 * 			Notas
-	 *  Hay muchas funcioes y varibles relacionadas con saltar, por existir existe, pero lo he dejado de lado ya que la complejidad del juego sería mucha y no tengo tiempo
+	 *  Hay muchas funciones y varibles relacionadas con saltar, por existir existe, pero lo he dejado de lado ya que la complejidad del juego sería mucha y no tengo tiempo
 	 * 
 	 */
 
@@ -4609,46 +4609,10 @@ window.onload = function () {
 			this.spriteWidth = this.spriteAnimations[this.personajeState].loc[this.position].width;
 			this.spriteHeight = this.spriteAnimations[this.personajeState].loc[this.position].height;
 			
-			// this.frameX = this.spriteAnimations[this.personajeState].loc[Loc].x;
-			// this.frameY = this.spriteAnimations[this.personajeState].loc[Loc].y;
-			// this.spriteWidth = this.spriteAnimations[this.personajeState].loc[Loc].width;
-			// this.spriteHeight = this.spriteAnimations[this.personajeState].loc[Loc].height;
-			
 			this.width = this.spriteWidth;
-			// this.height = this.spriteHeight;
-
 
 			ctx.drawImage(this.image, this.frameX, this.frameY, this.spriteWidth, this.spriteHeight,
 				this.x, this.y, this.spriteWidth, this.spriteHeight);
-
-				
-			// 	cajaAzul = '#00f8';
-			// 	cajaBlanca = "#fff8";
-			// 	cajaNegra = "#000";
-			// ctx.fillStyle = cajaNegra;
-			// if(this.id === 1) {
-			// 	// ctx.fillRect(this.x+8, this.y+3, this.width/3.5, this.height/6);
-			// 	ctx.fillRect(this.hitbox.cabeza.x, this.hitbox.cabeza.y, this.hitbox.cabeza.width, this.hitbox.cabeza.height);
-			// 	ctx.fillStyle = cajaBlanca;
-			// 	// XXXposition1 = 3;
-			// 	// ctx.fillRect(this.x-1,this.y+40,this.width/6,this.height/4.7);
-			// 	ctx.fillRect(this.hitbox.tronco.x, this.hitbox.tronco.y, this.hitbox.tronco.width, this.hitbox.tronco.height);
-			// 	ctx.fillStyle = cajaAzul;
-			// 	ctx.fillRect(this.hitbox.cuerpo.x, this.hitbox.cuerpo.y, this.hitbox.cuerpo.width, this.hitbox.cuerpo.height);
-			// }
-
-			// ctx.fillStyle = '#0008';
-			// if(this.id === 2) {
-			// 	// ctx.fillRect(this.x+20, this.y+5, this.width/5, this.height/7);
-			// 	ctx.fillRect(this.hitbox.cabeza.x, this.hitbox.cabeza.y, this.hitbox.cabeza.width, this.hitbox.cabeza.height);
-			// 	ctx.fillStyle = '#fff8';
-			// 	// XXXposition2 = 0;
-			// 	// ctx.fillRect(this.x+64,this.y+48,this.width/7,this.height/6);
-			// 	ctx.fillRect(this.hitbox.tronco.x, this.hitbox.tronco.y, this.hitbox.tronco.width, this.hitbox.tronco.height);
-			// 	ctx.fillStyle = '#00f8';
-			// 	ctx.fillRect(this.hitbox.cuerpo.x, this.hitbox.cuerpo.y, this.hitbox.cuerpo.width, this.hitbox.cuerpo.height);
-			// }
-			
 		}
 	}
 	
