@@ -217,9 +217,17 @@
 
 #controles {
   margin: 20px;
+  display: none;
 
   width: 710px;
   height: 150px;
 
   background-image: url(./img/background/controles.svg);
+}
+
+
+@media screen and (min-width: 1500px)  {
+  #controles {
+    display: block;
+  }
 }

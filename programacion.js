@@ -50,6 +50,9 @@ window.onload = function () {
 	 * 
 	 * Debería haber creado más archivos javascript y haber importado funciones desde ahí.
 	 * 
+	 * 			Notas
+	 *  Hay muchas funcioes y varibles relacionadas con saltar, por existir existe, pero lo he dejado de lado ya que la complejidad del juego sería mucha y no tengo tiempo
+	 * 
 	 */
 
 
@@ -70,7 +73,7 @@ window.onload = function () {
 		vy: 5,
 		weight: 0.09
 	}
-	const TASA_REFRESCO_ADECUADA = TASA_REFRESCO_60Hz;
+	const TASA_REFRESCO_ADECUADA = TASA_REFRESCO_144Hz;
 
 	// limites
 	const LIMITE_DERECHA = document.getElementById('miCanvas').width;
@@ -79,7 +82,7 @@ window.onload = function () {
 	const CANVAS_HEIGHT = document.getElementById('miCanvas').height;
 	const LIMITE_ABAJO = CANVAS_HEIGHT - 75;        //valor fijo por temas de que es el suelo
 
-	// localizamos el canvas y el contexto del trabajo
+	// localizamos distintos elementos del html
 	const canvas = document.getElementById("miCanvas");
 	const ctx = canvas.getContext('2d');
 
@@ -97,6 +100,7 @@ window.onload = function () {
 	const energia1 = document.getElementById('energia1');
 	const energia2 = document.getElementById('energia2');
 	
+	//creamos las imagenes de los luchadores
 	const personajeImage = new Image();
 	personajeImage.src = './img/KenStreetFighter.png';
 	const enemigoImage = new Image();
@@ -105,6 +109,7 @@ window.onload = function () {
 	// inicializamos variables
 	let record = [];
 
+	/* SONIDO */
 	let audioStrongHit;
 	let audioJab;
 	let audioBloqueo;
@@ -112,6 +117,16 @@ window.onload = function () {
 	let audioSpinningBack;
 	let audioAterrizaje;
 	let audioShortHit;
+
+	function inicialiazarSonidos(){ 
+		audioStrongHit = document.getElementById('audioStrongHit');
+		audioJab = document.getElementById('audioJab');
+		audioBloqueo = document.getElementById('audioBloqueo');
+		audioFierceHit = document.getElementById('audioFierceHit');
+		audioBarrido = document.getElementById('audioBarrido');
+		audioAterrizaje = document.getElementById('audioAterrizaje');
+		audioShortHit = document.getElementById('audioShortHit');
+	}
 
 	const VIDA_TOTAL = 100;
 	const ENERGIA_TOTAL = 100;
@@ -144,7 +159,7 @@ window.onload = function () {
 		'agachadoBarrido': 15
 	}
 
-	let gameFrame = 0;
+	let gameFrame = 0; //como estoy utilizando requestAnimationFrame lo necesito
 
 	const spriteAnimationsKen = [];
 	spriteAnimationsKen['reposo'] = {
@@ -166,19 +181,16 @@ window.onload = function () {
 	}
 	spriteAnimationsKen['agacharse'] = {
 		loc: [
-			// { x: 1112, y: 23, width: 45, height: 76 },
 			{ x: 1159, y: 42, width: 45, height: 57 }
 		]
 	}
 	spriteAnimationsKen['saltar'] = {
 		loc: [
-			// { x: 451, y: 23, width: 45, height: 76 },
 			{ x: 502, y: 8, width: 34, height: 91 },
 			{ x: 544, y: 16, width: 30, height: 79 },
 			{ x: 581, y: 18, width: 32, height: 68 },
 			{ x: 618, y: 16, width: 30, height: 79 },
 			{ x: 655, y: 8, width: 34, height: 91 }
-			// ,{ x: 704, y: 23, width: 27, height: 76 },
 		]
 	}
 	spriteAnimationsKen['movingPunch'] = {
@@ -300,37 +312,30 @@ window.onload = function () {
 	}
 	spriteAnimationsCammy['caminando'] = {
 		loc: [
-			{ x: 519, y: 26, width: 45, height: 87 },  //6
-			{ x: 471, y: 26, width: 42, height: 87 }, //5
-			{ x: 421, y: 26, width: 42, height: 87 }, //4
-			{ x: 369, y: 26, width: 46, height: 87 }, //3
-			{ x: 318, y: 26, width: 43, height: 87 }, //2
-			{ x: 269, y: 26, width: 42, height: 87 }  //1
+			{ x: 519, y: 26, width: 45, height: 87 },
+			{ x: 471, y: 26, width: 42, height: 87 },
+			{ x: 421, y: 26, width: 42, height: 87 },
+			{ x: 369, y: 26, width: 46, height: 87 },
+			{ x: 318, y: 26, width: 43, height: 87 },
+			{ x: 269, y: 26, width: 42, height: 87 } 
 		]
 	}
 	spriteAnimationsCammy['agacharse'] = {
 		loc: [
-			// { x: 1112, y: 23, width: 45, height: 76 },
 			{ x: 1269, y: 62, width: 46, height: 51 }
 		]
 	}
 	spriteAnimationsCammy['saltar'] = {
 		loc: [
-			// { x: 451, y: 23, width: 45, height: 76 },
 			{ x: 669, y: 11, width: 36, height: 102 },
 			{ x: 711, y: 24, width: 30, height: 71 },
 			{ x: 743, y: 32, width: 34, height: 49 },
 			{ x: 785, y: 17, width: 32, height: 79 },
 			{ x: 825, y: 8, width: 36, height: 71 }
-			// ,{ x: 704, y: 23, width: 27, height: 76 },
 		]
 	}
 	spriteAnimationsCammy['movingPunch'] = {
 		loc: [
-			// { x: 187, y: 134, width: 49, height: 84 },
-			// { x: 241, y: 134, width: 76, height: 84 },
-			// { x: 321, y: 134, width: 49, height: 84 }
-
 			{ x: 187, y: 131, width: 49, height: 87 },
 			{ x: 241, y: 131, width: 76, height: 87 },
 			{ x: 321, y: 131, width: 49, height: 87 }
@@ -341,10 +346,6 @@ window.onload = function () {
 			{ x: 3, y: 487, width: 49, height: 49 },
 			{ x: 56, y: 487, width: 64, height: 49 },
 			{ x: 125, y: 487, width: 49, height: 49 }
-
-			// { x: 185, y: 487, width: 49, height: 49 },
-			// { x: 235, y: 487, width: 67, height: 49 },
-			// { x: 306, y: 487, width: 44, height: 49 }
 		]
 	}
 	spriteAnimationsCammy['agachadoUpper'] = {
@@ -371,12 +372,6 @@ window.onload = function () {
 	}
 	spriteAnimationsCammy['lowKick'] = {
 		loc: [
-			// { x: 188, y: 239, width: 53, height: 98 },
-			// { x: 246, y: 239, width: 69, height: 98 },
-			// { x: 318, y: 239, width: 84, height: 98 },
-			// { x: 407, y: 239, width: 69, height: 98 },
-			// { x: 480, y: 239, width: 53, height: 98 },
-
 			{ x: 540, y: 263, width: 47, height: 74 },
 			{ x: 592, y: 263, width: 43, height: 74 },
 			{ x: 641, y: 263, width: 66, height: 74 },
@@ -453,7 +448,7 @@ window.onload = function () {
 	const animacionesNecesitaEquilibrio = ['caminando','movingPunch','agachadoUpper','kick','lowKick'];
 	//las animaciones que necesitan equilibrio, se necesitan para saber cuando se pueden hacer barridos
 
-
+	/* TECLAS */
 	const TECLA_ARRIBA = 38;
 	const TECLA_ABAJO = 40;
 	const TECLA_IZQUIERDA = 37;
@@ -609,7 +604,7 @@ window.onload = function () {
 	function detectarControlesPersonaje() {
 		if (miPersonaje.vivo && (teclasPresionadas.letraW && miPersonaje.onGround() || teclasPresionadas.letraS && miPersonaje.onGround() || teclasPresionadas.letraD || teclasPresionadas.letraA || teclasPresionadas.letraE && !miPersonaje.seEstaEjecutandoAtaque() || teclasPresionadas.letraR && !miPersonaje.seEstaEjecutandoAtaque() || teclasPresionadas.letraT && !miPersonaje.seEstaEjecutandoAtaque() || teclasPresionadas.letraQ && miPersonaje.onGround() )){
 			if ((teclasPresionadas.letraS && miPersonaje.onGround() || teclasPresionadas.letraQ && miPersonaje.onGround()) && (!miPersonaje.seEstaEjecutandoRecibirGolpe())) {
-				if (teclasPresionadas.letraQ && teclasPresionadas.letraS){ //
+				if (teclasPresionadas.letraQ && teclasPresionadas.letraS){
 					miPersonaje.generaBloquearAbajo();					
 				} else if(teclasPresionadas.letraQ) {
 					miPersonaje.generaBloquearArriba();
@@ -693,16 +688,8 @@ window.onload = function () {
 		}
 	}
 
-	function inicialiazarSonidos(){ 
-		audioStrongHit = document.getElementById('audioStrongHit');
-		audioJab = document.getElementById('audioJab');
-		audioBloqueo = document.getElementById('audioBloqueo');
-		audioFierceHit = document.getElementById('audioFierceHit');
-		audioBarrido = document.getElementById('audioBarrido');
-		audioAterrizaje = document.getElementById('audioAterrizaje');
-		audioShortHit = document.getElementById('audioShortHit');
-	}
 
+	/* COLISIONES */
 	function seTropiezan() {
 		let colisionEnX = (miPersonaje.hitbox.cuerpo.x < miEnemigo.hitbox.cuerpo.x + miEnemigo.hitbox.cuerpo.width) && (miPersonaje.hitbox.cuerpo.x + miPersonaje.hitbox.cuerpo.width > miEnemigo.hitbox.cuerpo.x);
 		let colisionEnY = (miPersonaje.hitbox.cuerpo.y < miEnemigo.hitbox.cuerpo.y + miEnemigo.hitbox.cuerpo.height) && (miPersonaje.hitbox.cuerpo.y + miPersonaje.hitbox.cuerpo.height > miEnemigo.hitbox.cuerpo.y);
@@ -862,7 +849,7 @@ window.onload = function () {
 		return resultado;
 	}
 
-	
+	/* Para comprobar si el rival esta muerto o no*/
 	function acabarConRival(){
 		if (miPersonaje.vida < 0 || miEnemigo.vida < 0){
 			if (miPersonaje.vida < 0) {
@@ -909,7 +896,7 @@ window.onload = function () {
 			miPersonaje.x = miEnemigo.hitbox.cuerpo.x - (miPersonaje.hitbox.cuerpo.x + miPersonaje.hitbox.cuerpo.width - miPersonaje.x);
 		}
 		comprobarLimitesBordes();
-		
+
 		if(personaje1PunchingHead() && !miPersonaje.golpeConectado.punchHead){ //solo se produce el evento 1 vez, cada vez que el puño colisiona con la cabeza
 			miPersonaje.golpeConectado.punchHead = true;  //se pone a true y se espera a que cuando deje de haber la colisión se ponga a false
 			
@@ -922,6 +909,8 @@ window.onload = function () {
 				realizarAnimacionRecibirGolpe(2,'retroceso',2);
 			} else {
 				miEnemigo.vida -= danioGolpe.movingPunch;
+				miPersonaje.puntos +=10;
+
 				audioJab.currentTime = 0;
 				audioJab.play();
 				
@@ -941,7 +930,8 @@ window.onload = function () {
 				realizarAnimacionRecibirGolpe(1,'retroceso',2);
 			} else {
 				miPersonaje.vida -= danioGolpe.movingPunch;
-				
+				miEnemigo.puntos +=10;	
+
 				audioJab.currentTime = 0;
 				audioJab.play();
 
@@ -952,6 +942,7 @@ window.onload = function () {
 		if(personaje1PunchingBody() && !miPersonaje.golpeConectado.punchBody){ 
 			miPersonaje.golpeConectado.punchBody = true;
 			miEnemigo.vida -= danioGolpe.agachadoPunch;
+			miPersonaje.puntos +=30;
 
 			audioShortHit.currentTime = 0;
 			audioShortHit.play();
@@ -974,6 +965,7 @@ window.onload = function () {
 					realizarAnimacionRecibirGolpe(1,'retroceso',4);
 				} else {
 					miPersonaje.vida -= danioGolpe.agachadoPunch;
+					miEnemigo.puntos +=30;
 					audioJab.currentTime = 0;
 					audioJab.play();
 					
@@ -981,6 +973,7 @@ window.onload = function () {
 				}
 			} else {
 				miPersonaje.vida -= danioGolpe.agachadoPunch;
+				miEnemigo.puntos +=30;
 				audioShortHit.currentTime = 0;
 				audioShortHit.play();
 				
@@ -991,6 +984,7 @@ window.onload = function () {
 		if(personaje1UpperPunch() && !miPersonaje.golpeConectado.upperPunch){
 			miPersonaje.golpeConectado.upperPunch = true;
 			miEnemigo.vida -= danioGolpe.agachadoUpper;
+			miPersonaje.puntos +=15;
 			
 			audioStrongHit.currentTime = 0;
 			audioStrongHit.play();
@@ -1000,6 +994,7 @@ window.onload = function () {
 		if(personaje2UpperPunch() && !miEnemigo.golpeConectado.upperPunch){
 			miEnemigo.golpeConectado.upperPunch = true;
 			miPersonaje.vida -= danioGolpe.agachadoUpper;
+			miEnemigo.puntos +=15;
 			
 			audioStrongHit.currentTime = 0;
 			audioStrongHit.play();
@@ -1020,6 +1015,7 @@ window.onload = function () {
 				realizarAnimacionRecibirGolpe(2,'retroceso',7);
 			} else {
 				miEnemigo.vida -= danioGolpe.kick;
+				miPersonaje.puntos +=20;
 				audioStrongHit.currentTime = 0;
 				audioStrongHit.play();
 				
@@ -1039,6 +1035,7 @@ window.onload = function () {
 				realizarAnimacionRecibirGolpe(1,'retroceso',7);
 			} else {
 				miPersonaje.vida -= danioGolpe.kick;
+				miEnemigo.puntos +=20;
 				audioStrongHit.currentTime = 0;
 				audioStrongHit.play();
 				
@@ -1058,6 +1055,7 @@ window.onload = function () {
 				realizarAnimacionRecibirGolpe(2,'retroceso',6);
 			} else {
 				miEnemigo.vida -= danioGolpe.lowKick;
+				miPersonaje.puntos +=7;
 				audioFierceHit.currentTime = 0;
 				audioFierceHit.play();
 				
@@ -1078,6 +1076,7 @@ window.onload = function () {
 				realizarAnimacionRecibirGolpe(1,'retroceso',6);
 			} else {
 				miPersonaje.vida -= danioGolpe.lowKick;
+				miEnemigo.puntos +=7;
 				audioFierceHit.currentTime = 0;
 				audioFierceHit.play();
 				
@@ -1088,6 +1087,7 @@ window.onload = function () {
 		if(personaje1BarridoPies() && !miPersonaje.golpeConectado.barridoBody){
 			miPersonaje.golpeConectado.barridoBody = true;
 			miEnemigo.vida -= danioGolpe.agachadoBarrido;
+			miPersonaje.puntos +=40;
 
 			audioBarrido.currentTime = 0;
 			audioBarrido.play();
@@ -1097,6 +1097,7 @@ window.onload = function () {
 		if(personaje2BarridoPies() && !miEnemigo.golpeConectado.barridoBody){
 			miEnemigo.golpeConectado.barridoBody = true;
 			miPersonaje.vida -= danioGolpe.agachadoBarrido;
+			miEnemigo.puntos +=40;
 
 			audioBarrido.currentTime = 0;
 			audioBarrido.play();
@@ -1107,6 +1108,7 @@ window.onload = function () {
 		if(personaje2LowKickHead() && !miEnemigo.golpeConectado.lowKickHead){
 			miEnemigo.golpeConectado.lowKickHead = true;
 			miPersonaje.vida -= danioGolpe.lowKickHead;
+			miEnemigo.puntos +=20;
 
 			audioFierceHit.currentTime = 0;
 			audioFierceHit.play();
@@ -1125,6 +1127,7 @@ window.onload = function () {
 			   realizarAnimacionRecibirGolpe(2,'retroceso',4);
 		   } else {
 			   miEnemigo.vida -= danioGolpe.movingPunch;
+			   miPersonaje.puntos +=20;
 			   audioJab.currentTime = 0;
 			   audioJab.play();
 			   
@@ -1178,7 +1181,7 @@ window.onload = function () {
 					energiaRecuperacion = 0;
 					break;
 			}
-			miPersonaje.energia += energiaRecuperacion * 0.0005;
+			miPersonaje.energia += energiaRecuperacion * 0.001;
 		}
 		if (miEnemigo.vivo){
 			switch (miEnemigo.personajeState) {
@@ -1288,6 +1291,8 @@ window.onload = function () {
 			this.position = 0;                  //posiciones de la animacion
 			this.position2 = 0;					//igual que position -> para no producir problemas de sincronización
 
+			this.puntos = 0;				//para el record
+
 			//físicas del personaje
 			this.velocidadX = 0;                 //velocidad eje X
 			this.vy = 0;   						//velocidad ejeY
@@ -1311,6 +1316,8 @@ window.onload = function () {
 			}
 
 			this.cubierto = false; //propiedad que define si se ha cubierto del golpe o le han impactado de lleno
+
+			/* VARIABLES DE ANIMACIONES*/
 
 			//animaciones puñetazo                
 			this.inicioAnimacionMovingPunch = null;
@@ -1386,9 +1393,7 @@ window.onload = function () {
 		}
 
 		generaReposo() {
-			if (!this.animacionEnProgresoMovingPunch && !this.animacionEnProgresoKick && !this.animacionEnProgresoAgachadoPunch && !this.animacionEnProgresoLowKick) {
-				this.personajeState = 'reposo';
-			}
+			this.personajeState = 'reposo';
 			this.velocidadAnimacion = TASA_REFRESCO_ADECUADA.velocidadAnimacion;
 			this.velocidadX = 0;
 		}
@@ -1817,7 +1822,6 @@ window.onload = function () {
 				// Continuar animación si no ha alcanzado la duración máxima
 				requestAnimationFrame(() => this.animarAgachadoPunch());
 			  } else {
-				// console.log('ANIMACIÓN PUÑETAZO BAJO TERMINADA');
 				if (this.id === 2) this.x = this.x+4;
 				this.animacionEnProgresoAgachadoPunch = false;
 				this.primeraVez = true;
@@ -1999,7 +2003,6 @@ window.onload = function () {
 				// Continuar animación si no ha alcanzado la duración máxima
 				requestAnimationFrame(() => this.animarAgachadoBarrido());
 			  } else {
-				// console.log('ANIMACIÓN PUÑETAZO BAJO TERMINADA');
 				if (this.id === 2) this.x = this.x+2;
 				this.animacionEnProgresoAgachadoBarrido = false;
 				this.primeraVez = true;
@@ -2220,7 +2223,6 @@ window.onload = function () {
 				// Continuar animación si no ha alcanzado la duración máxima
 				requestAnimationFrame(() => this.animarKick());
 			  } else {
-				// console.log('ANIMACIÓN PUÑETAZO TERMINADA');
 				this.animacionEnProgresoKick = false;
 				if (this.id === 1) this.x = this.x + 6;
 				this.primeraVez = true;
@@ -2430,7 +2432,6 @@ window.onload = function () {
 				// Continuar animación si no ha alcanzado la duración máxima
 				requestAnimationFrame(() => this.animarFaceHit());
 			} else {
-				// console.log('ANIMACIÓN PUÑETAZO TERMINADA');
 				this.animacionEnProgresoFaceHit = false;
 				this.primeraVez = true;
 				this.segundaVez = true;
@@ -3059,7 +3060,6 @@ window.onload = function () {
 				// Continuar animación si no ha alcanzado la duración máxima
 				requestAnimationFrame(() => this.animarHit());
 			} else {
-				// console.log('ANIMACIÓN PUÑETAZO TERMINADA');
 				this.animacionEnProgresoHit = false;
 				this.primeraVez = true;
 				this.segundaVez = true;
@@ -3127,7 +3127,6 @@ window.onload = function () {
 			if (tiempoTranscurrido < this.duracionAnimacionHit) {
 				requestAnimationFrame(() => this.animarRetroceso(cantidadDesplazamiento));
 			} else {
-				// console.log('ANIMACIÓN PUÑETAZO TERMINADA');
 				this.animacionEnProgresoRetroceso = false;
 				this.primeraVez = true;
 				this.segundaVez = true;
@@ -3217,7 +3216,6 @@ window.onload = function () {
 				// Continuar animación si no ha alcanzado la duración máxima
 				requestAnimationFrame(() => this.animarAgachadoHit());
 			} else {
-				// console.log('ANIMACIÓN PUÑETAZO TERMINADA');
 				this.animacionEnProgresoAgachadoHit = false;
 				if (this.id === 1) this.x = this.x + 6;
 				if (this.id === 2) this.x = this.x - 15;
@@ -3239,13 +3237,6 @@ window.onload = function () {
 			const tiempoTranscurrido = tiempoActual - this.inicioAnimacionStunned;
 
 			let progreso;
-			// if (tiempoTranscurrido < this.duracionAnimacionStunned/3){
-			// 	progreso = Math.min(tiempoTranscurrido / (this.duracionAnimacionStunned/3), 1);
-			// } else if (tiempoTranscurrido < this.duracionAnimacionStunned*2/3){
-			// 	progreso = Math.min((tiempoTranscurrido - (this.duracionAnimacionStunned/3)) / (this.duracionAnimacionStunned/3), 1);
-			// } else {
-			// 	progreso = Math.min((tiempoTranscurrido - (this.duracionAnimacionStunned*2/3)) / (this.duracionAnimacionStunned/3), 1);
-			// }
 			if (tiempoTranscurrido < this.duracionAnimacionStunned/2){
 				progreso = Math.min(tiempoTranscurrido / (this.duracionAnimacionStunned/2), 1);
 			}  else {
@@ -3412,7 +3403,6 @@ window.onload = function () {
 				// Continuar animación si no ha alcanzado la duración máxima
 				requestAnimationFrame(() => this.animarStunned(numAnimaciones));
 			} else {
-				// console.log('ANIMACIÓN PUÑETAZO TERMINADA');
 				this.animacionEnProgresoStunned = false;
 				this.primeraVez = true;
 				this.segundaVez = true;
@@ -3431,7 +3421,6 @@ window.onload = function () {
 			const tiempoActual = performance.now();
 			const tiempoTranscurrido = tiempoActual - this.inicioAnimacionKO;
 			const progreso = Math.min(tiempoTranscurrido / (this.duracionAnimacionKO/60), 1);
-			// const progreso = Math.min(tiempoTranscurrido / this.duracionAnimacionKO, 1);
 		
 			// Actualizar la animación (código específico de animación aquí)
 			this.personajeState = 'KO';
@@ -3634,7 +3623,6 @@ window.onload = function () {
 				// Continuar animación si no ha alcanzado la duración máxima
 				requestAnimationFrame(() => this.animarKO());
 			} else {
-				// console.log('ANIMACIÓN PUÑETAZO TERMINADA');
 				this.animacionEnProgresoKO = false;
 				this.primeraVez = true;
 				this.segundaVez = true;
@@ -3887,7 +3875,6 @@ window.onload = function () {
 				// Continuar animación si no ha alcanzado la duración máxima
 				requestAnimationFrame(() => this.animarLowKick(numAnimaciones, duracionAnimacionLowKick));
 			  } else {
-				// console.log('ANIMACIÓN PATADA BAJA TERMINADA');
 				this.animacionEnProgresoLowKick = false;
 				this.primeraVez = true;
 				this.segundaVez = true;
@@ -4186,7 +4173,6 @@ window.onload = function () {
 				// Continuar animación si no ha alcanzado la duración máxima
 				requestAnimationFrame(() => this.animarAgachadoUpper(numAnimaciones));
 			  } else {
-				// console.log('ANIMACIÓN PATADA BAJA TERMINADA');
 				this.animacionEnProgresoAgachadoUpper = false;
 				if (this.id === 1) this.x = this.x - 10;
 				if (this.id === 2) this.x = this.x + 20;
@@ -4618,22 +4604,6 @@ window.onload = function () {
 			this.comprobarHitBox();        //modifica 'height' e 'y' segun la animación
 			this.iniciarAnimacionBien();   //iniciar animacion desde el primer frame
 			
-			// if(this.id === 1) {
-			// 	if (this.personajeState === 'caminando') {
-			// 		this.position = Loc;
-			// 	} else {
-			// 		this.position = 0;
-			// 	}
-			// 	this.x = 260;
-			// }
-			// if(this.id === 2) {
-			// 	if (this.personajeState === 'caminando') {
-			// 		this.position = Loc;
-			// 	} else {
-			// 		this.position = 0;
-			// 	}
-			// 	this.x = 300;
-			// }
 			this.frameX = this.spriteAnimations[this.personajeState].loc[this.position].x;
 			this.frameY = this.spriteAnimations[this.personajeState].loc[this.position].y;
 			this.spriteWidth = this.spriteAnimations[this.personajeState].loc[this.position].width;
@@ -4709,11 +4679,9 @@ window.onload = function () {
 	}
 
     function recuperarDatoSesion() {
-		// return sessionStorage.getItem("array");		
 		return JSON.parse(localStorage.getItem('record'));
 	}
 	function almacenarDatoSesion(valor) {
-		// sessionStorage.setItem("array", valor);
 		localStorage.setItem('record', JSON.stringify(valor));
 	}
 
@@ -4744,9 +4712,9 @@ window.onload = function () {
 		let puntuacion = 0;
 
 		if (id === 1){
-			puntuacion = miPersonaje.vida;
+			puntuacion = miPersonaje.vida + miPersonaje.puntos;
 		} else {
-			puntuacion = miEnemigo.vida;
+			puntuacion = miEnemigo.vida + miEnemigo.puntos;
 		}
 		return Math.round(puntuacion);
 	}
@@ -4807,20 +4775,11 @@ window.onload = function () {
 
 	function pintarJuego(timeStamp) {
 		ctx.clearRect(0, 0, LIMITE_DERECHA, CANVAS_HEIGHT);
-
+		
 		miPersonaje.dibujarNormal();
 		miEnemigo.dibujarNormal();
 
-		// console.log('POSITION X: '+miEnemigo.x);
-		// console.log('POSITION Y: '+this.y);
-		// console.log('POSITION Y: '+miEnemigo.y);
-		// console.log('ANCHURA: '+this.width);
-		// console.log('ALTURA: '+this.height);
-		// console.log('ALTURA: '+miEnemigo.height);
-		// console.log('enemigo y: '+miEnemigo.y);
-		// console.log('Y:' + miEnemigo.y);
-		// console.log('LIMITE_ABAJO - ALTURA:' + (LIMITE_ABAJO - miEnemigo.height));
-		// console.log('Y:' + miEnemigo.y);
+		console.log('animacion: '+miEnemigo.personajeState);
 
 		detectarControlesPersonaje();
 		detectarControlesEnemigo();
@@ -4841,15 +4800,3 @@ window.onload = function () {
 	//BORRAR DATOS localStorage
 	// localStorage.removeItem("record");
 }
-
-
-/*
-
-
-- TAREAS QUE REALIZAR:
-
-* Optimizar código
-
-* Hacer que el retroceso de cada animación de recibir golpe sea mayor
-
-*/
