@@ -73,7 +73,7 @@ window.onload = function () {
 		vy: 5,
 		weight: 0.09
 	}
-	const TASA_REFRESCO_ADECUADA = TASA_REFRESCO_60Hz;
+	const TASA_REFRESCO_ADECUADA = TASA_REFRESCO_144Hz;
 
 	// limites
 	const LIMITE_DERECHA = document.getElementById('miCanvas').width;
@@ -1217,7 +1217,7 @@ window.onload = function () {
 		asignarVidaParaMostrarPorPantalla();
 		asignarEnergiaParaMostrarPorPantalla();
 		recuperarEnergia();
-		recuperarVida();
+		// recuperarVida();
 	}
 
 	/*********************************************************************************************** */
