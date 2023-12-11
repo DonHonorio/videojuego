@@ -117,7 +117,7 @@ window.onload = function () {
 	let audioSpinningBack;
 	let audioAterrizaje;
 	let audioShortHit;
-
+																
 	function inicialiazarSonidos(){ 
 		audioStrongHit = document.getElementById('audioStrongHit');
 		audioJab = document.getElementById('audioJab');
