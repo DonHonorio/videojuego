@@ -1181,7 +1181,7 @@ window.onload = function () {
 					energiaRecuperacion = 0;
 					break;
 			}
-			miPersonaje.energia += energiaRecuperacion * 0.001;
+			miPersonaje.energia += energiaRecuperacion * 0.004;
 		}
 		if (miEnemigo.vivo){
 			switch (miEnemigo.personajeState) {
@@ -1204,7 +1204,7 @@ window.onload = function () {
 					energiaRecuperacion = 0;
 					break;
 			}
-			miEnemigo.energia += energiaRecuperacion * 0.001;
+			miEnemigo.energia += energiaRecuperacion * 0.004;
 		}
 	}
 
